@@ -1,0 +1,23 @@
+Main steps in the AdvN algorithm
+1) Init pool
+2) Evaluate pool
+3) Rank pool
+4) Set anchors
+  a) eliminate duplicate performances?
+  b) ensure minimum distance is observed
+5) Set elite
+6) Set/Apply Backtracking
+7) Set probes
+  a) clone anchors
+  b) apply blends
+9) Apply perturbations
+10) Update Neural Network weights
+11) Go to step 2
+
+
+Proposals to make it better:
+
+1) Targeted updates using a correlation matrix
+2) Investigating small-world and alternative network architectures
+3) Using eager optimization, instead of fixed-size generations
+4) Using single-agent optimization with memory and curiosity

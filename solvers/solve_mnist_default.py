@@ -7,7 +7,6 @@ import argparse
 from comet_ml import Experiment
 import torch
 import torch.optim as optim
-from torchvision import datasets, transforms
 
 experiment = Experiment(api_key = "5xNPTUDWzZVquzn8R9oEFkUaa",
                         project_name="mnist_examples", workspace="aromorin")

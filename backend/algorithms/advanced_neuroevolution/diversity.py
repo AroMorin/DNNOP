@@ -1,0 +1,1 @@
+"""Minimum distance application"""

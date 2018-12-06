@@ -2,36 +2,35 @@
 dataset. Comet ML is used to automatically upload and document the results.
 """
 from __future__ import print_function
-from ../models/cnn_mnist import Net
-import argparse
+from ../backend/models/cnn_mnist import Net
+from ../environments/datasets import dataset
 from comet_ml import Experiment
+
+import argparse
 import torch
 import torch.optim as optim
 
 experiment = Experiment(api_key = "5xNPTUDWzZVquzn8R9oEFkUaa",
                         project_name="mnist_examples", workspace="aromorin")
 
-def train(args, model, device, train_loader, optimizer, epoch):
-    model.train()
+def train(model, train_loader, optimizer):
+    model.train() #Sets behavior to "training" mode
     for batch_idx, (data, target) in enumerate(train_loader):
-        data, target = data.to(device), target.to(device) # Remove
         optimizer.zero_grad()
         output = model(data)
         loss = F.nll_loss(output, target)
         loss.backward()
         optimizer.step()
-        if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                epoch, batch_idx * len(data), len(train_loader.dataset),
-                100. * batch_idx / len(train_loader), loss.item()))
+        print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+            epoch, batch_idx * len(data), len(train_loader.dataset),
+            100. * batch_idx / len(train_loader), loss.item()))
 
-def test(args, model, device, test_loader):
-    model.eval()
+def test(model, test_loader):
+    model.eval() #Sets behavior to "training" mode
     test_loss = 0
     correct = 0
     with torch.no_grad():
         for data, target in test_loader:
-            data, target = data.to(device), target.to(device) # Remove
             output = model(data)
             test_loss += F.nll_loss(output, target, reduction='sum').item() # sum up batch loss
             pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
@@ -65,20 +64,16 @@ def main():
     experiment.log_multiple_params(hyper_params)
 
     device = torch.device("cuda")
-
-    kwargs = {'num_workers': 1, 'pin_memory': True}
-
     model = Net().to(device)
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
+    mnist = Dataset().factory("mnist")
+
     for epoch in range(1, args.epochs+1):
-        """Inefficient code because it sends the data to memory batch by batch.
-        It's better to send the entire set to GPU memory, then to start
-        operating on batches. This is because there's overhead in moving
-        things from/to device/main memory.
-        """
         train(args, model, device, train_loader, optimizer, epoch)
         test_acc = test(args, model, device, test_loader)
+
+    exit()
 
     experiment.log_metric("Validation accuracy (%)", test_acc)
 
@@ -86,3 +81,35 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#

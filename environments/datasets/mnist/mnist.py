@@ -2,7 +2,7 @@
 import torch
 from torchvision import datasets, transforms
 
-class MNIST():
+class MNIST:
     """This class fetches the MNIST dataset, sends it to CUDA and then
     makes available the PyTorch-supplied loaders for further processing.
     """

@@ -2,9 +2,12 @@
 dataset. Comet ML is used to automatically upload and document the results.
 """
 from __future__ import print_function
-from ../backend/models/cnn_mnist import Net
-from ../environments/datasets import dataset
+import sys, os
+sys.path.insert(0, os.path.abspath('..'))
+from backend.models.cnn_mnist import Net
+from environments.datasets.dataset import Dataset
 from comet_ml import Experiment
+exit()
 
 import argparse
 import torch
@@ -68,12 +71,12 @@ def main():
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
     mnist = Dataset().factory("mnist")
+    exit()
 
     for epoch in range(1, args.epochs+1):
         train(args, model, device, train_loader, optimizer, epoch)
         test_acc = test(args, model, device, test_loader)
 
-    exit()
 
     experiment.log_metric("Validation accuracy (%)", test_acc)
 

@@ -1,6 +1,6 @@
 """Factory class for a Dataset"""
-from mnist import MNIST
-from cifar10 import CIFAR10
+from .mnist.mnist import MNIST
+from .cifar10.cifar10 import CIFAR10
 
 class Dataset:
     def factory(name, batch_size, data_path):

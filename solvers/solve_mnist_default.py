@@ -6,15 +6,11 @@ import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 from backend.models.cnn_mnist import Net
 from environments.datasets.dataset import Dataset
-from comet_ml import Experiment
-exit()
+#from comet_ml import Experiment
 
 import argparse
 import torch
 import torch.optim as optim
-
-experiment = Experiment(api_key = "5xNPTUDWzZVquzn8R9oEFkUaa",
-                        project_name="mnist_examples", workspace="aromorin")
 
 def train(model, train_loader, optimizer):
     model.train() #Sets behavior to "training" mode
@@ -48,7 +44,7 @@ def test(model, test_loader):
 def main():
     # Assumes CUDA is available
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-    parser.add_argument('--batch-size', type=int, default=64, metavar='N',
+    parser.add_argument('--batch_size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
@@ -62,24 +58,27 @@ def main():
                         help='how many batches to wait before logging training status')
     args = parser.parse_args()
 
-    hyper_params = {"learning_rate": args.lr, "epochs":args.epochs,
-                    "batch_size":args.batch-size}
-    experiment.log_multiple_params(hyper_params)
-
     device = torch.device("cuda")
     model = Net().to(device)
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
-    mnist = Dataset().factory("mnist")
+    data_path = "C:/Users/aaa2cn/Documents/mnist_data"
+
+    dataset = Dataset("mnist", args.batch_size, data_path).make() #make an object of the dataset class
+    dataset.init_dataset()
+    dataset.load_dataset()
     exit()
 
     for epoch in range(1, args.epochs+1):
         train(args, model, device, train_loader, optimizer, epoch)
         test_acc = test(args, model, device, test_loader)
 
-
-    experiment.log_metric("Validation accuracy (%)", test_acc)
-
+    #hyper_params = {"learning_rate": args.lr, "epochs":args.epochs,
+    #"batch_size":args.batch_size}
+    #experiment.log_multiple_params(hyper_params)
+    #experiment = Experiment(api_key = "5xNPTUDWzZVquzn8R9oEFkUaa",
+    #                        project_name="mnist_examples", workspace="aromorin")
+    #experiment.log_metric("Validation accuracy (%)", test_acc)
 
 
 if __name__ == '__main__':

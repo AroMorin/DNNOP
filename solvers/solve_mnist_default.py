@@ -5,7 +5,7 @@ from __future__ import print_function
 import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 from backend.models.cnn_mnist import Net
-from environments.datasets.dataset import Dataset
+import environments.datasets as datasets
 #from comet_ml import Experiment
 
 import argparse
@@ -64,9 +64,11 @@ def main():
 
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
 
-    dataset = Dataset("mnist", args.batch_size, data_path).make() #make an object of the dataset class
+    #make an object of the dataset class
+    dataset = datasets.make("mnist", args.batch_size, data_path)
     dataset.init_dataset()
-    dataset.load_dataset()
+    train_data = dataset.get_train_data()
+    print(len(train_data))
     exit()
 
     for epoch in range(1, args.epochs+1):

@@ -18,37 +18,36 @@ class MNIST(Dataset):
         self.train_dataset = datasets.MNIST(self.data_path, train=True,
                                             download=True,
                                             transform=self.transforms)
+        self.train_loader = torch.utils.data.DataLoader(self.train_dataset, batch_size=60000)
+        #self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
+        #batch_size=self.batch_size,
+        #shuffle=True)
+        self.train_tuples = enumerate(self.train_loader)
+        #Use inverse zip expression to unpack the (batch_idx, data) tuples
+        #_, self.train_set = zip(*self.train_tuples)
         self.test_dataset = datasets.MNIST(self.data_path, train=False,
                                             transform=self.transforms)
+        self.test_loader = torch.utils.data.DataLoader(self.test_dataset,
+                                                    batch_size=self.batch_size,
+                                                    shuffle=True)
+        self.test_tuples = list(enumerate(self.test_loader))
+        #Use inverse zip expression to unpack the (batch_idx, data) tuples
+        _, self.test_set = zip(*self.test_tuples)
 
     def transformations(self):
         self.transforms = transforms.Compose([transforms.ToTensor(),
                            transforms.Normalize((0.1307,), (0.3081,))])
 
-    def get_train_data(self):
-        self.train_loader = torch.utils.data.DataLoader(self.train_dataset, batch_size=1)
-        self.batches = list(enumerate(self.train_loader))
-        print(len(self.batches[:]))
-        #self.train_data, self.train_labels = self.batches
+    def get_train_set(self):
+        print (len(self.train_data))
         exit()
-        self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
-        batch_size=self.batch_size,
-        shuffle=True)
-        return self.train_data
+        # Convert tuple into list, then convert into a Torch tensor
+        self.train_data = torch.tensor((self.train_data[:][0]))
+        print(self.train_data)
+        exit()
+        self.train_labels.to(self.device)
+        #self.train_data, self.train_labels = self.batches
+        return self.train_data, self.train_labels
 
-    def get_train_labels(self):
-        pass
-
-    def get_test_data(self):
+    def get_test_set(self):
         self.test_loader = torch.utils.data.DataLoader(self.test_dataset)
-        self.test_loader = torch.utils.data.DataLoader(self.test_dataset,
-        batch_size=self.batch_size,
-        shuffle=True)
-
-    def get_test_labels(self):
-        pass
-
-    def load_dataset(self):
-        self.batches = list(enumerate(self.train_loader))
-        self.train_data.to(self.device)
-        self.test_loader.to(self.device)

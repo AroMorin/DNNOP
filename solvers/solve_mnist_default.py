@@ -67,7 +67,7 @@ def main():
     #make an object of the dataset class
     dataset = datasets.make("mnist", args.batch_size, data_path)
     dataset.init_dataset()
-    train_data = dataset.get_train_data()
+    train_data, train_labels = dataset.get_train_set()
     print(len(train_data))
     exit()
 

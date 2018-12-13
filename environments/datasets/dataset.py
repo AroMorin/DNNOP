@@ -25,7 +25,7 @@ class Dataset:
         """Placeholder method for initializing the dataset"""
         pass
 
-    def transformations(self):
+    def implement_transformations(self):
         """Placeholder method for transformations on the dataset"""
         pass
 

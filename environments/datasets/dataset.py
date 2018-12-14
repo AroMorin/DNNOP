@@ -20,27 +20,36 @@ class Dataset:
         self.test_labels = ''
         self.transforms = ''
         self.dataset = ''
+        self.precision = ''
 
-    def init_dataset(self):
-        """Placeholder method for initializing the dataset"""
+    def load_dataset(self):
+        """Placeholder method for initializing and loading the dataset."""
         pass
 
-    def implement_transformations(self):
-        """Placeholder method for transformations on the dataset"""
+    def set_transformations(self):
+        """Placeholder method to define the desired transformations on the
+        dataset.
+        """
         pass
 
-    def get_train_data(self):
-        """Placeholder method for retrieving training data of the dataset"""
+    def get_train_set(self):
+        """Placeholder method for retrieving training data & labels of the
+        dataset.
+        """
         pass
 
-    def get_train_labels(self):
-        """Placeholder method for retrieving training labels of the dataset"""
+    def get_test_set(self):
+        """Placeholder method for retrieving test data & labels of the
+        dataset.
+        """
         pass
 
-    def get_test_data(self):
-        """Placeholder method for retrieving test data of the dataset"""
+    def set_precision(self):
+        """Placeholder method to change the precision of the data set."""
         pass
 
-    def get_test_labels(self):
-        """Placeholder method for retrieving test labels of the dataset"""
+    def show_image(self):
+        """Placeholder method to show a particular image of the training or
+        test dataset.
+        """
         pass

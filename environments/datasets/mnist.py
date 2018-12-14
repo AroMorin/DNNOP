@@ -8,19 +8,20 @@ class MNIST(Dataset):
     """This class fetches the MNIST dataset, sends it to CUDA and then
     makes available the PyTorch-supplied loaders for further processing.
     """
-    def __init__(self, batch_size, data_path):
+    def __init__(self, batch_size, data_path, precision=torch.float):
         super().__init__() # Initialize base class
         self.batch_size = batch_size
         self.data_path = data_path
         self.device = torch.device("cuda")
+        self.precision = precision
 
-    def init_dataset(self):
+    def load_dataset(self):
         """This dataset is organized as such: it is a list of batches. Each
         batch contains a 2-D Tensor. The first dimension in the Tensor contains
         N Float Tensors (representing images), where N is the batch size. The second
         dimension contains N Long Tensors, corresponding to N labels.
         """
-        self.implement_transformations()
+        self.set_transformations()
         self.train_dataset = datasets.MNIST(self.data_path, train=True,
                                             download=True,
                                             transform=self.transforms)
@@ -31,47 +32,44 @@ class MNIST(Dataset):
                                                     pin_memory = True,
                                                     num_workers = 8)
         self.train_set =  list(self.train_loader)
-        self.show_image()
+        self.format_set()
         exit()
-        #Use inverse zip expression to unpack the (batch_idx, data) tuples
-        _, self.train_tuples = zip(*self.train_iterable)
         self.test_dataset = datasets.MNIST(self.data_path, train=False,
                                             transform=self.transforms)
         self.test_loader = torch.utils.data.DataLoader(self.test_dataset,
                                                     batch_size=self.batch_size,
-                                                    shuffle=True)
-        self.test_tuples = list(enumerate(self.test_loader))
-        #Use inverse zip expression to unpack the (batch_idx, data) tuples
-        _, self.test_set = zip(*self.test_tuples)
+                                                    shuffle=True,
+                                                    pin_memory = True,
+                                                    num_workers = 8)
+        self.test_set = list(self.test_loader)
+        self.test_set = self.test_set.to(self.precision)
 
-    def implement_transformations(self):
+    def set_transformations(self):
         self.transforms = transforms.Compose([transforms.ToTensor(),
                            transforms.Normalize((0.1307,), (0.3081,))])
 
+    def format_set(self):
+        self.train_set = torch.Tensor (self.train_set)
+        self.train_set = self.train_set[0][0].to(self.precision)
+
     def show_image(self):
         plt.figure()
+        train = True
+        batch = 0
+        mode = 0 #0 for images, 1 for labels
         idx = 0
-        image = torch.squeeze(self.train_set[0][0][idx])
-        print (image)
-        plt.imshow(image)
-        plt.show()
-        image = image.to(torch.int8)
-        print(image.dtype)
-        image = image.to(torch.float)
-        print (image)
+        if train:
+            image = torch.squeeze(self.train_set[batch][image][idx])
+        else:
+            image = torch.squeeze(self.test_set[batch][image][idx])
         plt.imshow(image)
         plt.show()
 
-    def get_train_batches(self):
-        print (len(self.train_data))
-        exit()
-        # Convert tuple into list, then convert into a Torch tensor
-        self.train_data = torch.tensor((self.train_data[:][0]))
-        print(self.train_data)
-        exit()
-        self.train_labels.to(self.device)
-        #self.train_data, self.train_labels = self.batches
-        return self.train_data, self.train_labels
+    def set_precision(self, precision=torch.float):
+            self.precision = precision
 
-    def get_test_batchess(self):
-        self.test_loader = torch.utils.data.DataLoader(self.test_dataset)
+
+
+
+
+#

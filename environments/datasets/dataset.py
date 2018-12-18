@@ -2,9 +2,11 @@
 the developer, to make the class extendable intuitively.
 """
 class Dataset:
-    def __init__(self):
-        self.batch_size = ''
-        self.data_path = ''
+    def __init__(self, batch_size, data_path, precision):
+        self.batch_size = batch_size
+        self.data_path = data_path
+        self.precision = torch.float
+        self.device = torch.device("cuda") # Always assume GPU training/testing
         self.train_dataset = ''
         self.test_dataset = ''
         self.train_loader = ''
@@ -14,7 +16,6 @@ class Dataset:
         self.train_labels = ''
         self.test_labels = ''
         self.transforms = ''
-        self.precision = ''
 
     def load_dataset(self):
         """Placeholder method for initializing and loading the dataset."""
@@ -26,15 +27,9 @@ class Dataset:
         """
         pass
 
-    def get_train_set(self):
-        """Placeholder method for retrieving training data & labels of the
-        dataset.
-        """
-        pass
-
-    def get_test_set(self):
-        """Placeholder method for retrieving test data & labels of the
-        dataset.
+    def format_data(self):
+        """Placeholder method for retrieving performing formatting and adjustments
+        to the dataset.
         """
         pass
 

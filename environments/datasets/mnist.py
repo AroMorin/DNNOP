@@ -9,11 +9,8 @@ class MNIST(Dataset):
     makes available the PyTorch-supplied loaders for further processing.
     """
     def __init__(self, batch_size, data_path, precision=torch.float):
-        super().__init__() # Initialize base class
-        self.batch_size = batch_size
-        self.data_path = data_path
-        self.device = torch.device("cuda")
-        self.precision = torch.float
+        # Initialize base class
+        super().__init__(batch_size, data_path, precision)
 
     def load_dataset(self):
         """This dataset is organized as such: it is a list of batches. Each
@@ -41,10 +38,14 @@ class MNIST(Dataset):
         self.format_data()
 
     def set_transformations(self):
+        """Set the desired transformations on the dataset."""
         self.transforms = transforms.Compose([transforms.ToTensor(),
                            transforms.Normalize((0.1307,), (0.3081,))])
 
     def format_data(self):
+        """Apply the desired precision, split into batches and perform any other
+        similar operations on the dataset.
+        """
         train_set =  list(self.train_loader)
         test_set = list(self.test_loader)
 
@@ -62,6 +63,7 @@ class MNIST(Dataset):
         #self.test_labels = torch.split(test_labels, self.batch_size)
 
     def show_image(self):
+        """Method to show the user an image from the dataset."""
         plt.figure()
         train = True
         batch = 0
@@ -75,7 +77,9 @@ class MNIST(Dataset):
         plt.show()
 
     def set_precision(self, precision=torch.float):
-            self.precision = precision
+        """In case the user wanted to change the precision after loading the
+        dataset."""
+        self.precision = precision
 
 
 

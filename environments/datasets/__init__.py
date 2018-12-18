@@ -5,7 +5,7 @@ from .cifar10 import CIFAR10
 
 def make(name, batch_size, data_path):
     """Class factory method. This method takes the name of the desired
-    dataset and returns an object of said class.
+    dataset and returns an object of the corresponding class.
     """
     if name == 'mnist':
         return MNIST(batch_size, data_path)

@@ -13,35 +13,6 @@ import argparse
 import torch
 import torch.optim as optim
 
-def train(model, dataset, optimizer, epoch):
-    model.train() #Sets behavior to "training" mode
-    for i in range(len(dataset.train_data)):
-        optimizer.zero_grad()
-        output = model(dataset.train_data[i])
-        loss = F.nll_loss(output, dataset.train_labels[i])
-        loss.backward()
-        optimizer.step()
-    print('Train Loss: %f' %loss.item())
-
-def test(model, dataset):
-    data = dataset.test_data
-    labels = dataset.test_labels
-    nb_images = len(dataset.test_data)
-    model.eval() #Sets behavior to "training" mode
-    test_loss = 0
-    correct = 0
-    with torch.no_grad():
-        output = model(data)
-        # sum up batch loss
-        test_loss += F.nll_loss(output, labels, reduction='sum').item()
-        pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
-        correct += pred.eq(labels.view_as(pred)).sum().item()
-
-    test_loss /= nb_images
-    print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        test_loss, correct, nb_images, 100.*correct/nb_images))
-    return 100.*correct/nb_images
-
 def main():
     # Assumes CUDA is available
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')

@@ -6,40 +6,41 @@ import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 from backend.models.cnn_mnist import Net
 import environments.datasets as datasets
+import torch.nn.functional as F
 #from comet_ml import Experiment
 
 import argparse
 import torch
 import torch.optim as optim
 
-def train(model, train_loader, optimizer):
+def train(model, dataset, optimizer, epoch):
     model.train() #Sets behavior to "training" mode
-    for batch_idx, (data, target) in enumerate(train_loader):
+    for i in range(len(dataset.train_data)):
         optimizer.zero_grad()
-        output = model(data)
-        loss = F.nll_loss(output, target)
+        output = model(dataset.train_data[i])
+        loss = F.nll_loss(output, dataset.train_labels[i])
         loss.backward()
         optimizer.step()
-        print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-            epoch, batch_idx * len(data), len(train_loader.dataset),
-            100. * batch_idx / len(train_loader), loss.item()))
+    print('Train Loss: %f' %loss.item())
 
-def test(model, test_loader):
+def test(model, dataset):
+    data = dataset.test_data
+    labels = dataset.test_labels
+    nb_images = len(dataset.test_data)
     model.eval() #Sets behavior to "training" mode
     test_loss = 0
     correct = 0
     with torch.no_grad():
-        for data, target in test_loader:
-            output = model(data)
-            test_loss += F.nll_loss(output, target, reduction='sum').item() # sum up batch loss
-            pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
-            correct += pred.eq(target.view_as(pred)).sum().item()
+        output = model(data)
+        # sum up batch loss
+        test_loss += F.nll_loss(output, labels, reduction='sum').item()
+        pred = output.max(1, keepdim=True)[1] # get the index of the max log-probability
+        correct += pred.eq(labels.view_as(pred)).sum().item()
 
-    test_loss /= len(test_loader.dataset)
+    test_loss /= nb_images
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-        test_loss, correct, len(test_loader.dataset),
-        100. * correct / len(test_loader.dataset)))
-    return 100. * correct / len(test_loader.dataset)
+        test_loss, correct, nb_images, 100.*correct/nb_images))
+    return 100.*correct/nb_images
 
 def main():
     # Assumes CUDA is available
@@ -48,7 +49,7 @@ def main():
                         help='input batch size for training (default: 64)')
     parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
                         help='input batch size for testing (default: 1000)')
-    parser.add_argument('--epochs', type=int, default=2, metavar='N',
+    parser.add_argument('--epochs', type=int, default=20, metavar='N',
                         help='number of epochs to train (default: 10)')
     parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
                         help='learning rate (default: 0.01)')
@@ -57,9 +58,8 @@ def main():
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
     args = parser.parse_args()
-
     device = torch.device("cuda")
-    model = Net().to(device)
+    model = Net().half().to(device)
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
@@ -67,13 +67,11 @@ def main():
     #make an object of the dataset class
     dataset = datasets.make("mnist", args.batch_size, data_path)
     dataset.load_dataset()
-    train_data, train_labels = dataset.get_train_set()
-    print(len(train_data))
-    exit()
+    print(len(dataset.train_data))
 
     for epoch in range(1, args.epochs+1):
-        train(args, model, device, train_loader, optimizer, epoch)
-        test_acc = test(args, model, device, test_loader)
+        train(model, dataset, optimizer, epoch)
+        test_acc = test(model, dataset)
 
     #hyper_params = {"learning_rate": args.lr, "epochs":args.epochs,
     #"batch_size":args.batch_size}

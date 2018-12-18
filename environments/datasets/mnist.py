@@ -13,7 +13,7 @@ class MNIST(Dataset):
         self.batch_size = batch_size
         self.data_path = data_path
         self.device = torch.device("cuda")
-        self.precision = torch.half
+        self.precision = torch.float
 
     def load_dataset(self):
         """This dataset is organized as such: it is a list of batches. Each
@@ -39,8 +39,6 @@ class MNIST(Dataset):
                                                     pin_memory = True,
                                                     num_workers = 8)
         self.format_data()
-        print(self.train_data[0].dtype)
-        exit()
 
     def set_transformations(self):
         self.transforms = transforms.Compose([transforms.ToTensor(),
@@ -51,17 +49,17 @@ class MNIST(Dataset):
         test_set = list(self.test_loader)
 
         # batch 0, ie. all images, and mode 0 (ie. data not labels)
-        train_data = train_set[0][0].to(self.precision)
-        test_data = test_set[0][0]
+        train_data = train_set[0][0].half().cuda()
+        self.test_data = test_set[0][0].half().cuda()
 
-        train_labels = train_set[0][1]
-        test_labels = test_set[0][1]
+        train_labels = train_set[0][1].cuda()
+        self.test_labels = test_set[0][1].cuda()
 
         self.train_data = torch.split(train_data, self.batch_size)
-        self.test_data = torch.split(test_data, self.batch_size)
+        #self.test_data = torch.split(test_data, self.batch_size)
 
         self.train_labels = torch.split(train_labels, self.batch_size)
-        self.test_labels = torch.split(test_labels, self.batch_size)
+        #self.test_labels = torch.split(test_labels, self.batch_size)
 
     def show_image(self):
         plt.figure()

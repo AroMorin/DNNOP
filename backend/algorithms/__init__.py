@@ -2,7 +2,7 @@
 
 from .sgd import SGD
 
-def make(name, params):
+def make(name, model, optimizer):
     """Class factory method. This method takes the name of the desired
     algorithm and returns an object of the corresponding class.
 
@@ -15,7 +15,7 @@ def make(name, params):
     passing an abstract object in this level is extremely attractive.
     """
     if name == 'sgd':
-        return SGD(params)
+        return SGD(model, optimizer)
 
     elif name == 'advanced_neuroevolution':
-        return Advanced_Neuroevolution(params)
+        return Advanced_Neuroevolution(model, optimizer)

@@ -38,11 +38,12 @@ def main():
     #make an object of the dataset class
     env = environments.make("dataset", "mnist", args.batch_size, data_path)
 
-    solver = algorithms.make("sgd")
+    sgd = algorithms.make("sgd", model, optimizer)
 
-    for i in steps:
-        env.step()
-        solver.solve(env, model, optimizer)
+    for epoch in range(epochs):
+        for batch in range(batches):
+            env.step()
+            sgd.optimize(env)
 
     for epoch in range(args.epochs):
         train(model, dataset, optimizer)

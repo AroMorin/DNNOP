@@ -12,14 +12,14 @@ class Dataset(Environment):
         self.test_dataset = ''
         self.train_loader = ''
         self.test_loader = ''
-        self.train_data = ''
-        self.test_data = ''
-        self.train_labels = ''
-        self.test_labels = ''
+        self.train_data = '' # Entire set of training images
+        self.train_labels = '' # Entire set of training labels
+        self.x = '' # Current batch of training images
+        self.y = '' # Current batch of training labels
+        self.x_t = '' # Test images
+        self.y_t = '' # Test labels
         self.transforms = ''
         self.current_batch_idx = 0
-        self.current_batch_data = ''
-        self.current_batch_labels = ''
 
     def load_dataset(self):
         """Placeholder method for initializing and loading the dataset."""

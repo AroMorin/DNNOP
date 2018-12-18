@@ -19,6 +19,12 @@ class Environment:
         """
         pass
 
+    def check_reset(self):
+        """Placeholder in case there needs to be a check before resetting the
+        environment.
+        """
+        pass
+
     def reset(self):
         """Placeholder for method to reset a dataset. Useful after batches
         reach the end.

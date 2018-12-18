@@ -5,7 +5,8 @@ from __future__ import print_function
 import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 from backend.models.cnn_mnist import Net
-import environments.datasets as datasets
+import environments
+import backend.algorithms as algorithms
 import torch.nn.functional as F
 #from comet_ml import Experiment
 
@@ -29,19 +30,22 @@ def main():
     parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                         help='how many batches to wait before logging training status')
     args = parser.parse_args()
-    device = torch.device("cuda")
-    model = Net().half().to(device)
+    model = Net().half().cuda()
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
 
     #make an object of the dataset class
-    dataset = datasets.make("mnist", args.batch_size, data_path)
-    dataset.load_dataset()
-    print(len(dataset.train_data))
+    env = environments.make("dataset", "mnist", args.batch_size, data_path)
 
-    for epoch in range(1, args.epochs+1):
-        train(model, dataset, optimizer, epoch)
+    solver = algorithms.make("sgd")
+
+    for i in steps:
+        env.step()
+        solver.solve(env, model, optimizer)
+
+    for epoch in range(args.epochs):
+        train(model, dataset, optimizer)
         test_acc = test(model, dataset)
 
     #hyper_params = {"learning_rate": args.lr, "epochs":args.epochs,

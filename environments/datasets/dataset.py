@@ -1,12 +1,13 @@
 """Base class for a Dataset. The placeholder methods here are meant to guide
 the developer, to make the class extendable intuitively.
 """
-class Dataset:
+from ..environment import Environment
+
+class Dataset(Environment):
     def __init__(self, batch_size, data_path, precision):
+        super().__init__(precision)
         self.batch_size = batch_size
         self.data_path = data_path
-        self.precision = torch.float
-        self.device = torch.device("cuda") # Always assume GPU training/testing
         self.train_dataset = ''
         self.test_dataset = ''
         self.train_loader = ''
@@ -16,6 +17,9 @@ class Dataset:
         self.train_labels = ''
         self.test_labels = ''
         self.transforms = ''
+        self.current_batch_idx = 0
+        self.current_batch_data = ''
+        self.current_batch_labels = ''
 
     def load_dataset(self):
         """Placeholder method for initializing and loading the dataset."""
@@ -31,10 +35,6 @@ class Dataset:
         """Placeholder method for retrieving performing formatting and adjustments
         to the dataset.
         """
-        pass
-
-    def set_precision(self):
-        """Placeholder method to change the precision of the data set."""
         pass
 
     def show_image(self):

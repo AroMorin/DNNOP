@@ -16,3 +16,6 @@ def make(name, params):
     """
     if name == 'sgd':
         return SGD(params)
+
+    elif name == 'advanced_neuroevolution':
+        return Advanced_Neuroevolution(params)

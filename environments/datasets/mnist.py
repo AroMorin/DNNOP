@@ -11,6 +11,7 @@ class MNIST(Dataset):
     def __init__(self, batch_size, data_path, precision=torch.float):
         # Initialize base class
         super().__init__(batch_size, data_path, precision)
+        self.load_dataset()
 
     def load_dataset(self):
         """This dataset is organized as such: it is a list of batches. Each
@@ -61,6 +62,24 @@ class MNIST(Dataset):
 
         self.train_labels = torch.split(train_labels, self.batch_size)
         #self.test_labels = torch.split(test_labels, self.batch_size)
+
+    def step(self):
+        """Loads a batch of images and labels.
+        This method can be further customized to randomize the batch
+        contents.
+        """
+        self.current_batch_data = self.train_data[self.current_batch_idx]
+        self.current_batch_labels = self.train_labels[self.current_batch_idx]
+        self.current_batch_idx += 1
+        if self.check_reset(): 
+            self.reset()
+
+    def check_reset(self):
+        # If reached end of batches, reset
+        return self.current_batch_idx>=self.nb_batches:
+
+    def reset(self):
+            self.current_batch_idx = 0
 
     def show_image(self):
         """Method to show the user an image from the dataset."""

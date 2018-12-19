@@ -4,10 +4,11 @@ dataset. Comet ML is used to automatically upload and document the results.
 from __future__ import print_function
 import sys, os
 sys.path.insert(0, os.path.abspath('..'))
-from backend.models.cnn_mnist import Net
 import environments
+import backend.models as models
 import backend.algorithms as algorithms
 import torch.nn.functional as F
+from solver import Solver
 #from comet_ml import Experiment
 
 import argparse
@@ -19,36 +20,26 @@ def main():
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
     parser.add_argument('--batch_size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
-    parser.add_argument('--test-batch-size', type=int, default=1000, metavar='N',
-                        help='input batch size for testing (default: 1000)')
-    parser.add_argument('--epochs', type=int, default=20, metavar='N',
+    parser.add_argument('--epochs', type=int, default=10, metavar='N',
                         help='number of epochs to train (default: 10)')
-    parser.add_argument('--lr', type=float, default=0.01, metavar='LR',
-                        help='learning rate (default: 0.01)')
-    parser.add_argument('--momentum', type=float, default=0.5, metavar='M',
-                        help='SGD momentum (default: 0.5)')
-    parser.add_argument('--log-interval', type=int, default=10, metavar='N',
-                        help='how many batches to wait before logging training status')
     args = parser.parse_args()
-    model = Net().half().cuda()
-    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
+    # Make an MNIST Dataset environment
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
-
-    #make an object of the dataset class
     env = environments.make("dataset", "mnist", args.batch_size, data_path)
 
+    # Make a model
+    precision = torch.float
+    model = models.make("MNIST CNN", precision)
+
+    # Make an algorithm --algorithm owns the model--
+    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
     sgd = algorithms.make("sgd", model, optimizer)
 
-    for epoch in range(epochs):
-        for batch in range(batches):
-            env.step()
-            sgd.optimize(env)
+    # Make a solver
+    slv = Solver(env, sgd)
 
-    for epoch in range(args.epochs):
-        train(model, dataset, optimizer)
-        test_acc = test(model, dataset)
-
+    slv.train_dataset_with_validation(args.epochs)
     #hyper_params = {"learning_rate": args.lr, "epochs":args.epochs,
     #"batch_size":args.batch_size}
     #experiment.log_multiple_params(hyper_params)

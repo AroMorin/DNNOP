@@ -19,6 +19,7 @@ class Dataset(Environment):
         self.x_t = '' # Test images
         self.y_t = '' # Test labels
         self.transforms = ''
+        self.nb_batches = ''
         self.current_batch_idx = 0
 
     def load_dataset(self):

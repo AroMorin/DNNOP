@@ -4,6 +4,7 @@ class as needed.
 In general, an environment has a step function to retrieve the next observation
 for the solving algorithm to operate on.
 """
+import torch
 
 class Environment:
     def __init__(self, precision):

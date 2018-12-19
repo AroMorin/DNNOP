@@ -51,17 +51,16 @@ class MNIST(Dataset):
         test_set = list(self.test_loader)
 
         # batch 0, ie. all images, and mode 0 (ie. data not labels)
-        train_data = train_set[0][0].half().cuda()
-        self.x_t = test_set[0][0].half().cuda()
+        train_data = train_set[0][0].cuda()
+        self.x_t = test_set[0][0].cuda()
 
         train_labels = train_set[0][1].cuda()
         self.y_t = test_set[0][1].cuda()
 
         self.train_data = torch.split(train_data, self.batch_size)
-        #self.test_data = torch.split(test_data, self.batch_size)
-
         self.train_labels = torch.split(train_labels, self.batch_size)
-        #self.test_labels = torch.split(test_labels, self.batch_size)
+        self.nb_batches = len(train_data)
+        print ("Number of Batches: %d" %self.nb_batches)
 
     def step(self):
         """Loads a batch of images and labels.
@@ -76,7 +75,7 @@ class MNIST(Dataset):
 
     def check_reset(self):
         # If reached end of batches, reset
-        return self.current_batch_idx>=self.nb_batches:
+        return self.current_batch_idx>=self.nb_batches
 
     def reset(self):
             self.current_batch_idx = 0

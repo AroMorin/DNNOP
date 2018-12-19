@@ -1,4 +1,7 @@
 """Class of CIFAR10 dataset"""
-class CIFAR10:
-    def __init__(self, batch_size, data_path):
-        self.batch_size = batch_size
+
+from .dataset import Dataset
+
+class CIFAR10(Dataset):
+    def __init__(self, batch_size, data_path, precision):
+        super().__init__(batch_size, data_path, precision)

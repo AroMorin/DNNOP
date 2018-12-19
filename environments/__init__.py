@@ -1,7 +1,7 @@
 """This script allows making objects of different environment classes"""
 
-import .datasets as dataset
-import .functions as funcs
+import environments.datasets as dataset
+import environments.functions as funcs
 
 def make(type, name, batch_size, data_path):
     """Class factory method. This method takes the name of the desired
@@ -12,4 +12,4 @@ def make(type, name, batch_size, data_path):
     elif type == 'function':
         return dataset.make(name, batch_size, data_path)
 
-#        
+#

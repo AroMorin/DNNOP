@@ -3,6 +3,7 @@ MNIST problem
 """
 import torch.nn as nn
 import torch.nn.functional as F
+import torch
 
 class Net(nn.Module):
     def __init__(self, precision=torch.float):
@@ -22,7 +23,3 @@ class Net(nn.Module):
         x = F.dropout(x, training=self.training)
         x = self.fc2(x)
         return F.log_softmax(x, dim=1)
-
-    def apply_precision():
-        """Placeholder method until I know how to apply model precision."""
-        pass

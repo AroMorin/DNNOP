@@ -5,3 +5,10 @@ Its main functions are:
 3) Get/Set the model weights
 4) Get the new pool
 """
+import torch
+from .advanced_neuroevolution_backend import optimizer
+from .algorithm import Algorithm
+
+class Advanced_Neuroevolution(Algorithm):
+    def __init__(self, model):
+        super().__init__(model)

@@ -1,8 +1,9 @@
 """This script allows making objects of different algorithm classes"""
 
 from .sgd import SGD
+from .advanced_neuroevolution import Advanced_Neuroevolution
 
-def make(name, model, optimizer):
+def make(name, model, optimizer=None):
     """Class factory method. This method takes the name of the desired
     algorithm and returns an object of the corresponding class.
 

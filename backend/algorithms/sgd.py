@@ -1,10 +1,12 @@
 """A class that defines interfaces to use the SGD solver in PyTorch."""
 
 import torch
+import torch.nn.functional as F
 from .algorithm import Algorithm
 
 class SGD(Algorithm):
     def __init__(self, model, optimizer):
+        print("Using SGD algorithm")
         super().__init__(model) # Initialize base class
         self.optimizer = optimizer
         self.training_loss = ''
@@ -62,12 +64,12 @@ class SGD(Algorithm):
         loss = self.test_loss
 
         # Process
-        test_loss /= test_size
+        loss /= test_size
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            test_loss, correct, test_size, 100.*correct/test_size))
+            loss, correct, test_size, 100.*correct/test_size))
 
         # State update
-        self.test_acc = 100.*correct/nb_images
+        self.test_acc = 100.*correct/test_size
 
     def reset_state(self):
         self.test_loss = 0

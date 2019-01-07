@@ -7,7 +7,6 @@ sys.path.insert(0, os.path.abspath('..'))
 import environments
 import backend.models as models
 import backend.algorithms as algorithms
-import torch.nn.functional as F
 from solver import Solver
 #from comet_ml import Experiment
 
@@ -23,16 +22,15 @@ def main():
     parser.add_argument('--epochs', type=int, default=10, metavar='N',
                         help='number of epochs to train (default: 10)')
     args = parser.parse_args()
+    precision = torch.half
 
     # Make an MNIST Dataset environment
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
-    env = environments.make("dataset", "mnist", args.batch_size, data_path)
-
-    # Make a model
-    precision = torch.float
-    model = models.make("MNIST CNN", precision)
+    env = environments.make("dataset", "mnist", args.batch_size, data_path, precision)
 
     # Make an algorithm --algorithm owns the model--
+    # Make a model
+    model = models.make("MNIST CNN", precision)
     optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
     sgd = algorithms.make("sgd", model, optimizer)
 

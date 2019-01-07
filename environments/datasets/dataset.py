@@ -5,6 +5,7 @@ from ..environment import Environment
 
 class Dataset(Environment):
     def __init__(self, batch_size, data_path, precision):
+        print("Creating Dataset")
         super().__init__(precision)
         self.batch_size = batch_size
         self.data_path = data_path
@@ -19,7 +20,7 @@ class Dataset(Environment):
         self.x_t = '' # Test images
         self.y_t = '' # Test labels
         self.transforms = ''
-        self.nb_batches = ''
+        self.nb_batches = 0
         self.current_batch_idx = 0
 
     def load_dataset(self):

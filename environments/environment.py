@@ -8,8 +8,9 @@ import torch
 
 class Environment:
     def __init__(self, precision):
+        print("Initializing environment")
         self.device = torch.device("cuda") # Always assume GPU training/testing
-        self.precision = torch.float
+        self.precision = precision
 
     def step(self):
         """Placeholder for step function. The step function is an essential

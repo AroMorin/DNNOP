@@ -19,27 +19,32 @@ class MNIST(Dataset):
         N Float Tensors (representing images), where N is the batch size. The second
         dimension contains N Long Tensors, corresponding to N labels.
         """
+        training_size = 60000 # Size of training set
+        test_size = 10000 # Size of validation set
         self.set_transformations()
+        # Initialize and load training set
         self.train_dataset = datasets.MNIST(self.data_path, train=True,
                                             download=True,
                                             transform=self.transforms)
+        self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
+                                                    batch_size=training_size,
+                                                    shuffle=True,
+                                                    pin_memory = True,
+                                                    num_workers = 8)
+        # Initialize and load validation set
         self.test_dataset = datasets.MNIST(self.data_path, train=False,
                                             transform=self.transforms)
-        # Load entire set as one batch, format it, then split it into batches
-        self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
-                                                    batch_size=60000,
-                                                    shuffle=True,
-                                                    pin_memory = True,
-                                                    num_workers = 8)
         self.test_loader = torch.utils.data.DataLoader(self.test_dataset,
-                                                    batch_size=10000,
+                                                    batch_size=test_size,
                                                     shuffle=True,
                                                     pin_memory = True,
                                                     num_workers = 8)
+        # Format sets
         self.format_data()
 
     def set_transformations(self):
         """Set the desired transformations on the dataset."""
+        print ("Applying dataset transformations")
         self.transforms = transforms.Compose([transforms.ToTensor(),
                            transforms.Normalize((0.1307,), (0.3081,))])
 
@@ -50,16 +55,17 @@ class MNIST(Dataset):
         train_set =  list(self.train_loader)
         test_set = list(self.test_loader)
 
-        # batch 0, ie. all images, and mode 0 (ie. data not labels)
-        train_data = train_set[0][0].cuda()
-        self.x_t = test_set[0][0].cuda()
+        # batch 0: all images, mode 0: data
+        train_data = train_set[0][0].cuda().to(self.precision)
+        self.x_t = test_set[0][0].cuda().to(self.precision)
 
+        # batch 0: all images, mode 1: labels/targets
         train_labels = train_set[0][1].cuda()
         self.y_t = test_set[0][1].cuda()
 
         self.train_data = torch.split(train_data, self.batch_size)
         self.train_labels = torch.split(train_labels, self.batch_size)
-        self.nb_batches = len(train_data)
+        self.nb_batches = len(self.train_data)
         print ("Number of Batches: %d" %self.nb_batches)
 
     def step(self):

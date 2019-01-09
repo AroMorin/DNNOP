@@ -2,13 +2,15 @@
 
 import torch
 import torch.nn.functional as F
+import torch.optim as optim
 from .algorithm import Algorithm
 
 class SGD(Algorithm):
-    def __init__(self, model, optimizer):
+    def __init__(self, model):
         print("Using SGD algorithm")
-        super().__init__(model) # Initialize base class
-        self.optimizer = optimizer
+        super().__init__(nb_models=1) # Initialize base class
+        self.model = model # A model to optimize
+        self.optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
         self.training_loss = ''
         self.test_loss = ''
         self.training_acc = ''
@@ -21,31 +23,30 @@ class SGD(Algorithm):
         back to using class attributes.
         """
         # Local variable definition
-        model = self.model
-        optimizer = self.optimizer
         data = env.x
         targets = env.y
 
         # Process
-        model.train() #Sets behavior to "training" mode
-        optimizer.zero_grad()
+        self.model.train() #Sets behavior to "training" mode
+        self.optimizer.zero_grad()
         predictions = self.model(data)
-        loss = F.nll_loss(predictions, env.y)
+        loss = F.nll_loss(predictions, targets)
         loss.backward()
-        optimizer.step()
+        self.optimizer.step()
 
         # State update
         self.train_loss = loss
 
     def test(self, env):
+        """Local variables are chosen here, this choice is reversible and class
+        attributes can be used instead.
+        """
         # Local variable definitions
-        model = self.model
-        optimizer = self.optimizer
         data = env.x_t
         targets = env.y_t
 
         # Process
-        model.eval() #Sets behavior to "training" mode
+        self.model.eval() #Sets behavior to "training" mode
         with torch.no_grad():
             predictions = model(data)
             loss = F.nll_loss(predictions, targets, reduction='sum').item()

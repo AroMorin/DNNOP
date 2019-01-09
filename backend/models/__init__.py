@@ -5,7 +5,7 @@ is chosen.
 from .cnn_mnist import Net as MNIST_CNN
 import torch
 
-def make(name, precision=torch.float):
+def make(name, precision=torch.float, init_scheme='Xavier Normal'):
     if name == "MNIST CNN":
         model = MNIST_CNN()
         model.cuda().to(precision)

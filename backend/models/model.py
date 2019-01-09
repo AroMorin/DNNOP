@@ -8,6 +8,9 @@ Honestly, in retrospect, I'm not sure what good this is. It seems that it is
 better to have the entire model definition in one place so as to be a
 self-contained solution, with instant import/export option to public domain
 (regular PyTorch).
+
+
+This is a useless class and is candidate for deletion.
 """
 
 from cnn_mnist import Net

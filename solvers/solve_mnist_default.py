@@ -12,7 +12,6 @@ from solver import Solver
 
 import argparse
 import torch
-import torch.optim as optim
 
 def main():
     # Assumes CUDA is available
@@ -22,20 +21,22 @@ def main():
     parser.add_argument('--epochs', type=int, default=10, metavar='N',
                         help='number of epochs to train (default: 10)')
     args = parser.parse_args()
+
+    # Set desired precision
     precision = torch.half
 
     # Make an MNIST Dataset environment
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
     env = environments.make("dataset", "mnist", args.batch_size, data_path, precision)
 
-    # Make an algorithm --algorithm owns the model--
     # Make a model
     model = models.make("MNIST CNN", precision)
-    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
-    sgd = algorithms.make("sgd", model, optimizer)
+
+    # Make an algorithm --algorithm takes control of the model--
+    alg = algorithms.make("sgd", model)
 
     # Make a solver
-    slv = Solver(env, sgd)
+    slv = Solver(env, alg)
 
     slv.train_dataset_with_validation(args.epochs)
     #hyper_params = {"learning_rate": args.lr, "epochs":args.epochs,

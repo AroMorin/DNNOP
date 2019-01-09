@@ -2,9 +2,8 @@
 the developer, to make the class extendable intuitively.
 """
 class Algorithm:
-    def __init__(self, model):
-        self.model = model # A model to optimize
-
+    def __init__(self, nb_models):
+        self.nb_models = nb_models
 
     def optimize(self):
         """Placeholder method for performing an optimization step."""

@@ -5,7 +5,7 @@ from __future__ import print_function
 import sys, os
 sys.path.insert(0, os.path.abspath('..'))
 import environments
-import backend.models as models
+import backend.models as model_factory
 import backend.algorithms as algorithms
 from solver import Solver
 #from comet_ml import Experiment
@@ -24,16 +24,20 @@ def main():
 
     # Set desired precision
     precision = torch.half
+    nb_models = 1 # Models to be optimized
+    lr = 0.01
+    momentum = 0.5
+    hyper_params = (lr, momentum)
 
     # Make an MNIST Dataset environment
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
     env = environments.make("dataset", "mnist", args.batch_size, data_path, precision)
 
     # Make a model
-    model = models.make("MNIST CNN", precision)
+    model = model_factory.make_model("MNIST CNN", precision)
 
     # Make an algorithm --algorithm takes control of the model--
-    alg = algorithms.make("sgd", model)
+    alg = algorithms.make_sgd("sgd", model, hyper_params)
 
     # Make a solver
     slv = Solver(env, alg)

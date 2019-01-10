@@ -1,4 +1,7 @@
-"""A class that defines interfaces to use the SGD solver in PyTorch."""
+"""A class that defines interfaces to use the SGD solver in PyTorch.
+It is expected that the optimizer object will be compatible with the SGD
+interface.
+"""
 
 import torch
 import torch.nn.functional as F
@@ -6,76 +9,51 @@ import torch.optim as optim
 from .algorithm import Algorithm
 
 class SGD(Algorithm):
-    def __init__(self, model):
+    def __init__(self, model, optimizer):
+        """Model is owned by the class, so it is set as a class attribute.
+        """
         print("Using SGD algorithm")
-        super().__init__(nb_models=1) # Initialize base class
-        self.model = model # A model to optimize
-        self.optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.5)
-        self.training_loss = ''
+        super().__init__(nb_models=1) # SGD optimizes only one model
+        self.model = model # Model is set as a class attribute
+        if optimizer == None:
+            self.optimizer = optim.SGD(self.model.parameters(), lr=0.01, momentum=0.5)
+        else:
+            self.optimizer = optimizer
+        self.train_loss = ''
         self.test_loss = ''
-        self.training_acc = ''
+        self.train_acc = ''
         self.test_acc = ''
         self.correct_test_preds = ''
 
     def optimize(self, env):
-        """I chose to use local variables to improve readability of the code. If
-        at a later stage I find that this affects performance, I can always revert
-        back to using class attributes.
+        """I chose not to use local variables.
         """
-        # Local variable definition
-        data = env.x
-        targets = env.y
-
-        # Process
         self.model.train() #Sets behavior to "training" mode
         self.optimizer.zero_grad()
-        predictions = self.model(data)
-        loss = F.nll_loss(predictions, targets)
-        loss.backward()
+        predictions = self.model(env.x)
+        self.train_loss = F.nll_loss(predictions, env.y)
+        self.train_loss.backward()
         self.optimizer.step()
 
-        # State update
-        self.train_loss = loss
-
     def test(self, env):
-        """Local variables are chosen here, this choice is reversible and class
-        attributes can be used instead.
+        """Local variables are chosen not to feature here.
         """
-        # Local variable definitions
-        data = env.x_t
-        targets = env.y_t
-
-        # Process
         self.model.eval() #Sets behavior to "training" mode
         with torch.no_grad():
-            predictions = model(data)
-            loss = F.nll_loss(predictions, targets, reduction='sum').item()
-            # get the index of the max log-probability
+            predictions = model(env.x_t)
+            self.test_loss = F.nll_loss(predictions, env.y_t, reduction='sum').item()
+            # Get the index of the max log-probability, i.e. prediction per each input
             pred = predictions.max(1, keepdim=True)[1]
-            correct = pred.eq(targets.view_as(pred)).sum().item()
+            # Number of correct predictions
+            self.correct_test_preds = pred.eq(env.y_t.view_as(pred)).sum().item()
 
-        # State update
-        self.test_loss = loss
-        self.correct_test_preds = correct
-
-    def get_test_accuracy(self, env):
-        # Local variable definitions
+    def print_test_accuracy(self, env):
         test_size = len(env.x_t)
-        correct = self.correct_test_preds
+        self.test_acc = 100.*self.correct_test_preds/test_size
         loss = self.test_loss
-
-        # Process
-        loss /= test_size
+        loss /= test_size # Not really sure what this does
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            loss, correct, test_size, 100.*correct/test_size))
-
-        # State update
-        self.test_acc = 100.*correct/test_size
-
-    def reset_state(self):
-        self.test_loss = 0
-        self.correct_test_preds = 0
-
+            loss, self.correct_test_preds, test_size, self.test_acc))
 
 
 

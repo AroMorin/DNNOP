@@ -1,22 +1,22 @@
 """This script allows making objects of different algorithm classes"""
 
 from .sgd import SGD
-from .advanced_neuroevolution import Advanced_Neuroevolution
+from .msn import MSN
 
-def make(name, model, optimizer=None):
+def make(name, params, hyper_params, optimizer=None):
     """Class factory method. This method takes the name of the desired
     algorithm and returns an object of the corresponding class.
 
-    The variable "params" is a tuple of the relevant parameters. Position is
-    significant and it's important to make sure that the correct parameter is
-    in the correct position in the tuple object. This makes communication and
-    extensibility easier.
+    The variable "hyper params" is a tuple of the relevant parameters. Position
+    is significant and it's important to make sure that the correct parameter is
+    in the correct position in the tuple object.
 
-    Since different algorithms can require vastly different sets of parameters,
-    passing an abstract object in this level is extremely attractive.
+    "Params" object refers to the neural network model(s) that will be optimized.
+    In case of evolutionary algorithms, the params object is a list of models.
+    In case of SGD/gradient-based algorithms, the param object is a single
+    model.
     """
     if name == 'sgd':
-        return SGD(model, optimizer)
-
-    elif name == 'advanced_neuroevolution':
-        return Advanced_Neuroevolution(model, optimizer)
+        return SGD(params, hyper_params, optimizer)
+    elif name == 'msn':
+        return MSN(params, hyper_params, optimizer)

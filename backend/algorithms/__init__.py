@@ -3,7 +3,7 @@
 from .sgd import SGD
 from .msn import MSN
 
-def make(name, params, hyper_params, optimizer=None):
+def make(name, params, hyper_params=None, optimizer=None):
     """Class factory method. This method takes the name of the desired
     algorithm and returns an object of the corresponding class.
 

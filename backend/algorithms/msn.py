@@ -8,13 +8,11 @@ desired hyper parameters. An example of hyper params is the number of Anchors.
 """
 import torch
 from .msn_backend import optimizer as optim
-from .algorithm import Algorithm
 
-class MSN(Algorithm):
+class MSN:
     def __init__(self, pool, hyper_params, optimizer):
         print ("Using MSN algorithm")
         self.pool_size = len(pool)
-        super().__init__(pool_size)
         self.pool = pool
         if optimizer == None:
             self.optimizer = optim(hyper_params)

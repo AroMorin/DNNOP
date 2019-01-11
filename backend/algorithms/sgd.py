@@ -6,14 +6,12 @@ interface.
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
-from .algorithm import Algorithm
 
-class SGD(Algorithm):
+class SGD:
     def __init__(self, model, optimizer):
         """Model is owned by the class, so it is set as a class attribute.
         """
         print("Using SGD algorithm")
-        super().__init__(nb_models=1) # SGD optimizes only one model
         self.model = model # Model is set as a class attribute
         if optimizer == None:
             self.optimizer = optim.SGD(self.model.parameters(), lr=0.01, momentum=0.5)

@@ -8,13 +8,28 @@ Its functions are:
 
 The pool object will contain the models under optimization.
 """
+from .msn_backend.anchors import Anchors
+from .msn_backend.probes import Probes
+from .msn_backend.blends import Blends
+from .msn_backend.elite import Elite
 
-class Pool():
-    def __init__(self, nb_samples, models):
-        self.nb_samples = nb_samples
-        self.models = ''
-        self.weight_dicts = '' # Weight dictionaries
-        self.pool = '' # Parameter vectors
-        self.init_models(self)
+class Pool:
+    def __init__(self, pool, hyper_params):
+        self.pool = pool # List of Models
+        self.weight_dicts = '' # List of weight dictionaries
+        self.parameters = '' # List of Parameter Vectors
+        self.anchors = Anchors(hyper_params)
+        self.probes = Probes(hyper_params)
+        self.blends = Blends(hyper_params)
+        self.elite = Elite(hyper_params)
 
-    def init_models(self):
+    def set_param_vector(self):
+        pass
+
+    def set_weight_dicts(self):
+        """This function uses the values in the parameters variable to
+        update the current weight dictionaries.
+        It is not clear to me whether this will be followed by an update to
+        the pool. I don't think so, since the pool is pointing to the model
+        objects, not their weights.
+        """

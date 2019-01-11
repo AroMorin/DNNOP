@@ -19,6 +19,8 @@ class Hyper_Parameters:
         "alpha":1,
         "beta": 1,
         "lambda":1,
+        "backtracking": False,
+        "patience": 80,
         "minimum distance": 10,
         "minimum entropy": 0.01,
         "step size": 0.05,
@@ -40,6 +42,8 @@ class Hyper_Parameters:
         self.min_dist = self.hyper_params["minimum distance"]
         self.min_entropy = self.hyper_params["minimum entropy"]
         self.step_size = self.hyper_params["step size"]
+        self.backtracking = self.hyper_params["backtracking"]
+        self.patience = self.hyper_params["patience"]
         self.def_integrity = self.hyper_params["default integrity"]
         self.min_integrity = self.hyper_params["minimum integrity"]
         self.max_integrity = self.hyper_params["maximum integrity"]
@@ -50,6 +54,10 @@ class Hyper_Parameters:
         """This function updates the default hyper parameters dictionary. It
         expects a dictionary of hyper parameters. The loop traverses the given
         dictionary and updates the class's default dictionary with the new values.
+
+        The assertion makes sure the user is not trying to edit a non-existent
+        hyper parameter.
         """
         for key in hyper_params:
+            assert key in self.hyper_params
             self.hyper_params[key] = hyper_params[key]

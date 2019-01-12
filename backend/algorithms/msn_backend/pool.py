@@ -15,13 +15,18 @@ from .msn_backend.elite import Elite
 
 class Pool:
     def __init__(self, pool, hyper_params):
-        self.pool = pool # List of Models
-        self.weight_dicts = '' # List of weight dictionaries
-        self.parameters = '' # List of Parameter Vectors
+        # List of Models
+        self.pool = pool
+        # List of weight dictionaries
+        self.weight_dicts = ''
+        # List of Parameter Vectors
+        self.parameters = ''
         self.anchors = Anchors(hyper_params)
         self.probes = Probes(hyper_params)
         self.blends = Blends(hyper_params)
         self.elite = Elite(hyper_params)
+        # List of scores/fitness for every sample in the pool
+        self.scores = ''
 
     def set_param_vector(self):
         pass

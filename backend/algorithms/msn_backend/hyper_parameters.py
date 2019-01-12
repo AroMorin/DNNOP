@@ -19,7 +19,6 @@ class Hyper_Parameters:
         "alpha":1,
         "beta": 1,
         "lambda":1,
-        "backtracking": False,
         "patience": 80,
         "minimum distance": 10,
         "minimum entropy": 0.01,
@@ -42,7 +41,6 @@ class Hyper_Parameters:
         self.min_dist = self.hyper_params["minimum distance"]
         self.min_entropy = self.hyper_params["minimum entropy"]
         self.step_size = self.hyper_params["step size"]
-        self.backtracking = self.hyper_params["backtracking"]
         self.patience = self.hyper_params["patience"]
         self.def_integrity = self.hyper_params["default integrity"]
         self.min_integrity = self.hyper_params["minimum integrity"]

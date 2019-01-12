@@ -11,12 +11,12 @@ def make(name, params, hyper_params=None, optimizer=None):
     is significant and it's important to make sure that the correct parameter is
     in the correct position in the tuple object.
 
-    "Params" object refers to the neural network model(s) that will be optimized.
+    "params" object refers to the neural network model(s) that will be optimized.
     In case of evolutionary algorithms, the params object is a list of models.
     In case of SGD/gradient-based algorithms, the param object is a single
     model.
     """
     if name == 'sgd':
         return SGD(params, hyper_params, optimizer)
-    elif name == 'msn':
+    elif name == 'MSN':
         return MSN(params, hyper_params, optimizer)

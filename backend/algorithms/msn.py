@@ -14,11 +14,20 @@ class MSN:
     def __init__(self, pool, hyper_params, optimizer):
         print ("Using MSN algorithm")
         self.pool_size = len(pool)
-        self.pool = pool
+        self.optim = None
+        self.scores = []
+        self.set_optimizer(optimizer)
+
+    def set_optimizer(self, optimizer):
         if optimizer == None:
-            self.optimizer = optim(pool, hyper_params)
+            self.optim = optimizer(pool, hyper_params)
         else:
-            self.optimizer = optimizer
+            self.optim = optimizer
 
     def optimize(self, env):
+        """This method takes in the environment, runs the models against it,
+        obtains the scores and accordingly updates the models.
+        """
+        self.scores = self.optim.inference(env)
+        self.optim.update(self.scores)
         pass

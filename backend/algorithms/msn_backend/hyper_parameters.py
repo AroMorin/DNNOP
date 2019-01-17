@@ -27,10 +27,10 @@ class Hyper_Parameters:
         self.max_integrity = 0
         self.target = 0
         self.minimizing = True
-        self.update_hyperparams_dict(hyper_params)
-        self.init_hyperparams()
+        self.set_hyperparams(hyper_params)
+        self.set_hyperparams_dict()
 
-    def init_hyperparams_dict(self, hyper_params):
+    def set_hyperparams_dict(self, hyper_params):
         """This function updates the default hyper parameters dictionary. It
         expects a dictionary of hyper parameters. The loop traverses the given
         dictionary and updates the class's default dictionary with the new values.
@@ -62,7 +62,7 @@ class Hyper_Parameters:
                 assert key in self.hyper_params
                 self.hyper_params[key] = hyper_params[key]
 
-    def set_hyperparams_dict(hyper_params):
+    def set_hyperparams(self):
             # Instantiate hyper parameters for MSN algorithm
             self.nb_anchors = self.hyper_params["number of anchors"]
             self.nb_probes = self.hyper_params["number of probes per anchor"]

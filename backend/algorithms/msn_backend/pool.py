@@ -14,27 +14,28 @@ from .blends import Blends
 from .elite import Elite
 
 class Pool:
-    def __init__(self, pool, hyper_params):
-        # List of Models
-        self.pool = pool
-        # List of weight dictionaries
-        self.weight_dicts = ''
-        # List of Parameter Vectors
-        self.parameters = ''
+    def __init__(self, models, hyper_params):
+        self.models = models # List of Models
+        self.weights_dicts = [] # List of weight dictionaries
+        self.param_vecs = [] # List of parameter vectors
         self.anchors = Anchors(hyper_params)
         self.probes = Probes(hyper_params)
         self.blends = Blends(hyper_params)
         self.elite = Elite(hyper_params)
-        # List of scores/fitness for every sample in the pool
-        self.scores = ''
+        self.set_weights_dicts()
+        self.set_param_vecs()
 
-    def set_param_vector(self):
+    def set_weights_dicts(self):
+        """This method takes in the list of models, i.e. pool, and produces
+        a list of weight dictionaries.
+        """
+        #self.weights_dicts =
         pass
 
-    def set_weight_dicts(self):
-        """This function uses the values in the parameters variable to
-        update the current weight dictionaries.
-        It is not clear to me whether this will be followed by an update to
-        the pool. I don't think so, since the pool is pointing to the model
-        objects, not their weights.
+    def set_param_vecs(self):
+        """This method takes in the list of weight dictionaries and produces
+        a list of parameter vectors.
+        Note: parameter vectors are essentially "flattened" weights.
         """
+        #self.param_vecs =
+        pass

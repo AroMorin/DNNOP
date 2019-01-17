@@ -12,9 +12,19 @@ from .hyper_parameters import Hyper_Parameters
 from .pool import Pool
 
 class Optimizer:
-    def __init__(self, pool, hyper_params):
+    def __init__(self, models, hyper_params):
         self.hp = Hyper_Parameters(hyper_params) # Create a hyper parameters object
-        self.pool = Pool(pool) # Create a pool object
+        self.pool = Pool(models, self.hp) # Create a pool object
 
-    def update(self):
+    def inference(self, env):
+        """This method runs inference on the given environment using the models.
+        """
+        # return scores
+        pass
+
+    def update(self, scores):
+        """This method takes in the scores, feeds it to the pool so that the
+        selection and update process can occur.
+        The pool thus updates itself.
+        """
         pass

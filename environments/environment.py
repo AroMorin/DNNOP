@@ -10,7 +10,10 @@ class Environment:
     def __init__(self, precision):
         print("Initializing environment")
         self.device = torch.device("cuda") # Always assume GPU training/testing
-        self.precision = precision
+        if precision == None:
+            self.precision = torch.float
+        else:
+            self.precision = precision
 
     def step(self):
         """Placeholder for step function. The step function is an essential
@@ -21,18 +24,16 @@ class Environment:
         """
         pass
 
+    def reset(self):
+        """Placeholder for method to reset the environment."""
+        pass
+
     def check_reset(self):
         """Placeholder in case there needs to be a check before resetting the
         environment.
         """
         pass
 
-    def reset(self):
-        """Placeholder for method to reset a dataset. Useful after batches
-        reach the end.
-        """
-        pass
-
-    def set_precision(self):
+    def set_precision(self, precision):
         """Placeholder method to change the precision of the data set."""
         pass

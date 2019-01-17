@@ -17,35 +17,33 @@ def main():
     # Assumes CUDA is available
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
     parser.add_argument('--pool_size', type=int, default=50, metavar='N',
-                        help='number of samples in the pool (default: 50)')
+                        help='number of samples in the pool (def: 50)')
     parser.add_argument('--nb_anchors', type=int, default=4, metavar='N',
-                        help='number of anchors (default: 4)')
+                        help='number of anchors (def: 4)')
     parser.add_argument('--nb_probes', type=int, default=8, metavar='N',
-                        help='number of probes per anchor (default: 8)')
+                        help='number of probes per anchor (def: 8)')
     parser.add_argument('--iterations_limit', type=int, default=500, metavar='N',
-                        help='maximum allowable number of optimization steps (default: 500)')
+                        help='maximum number of optimization steps (def: 500)')
     args = parser.parse_args()
 
-    # Set desired precision
-    precision = torch.half
-    training_size = 60000
-    hyper_params = {"pool size": pool_size,
-                    "number of anchors": nb_anchors,
-                    "number of probes per anchor": nb_probes}
-
     # Make an MNIST Dataset environment
+    precision = torch.half
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
-    env = environments.make("dataset", "mnist", training_size, data_path, precision)
+    env = environments.make_env("dataset", "mnist", data_path=data_path, precision=precision)
 
     # Make a pool
     pool = model_factory.make_pool("MNIST CNN", pool_size, precision)
 
     # Make an algorithm --algorithm takes control of the pool--
-    alg = algorithm_factory.make("MSN", pool, hyper_params)
+    hyper_params = {"pool size": pool_size,
+                    "number of anchors": nb_anchors,
+                    "number of probes per anchor": nb_probes}
+    alg = algorithm_factory.make_alg("MSN", pool, hyper_params)
 
     # Make a solver
     slv = Solver(env, alg)
 
+    # Use solver to solve the problem
     slv.train_dataset_with_validation(args.iterations)
 
 

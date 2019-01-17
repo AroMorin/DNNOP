@@ -3,11 +3,11 @@
 from .mnist import MNIST
 from .cifar10 import CIFAR10
 
-def make(name, batch_size, data_path, precision):
+def make_dataset(name, data_path, batch_size, precision):
     """Class factory method. This method takes the name of the desired
     dataset and returns an object of the corresponding class.
     """
     if name == 'mnist':
-        return MNIST(batch_size, data_path, precision)
+        return MNIST(data_path, batch_size, precision)
     elif name == 'cifar10':
-        return CIFAR10(batch_size, data_path, precision)
+        return CIFAR10(data_path, batch_size, precision)

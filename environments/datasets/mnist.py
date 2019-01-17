@@ -8,9 +8,9 @@ class MNIST(Dataset):
     """This class fetches the MNIST dataset, sends it to CUDA and then
     makes available the PyTorch-supplied loaders for further processing.
     """
-    def __init__(self, batch_size, data_path, precision=torch.float):
+    def __init__(self, data_path, batch_size, precision, 60000, 10000):
         # Initialize base class
-        super().__init__(batch_size, data_path, precision)
+        super().__init__(data_path, batch_size, precision)
         self.load_dataset()
 
     def load_dataset(self):
@@ -19,15 +19,13 @@ class MNIST(Dataset):
         N Float Tensors (representing images), where N is the batch size. The second
         dimension contains N Long Tensors, corresponding to N labels.
         """
-        training_size = 60000 # Size of training set
-        test_size = 10000 # Size of validation set
         self.set_transformations()
         # Initialize and load training set
         self.train_dataset = datasets.MNIST(self.data_path, train=True,
                                             download=True,
                                             transform=self.transforms)
         self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
-                                                    batch_size=training_size,
+                                                    batch_size=self.training_size,
                                                     shuffle=True,
                                                     pin_memory = True,
                                                     num_workers = 8)
@@ -35,7 +33,7 @@ class MNIST(Dataset):
         self.test_dataset = datasets.MNIST(self.data_path, train=False,
                                             transform=self.transforms)
         self.test_loader = torch.utils.data.DataLoader(self.test_dataset,
-                                                    batch_size=test_size,
+                                                    batch_size=self.test_size,
                                                     shuffle=True,
                                                     pin_memory = True,
                                                     num_workers = 8)

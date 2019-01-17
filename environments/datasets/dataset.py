@@ -4,10 +4,17 @@ the developer, to make the class extendable intuitively.
 from ..environment import Environment
 
 class Dataset(Environment):
-    def __init__(self, batch_size, data_path, precision):
+    def __init__(self, data_path, batch_size, precision, training_size=0, test_size=0):
         print("Creating Dataset")
         super().__init__(precision)
-        self.batch_size = batch_size
+        self.training_size = training_size # Size of training set
+        self.test_size = test_size # Size of validation set
+        if batch_size == None:
+            self.batch_size = self.training_size
+        else:
+            assert isinstance(batch_size, int) # Sanity check
+            self.batch_size = batch_size
+        assert isinstance(data_path, str) # Sanity check
         self.data_path = data_path
         self.train_dataset = ''
         self.test_dataset = ''

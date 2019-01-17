@@ -26,8 +26,9 @@ def main():
                         help='maximum number of optimization steps (def: 500)')
     args = parser.parse_args()
 
+    precision = torch.half # Set precision
+
     # Make an MNIST Dataset environment
-    precision = torch.half
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
     env = environments.make_env("dataset", "mnist", data_path=data_path, precision=precision)
 

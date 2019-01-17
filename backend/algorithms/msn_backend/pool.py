@@ -8,10 +8,10 @@ Its functions are:
 
 The pool object will contain the models under optimization.
 """
-from .msn_backend.anchors import Anchors
-from .msn_backend.probes import Probes
-from .msn_backend.blends import Blends
-from .msn_backend.elite import Elite
+from .anchors import Anchors
+from .probes import Probes
+from .blends import Blends
+from .elite import Elite
 
 class Pool:
     def __init__(self, pool, hyper_params):

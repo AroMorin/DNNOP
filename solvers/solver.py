@@ -14,7 +14,7 @@ class Solver():
         print("Creating Solver")
         self.env = env
         self.algorithm = algorithm
-        self.current_epoch = 0
+        self.current_step = 0
         self.elapsed_steps = 0
 
     def batch_training(self, epochs):
@@ -32,6 +32,26 @@ class Solver():
                 self.elapsed_steps +=1
 
     def train_dataset_with_validation(self, optimization_steps):
+        """In cases where a dataset is being trained with a validation component
+        such as MNIST.
+        """
+        print("Training model(s) on a dataset w/ validation")
+        # Local variable definition
+        env = self.env
+        alg = self.algorithm
+        batches = self.env.nb_batches
+
+        # Process
+        for _ in range(optimization_steps):
+            for __ in range(batches):
+                env.step()
+                alg.optimize(env)
+                self.current_step +=1
+            alg.test(env)
+            alg.print_test_accuracy(env)
+            self.elapsed_steps += 1
+
+    def batch_train_dataset_with_validation(self, optimization_steps):
         """In cases where a dataset is being trained with a validation component
         such as MNIST.
         """

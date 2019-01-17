@@ -8,20 +8,44 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 class SGD:
-    def __init__(self, model, optimizer):
-        """Model is owned by the class, so it is set as a class attribute.
-        """
+    def __init__(self, model, hyper_params, optimizer):
+        """Model is owned by the class, so it is set as a class attribute."""
         print("Using SGD algorithm")
         self.model = model # Model is set as a class attribute
-        if optimizer == None:
-            self.optimizer = optim.SGD(self.model.parameters(), lr=0.01, momentum=0.5)
-        else:
-            self.optimizer = optimizer
         self.train_loss = ''
         self.test_loss = ''
         self.train_acc = ''
         self.test_acc = ''
         self.correct_test_preds = ''
+        self.hyper_params = {}
+        self.optimizer = None
+        self.set_hyperparams(hyper_params)
+        self.set_optimizer(optimizer)
+
+    def set_hyperparams(self, hyper_params):
+        """Method to loop over the hyper parameter dictionary and update the
+        default values.
+        """
+        self.hyper_params = {
+                            "learning rate": 0.01,
+                            "momentum":0.5
+                            }
+        for key in hyper_params:
+            assert key in self.hyper_params
+            self.hyper_params[key] = hyper_params[key]
+
+    def set_optimizer(self, optimizer):
+        """Method to set the desired optimizer, using the desired hyper
+        parameters.
+        """
+        if optimizer == None:
+            self.optimizer = optim.SGD(
+                            self.model.parameters(),
+                            lr=self.hyper_params['learning rate'],
+                            momentum=self.hyper_params['momentum']
+                            )
+        else:
+            self.optimizer = optimizer
 
     def optimize(self, env):
         """I chose not to use local variables.
@@ -38,7 +62,7 @@ class SGD:
         """
         self.model.eval() #Sets behavior to "training" mode
         with torch.no_grad():
-            predictions = model(env.x_t)
+            predictions = self.model(env.x_t)
             self.test_loss = F.nll_loss(predictions, env.y_t, reduction='sum').item()
             # Get the index of the max log-probability, i.e. prediction per each input
             pred = predictions.max(1, keepdim=True)[1]

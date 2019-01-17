@@ -8,8 +8,8 @@ prepare the pool. The pool is the object itself that is being prepared and
 updated.
 """
 
-from .msn_backend.hyperparameters import Hyper_Parameters
-from .msn_backend.pool import Pool
+from .hyper_parameters import Hyper_Parameters
+from .pool import Pool
 
 class Optimizer:
     def __init__(self, pool, hyper_params):

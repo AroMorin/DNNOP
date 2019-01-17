@@ -4,18 +4,11 @@ the developer, to make the class extendable intuitively.
 from ..environment import Environment
 
 class Dataset(Environment):
-    def __init__(self, data_path, batch_size, precision, training_size=0, test_size=0):
+    def __init__(self, data_path, batch_size, precision, train_size, test_size):
         print("Creating Dataset")
         super().__init__(precision)
-        self.training_size = training_size # Size of training set
-        self.test_size = test_size # Size of validation set
-        if batch_size == None:
-            self.batch_size = self.training_size
-        else:
-            assert isinstance(batch_size, int) # Sanity check
-            self.batch_size = batch_size
-        assert isinstance(data_path, str) # Sanity check
-        self.data_path = data_path
+        self.train_size = train_size # Size of the training set
+        self.test_size = test_size
         self.train_dataset = ''
         self.test_dataset = ''
         self.train_loader = ''
@@ -24,11 +17,20 @@ class Dataset(Environment):
         self.train_labels = '' # Entire set of training labels
         self.x = '' # Current batch of training images
         self.y = '' # Current batch of training labels
-        self.x_t = '' # Test images
-        self.y_t = '' # Test labels
+        self.x_t = '' # Test images (whole, not batches)
+        self.y_t = '' # Test labels (whole, not batches)
         self.transforms = ''
         self.nb_batches = 0
+        self.batch_size = 0
         self.current_batch_idx = 0
+        self.set_batch_size(batch_size)
+        assert isinstance(data_path, str) # Sanity check
+        self.data_path = data_path
+
+    def set_batch_size(self, batch_size):
+        if batch_size != None:
+            assert isinstance(batch_size, int) # Sanity check
+            self.batch_size = batch_size
 
     def load_dataset(self):
         """Placeholder method for initializing and loading the dataset."""

@@ -8,10 +8,12 @@ class MNIST(Dataset):
     """This class fetches the MNIST dataset, sends it to CUDA and then
     makes available the PyTorch-supplied loaders for further processing.
     """
-    def __init__(self, data_path, batch_size, precision, 60000, 10000):
+    def __init__(self, data_path, batch_size, precision):
         # Initialize base class
-        super().__init__(data_path, batch_size, precision)
+        super().__init__(data_path, batch_size, precision, train_size=60000,
+                        test_size=10000)
         self.load_dataset()
+
 
     def load_dataset(self):
         """This dataset is organized as such: it is a list of batches. Each
@@ -25,7 +27,7 @@ class MNIST(Dataset):
                                             download=True,
                                             transform=self.transforms)
         self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
-                                                    batch_size=self.training_size,
+                                                    batch_size=self.train_size,
                                                     shuffle=True,
                                                     pin_memory = True,
                                                     num_workers = 8)
@@ -39,6 +41,7 @@ class MNIST(Dataset):
                                                     num_workers = 8)
         # Format sets
         self.format_data()
+
 
     def set_transformations(self):
         """Set the desired transformations on the dataset."""

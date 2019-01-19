@@ -12,11 +12,12 @@ class SGD:
         """Model is owned by the class, so it is set as a class attribute."""
         print("Using SGD algorithm")
         self.model = model # Model is set as a class attribute
-        self.train_loss = ''
-        self.test_loss = ''
-        self.train_acc = ''
-        self.test_acc = ''
-        self.correct_test_preds = ''
+        self.train_loss = 0
+        self.test_loss = 0
+        self.train_acc = 0
+        self.test_acc = 0
+        # Number of instances where the model's prediction was correct
+        self.correct_test_preds = 0
         self.hyper_params = {}
         self.optimizer = None
         self.set_hyperparams(hyper_params)
@@ -28,7 +29,9 @@ class SGD:
         """
         self.hyper_params = {
                             "learning rate": 0.01,
-                            "momentum":0.5
+                            "momentum": 0.5,
+                            "target loss": 0,
+                            "minimization mode": True
                             }
         for key in hyper_params:
             assert key in self.hyper_params
@@ -46,6 +49,12 @@ class SGD:
                             )
         else:
             self.optimizer = optimizer
+
+    def achieved_target(self):
+        if self.hyper_params["minimization mode"]:
+            return self.test_loss <= self.hyper_params["target loss"]
+        else:
+            return self.test_loss >= self.hyper_params["target loss"]
 
     def optimize(self, env):
         """I chose not to use local variables.

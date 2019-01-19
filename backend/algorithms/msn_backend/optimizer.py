@@ -18,13 +18,31 @@ class Optimizer:
 
     def inference(self, env):
         """This method runs inference on the given environment using the models.
+        I'm not sure, but I think there could be many ways to run inference. For
+        that reason, I designate this function, to be a single point of contact
+        for running inference, in whatever way the user/problem requires.
         """
-        # return scores
-        pass
+        outputs = []
+        for model in self.pool:
+            outputs.append(model(env))
+        return outputs
+
+    def calculate_scores(self, outputs):
+        """This method calculates the scores based on the given outputs. There
+        are many ways to calculate a score, it depends on the type of problem
+        being solved.
+        Thus, this method can use a second argument, or a hyper parameter, to
+        set what type of calculation to use.
+        """
+        scores = []
+        for output in outputs:
+            score = output-self.hp.target
+            scores.append(score)
+        return score
 
     def update(self, scores):
         """This method takes in the scores, feeds it to the pool so that the
         selection and update process can occur.
         The pool thus updates itself.
         """
-        pass
+        self.pool.set_new_pool(scores)

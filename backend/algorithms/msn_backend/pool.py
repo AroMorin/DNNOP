@@ -22,6 +22,7 @@ class Pool:
         self.probes = Probes(hyper_params)
         self.blends = Blends(hyper_params)
         self.elite = Elite(hyper_params)
+        self.scores = []
         self.set_weights_dicts()
         self.set_param_vecs()
 
@@ -39,3 +40,9 @@ class Pool:
         """
         #self.param_vecs =
         pass
+
+    def set_new_pool(self, scores):
+        self.elite.set_elite(scores)
+        self.anchors.set_anchors(scores)
+        self.probes.set_probes(scores)
+        self.blends.set_blends(scores)

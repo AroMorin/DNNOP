@@ -33,8 +33,9 @@ def main():
     model = model_factory.make_model("MNIST CNN", precision)
 
     # Make an algorithm --algorithm takes control of the model--
-    hyper_params = {"learning rate": 0.01,
-                    "momentum": 0.5}
+    hyper_params = {
+                    "learning rate": 0.01,
+                    }
     alg = algorithms_factory.make_alg("sgd", model, hyper_params)
 
     # Make a solver

@@ -34,22 +34,23 @@ class Solver():
     def train_dataset_with_validation(self, optimization_steps):
         """In cases where a dataset is being trained with a validation component
         such as MNIST.
+        Note: the names of the functions called here have to be universal among
+        algorithms. This ensures the desired "plug n play" functionality.
         """
         print("Training model(s) on a dataset w/ validation")
         # Local variable definition
         env = self.env
         alg = self.algorithm
-        batches = self.env.nb_batches
 
         # Process
         for _ in range(optimization_steps):
-            for __ in range(batches):
-                env.step()
-                alg.optimize(env)
-                self.current_step +=1
+            alg.optimize(env)
             alg.test(env)
             alg.print_test_accuracy(env)
             self.elapsed_steps += 1
+            if alg.achieved_target:
+                print ("Achieved/exceeded target")
+                break # Terminate optimization
 
     def batch_train_dataset_with_validation(self, optimization_steps):
         """In cases where a dataset is being trained with a validation component

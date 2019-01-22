@@ -79,3 +79,10 @@ class Hyper_Parameters:
             self.max_integrity = self.hyper_params["maximum integrity"]
             self.target = self.hyper_params["target"]
             self.minimizing = self.hyper_params["minimization mode"]
+            self.set_initial_score()
+
+    def set_initial_score(self):
+        if self.hyper_params['minimization mode']:
+            self.initial_score = 'inf'
+        else:
+            self.initial_score = '-inf'

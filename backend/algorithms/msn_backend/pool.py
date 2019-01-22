@@ -18,10 +18,11 @@ class Pool:
         self.models = models # List of Models
         self.weights_dicts = [] # List of weight dictionaries
         self.param_vecs = [] # List of parameter vectors
-        self.anchors = Anchors(hyper_params)
-        self.probes = Probes(hyper_params)
-        self.blends = Blends(hyper_params)
-        self.elite = Elite(hyper_params)
+        self.hp = hyper_params
+        self.elite = Elite()
+        self.anchors = Anchors()
+        self.probes = Probes()
+        self.blends = Blends()
         self.scores = []
         self.set_weights_dicts()
         self.set_param_vecs()

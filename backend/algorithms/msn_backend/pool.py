@@ -27,19 +27,19 @@ class Pool:
         self.set_weights_dicts()
         self.set_param_vecs()
 
-    def set_weights_dicts(self):
-        """This method takes in the list of models, i.e. pool, and produces
-        a list of weight dictionaries.
-        """
-        #self.weights_dicts =
-        pass
-
     def set_param_vecs(self):
         """This method takes in the list of weight dictionaries and produces
         a list of parameter vectors.
         Note: parameter vectors are essentially "flattened" weights.
         """
         #self.param_vecs =
+        pass
+
+    def set_weights_dicts(self):
+        """This method takes in the list of models, i.e. pool, and produces
+        a list of weight dictionaries.
+        """
+        #self.weights_dicts =
         pass
 
     def set_new_pool(self, scores):

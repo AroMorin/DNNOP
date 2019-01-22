@@ -2,7 +2,9 @@
 
 class Perturbation:
     def __init__(self, hp):
-        self.search_radius = ''
-        self.lambda = hp.lambda
-        self.lr = hp.lr
-        
+        self.hp = hp
+        self.search_radius = 0
+        self.num_selections = 0
+        self.integrity = self.hp.initial_integrity
+
+    def apply(self, vec):

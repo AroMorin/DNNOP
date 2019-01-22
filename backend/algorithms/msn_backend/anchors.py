@@ -3,7 +3,7 @@
 class Anchors:
     def __init__(self, hp):
         self.hp = hp
-        self.anchors = []
+        self.models = []
         self.anchors_idxs = []
         self.backtracking = False
         self.elapsed_steps = 0
@@ -15,15 +15,15 @@ class Anchors:
             sorted_scores = self.sort_scores(scores)
             sorted_idxs = self.get_sorted_idxs(sorted_scores, scores)
             anchors_idxs = self.get_anchors_idxs(sorted_idxs, pool)
-            self.assign_anchors()
+            self.assign_models()
         else:
-            self.anchors[-1] = elite  # Replace worst anchor with Elite
+            self.models[-1] = elite  # Replace worst anchor with Elite
             # Reset state
             self.backtracking = False
             self.elapsed_steps = 0
 
     def reset_state(self):
-        self.anchors = []
+        self.models = []
         self.anchors_idxs = []
 
     def review(self):
@@ -89,9 +89,9 @@ class Anchors:
         denominator = torch.add(torch.abs(a), torch.abs(b))
         return torch.div(numerator, denominator)
 
-    def assign_anchors(self, pool):
+    def assign_models(self, pool):
         for i in self.anchors_idxs:
-            self.anchors.append(pool[i])
+            self.models.append(pool[i])
 
 
 

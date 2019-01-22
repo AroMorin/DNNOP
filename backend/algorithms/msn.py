@@ -44,7 +44,7 @@ class MSN:
         pass
 
     def achieved_target(self):
-        if self.optim.hp["minimization mode"]:
-            return self.test_loss <= self.optim.hp["target loss"]
+        if self.optim.hp.minimizing:
+            return self.test_loss <= self.optim.hp.target_loss
         else:
-            return self.test_loss >= self.optim.hp["target loss"]
+            return self.test_loss >= self.optim.hp.target_loss

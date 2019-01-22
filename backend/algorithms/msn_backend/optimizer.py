@@ -15,6 +15,7 @@ class Optimizer:
     def __init__(self, models, hyper_params):
         self.hp = Hyper_Parameters(hyper_params) # Create a hyper parameters object
         self.pool = Pool(models, self.hp) # Create a pool object
+        self.integrity = self.hp.initial_integrity
 
     def inference(self, env):
         """This method runs inference on the given environment using the models.
@@ -38,15 +39,32 @@ class Optimizer:
         for output in outputs:
             score = output-self.hp.target
             scores.append(score)
-        return score
+        return scores
 
     def update(self, scores):
         """This method takes in the scores, feeds it to the pool so that the
         selection and update process can occur.
         The pool thus updates itself.
         """
-        self.pool.elite.set_elite(scores)
-        self.pool.anchors.set_anchors(scores, self.elite.elite, )
+        self.pool.set_param_vecs()
+        models = self.pool.param_vecs
+        self.pool.elite.set_elite(pool, scores)
+        elite = self.pool.elite.model
+        self.pool.anchors.set_anchors(models, scores, elite)
+        anchors = self.pool.anchors.models
         self.probes.set_probes(scores)
         self.blends.set_blends(scores)
         self.pool.set_new_pool(scores)
+
+    def set_integrity(self, scores):
+        if self.hp.step_size
+
+    def achieved_entropy(self, top_score):
+
+
+
+
+
+
+
+#

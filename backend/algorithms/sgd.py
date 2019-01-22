@@ -44,8 +44,8 @@ class SGD:
         if optimizer == None:
             self.optimizer = optim.SGD(
                             self.model.parameters(),
-                            lr=self.hyper_params['learning rate'],
-                            momentum=self.hyper_params['momentum']
+                            lr = self.hyper_params['learning rate'],
+                            momentum = self.hyper_params['momentum']
                             )
         else:
             self.optimizer = optimizer

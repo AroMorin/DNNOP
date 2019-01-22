@@ -14,6 +14,7 @@ class Hyper_Parameters:
         self.hyper_params = {}
         self.nb_anchors = 0
         self.nb_probes = 0
+        self.pool_size = 0
         self.lr = 0
         self.alpha = 0
         self.beta = 0
@@ -25,6 +26,7 @@ class Hyper_Parameters:
         self.def_integrity = 0
         self.min_integrity = 0
         self.max_integrity = 0
+        self.initial_integrity = 0
         self.target = 0
         self.minimizing = True
         self.set_hyperparams(hyper_params)
@@ -50,6 +52,9 @@ class Hyper_Parameters:
                                 "minimum distance": 10,
                                 "minimum entropy": 0.01,
                                 "step size": 0.05,
+                                "patience": 15,
+                                "default integrity": 0.9,
+                                "initial integrity": 0.5,
                                 "minimum integrity": 0,
                                 "maximum integrity": 1,
                                 "minimization mode": True,
@@ -66,6 +71,7 @@ class Hyper_Parameters:
             # Instantiate hyper parameters for MSN algorithm
             self.nb_anchors = self.hyper_params["number of anchors"]
             self.nb_probes = self.hyper_params["number of probes per anchor"]
+            self.pool_size = self.hyper_params["pool size"]
             self.lr = self.hyper_params["learning rate"]
             self.alpha = self.hyper_params["alpha"]
             self.beta = self.hyper_params["beta"]
@@ -75,10 +81,11 @@ class Hyper_Parameters:
             self.step_size = self.hyper_params["step size"]
             self.patience = self.hyper_params["patience"]
             self.def_integrity = self.hyper_params["default integrity"]
+            self.initial_integrity = self.hyper_params["initial integrity"]
             self.min_integrity = self.hyper_params["minimum integrity"]
             self.max_integrity = self.hyper_params["maximum integrity"]
-            self.target = self.hyper_params["target"]
             self.minimizing = self.hyper_params["minimization mode"]
+            self.target = self.hyper_params["target"]
             self.set_initial_score()
 
     def set_initial_score(self):

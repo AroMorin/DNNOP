@@ -13,27 +13,29 @@ from .msn_backend import optimizer as optim
 class MSN:
     def __init__(self, pool, hyper_params, optimizer):
         print ("Using MSN algorithm")
+        self.pool = pool
         self.pool_size = len(pool)
-        self.optim = None
+        self.optim = optimizer
+        self.hyper_params = hyper_params
         self.scores = []
-        self.set_optimizer(optimizer)
+        self.set_optimizer()
 
-    def set_optimizer(self, optimizer):
+    def set_optimizer(self):
         """If the user gives an optimizer, then use it. Otherwise, use the
         default MSN optimizer.
         The given optimizer has to contain the required methods for the MSN
         algorithm to function, for example inference().
         """
-        if optimizer == None:
-            self.optim = optimizer(pool, hyper_params)
+        if self.optim == None:
+            self.optim = optimizer(self.pool, self.hyper_params)
         else:
-            self.optim = optimizer
+            self.optim = self.optim
 
     def optimize(self, env):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        outputs = self.optim.inference(env)
+        outputs = self.optim.inference(self.pool, env)
         self.scores = self.optim.calculate_scores(outputs)
         self.optim.update(self.scores)
 

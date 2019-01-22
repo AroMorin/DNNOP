@@ -45,4 +45,8 @@ class Optimizer:
         selection and update process can occur.
         The pool thus updates itself.
         """
+        self.pool.elite.set_elite(scores)
+        self.pool.anchors.set_anchors(scores, self.elite.elite, )
+        self.probes.set_probes(scores)
+        self.blends.set_blends(scores)
         self.pool.set_new_pool(scores)

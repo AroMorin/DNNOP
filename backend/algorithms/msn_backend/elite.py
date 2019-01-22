@@ -4,24 +4,18 @@ class Elite:
     def __init__(self, hp):
         self.elite = None
         self.elite_score = hp.initial_score
-        self.patience = hp.patience
         self.minimizing = hp.minimizing
-        self.elapsed_steps = 0
 
     def set_elite(self, pool, scores):
-        self.review()
-        if not self.backtracking:
-            idx = get_top_score_idx(scores)
-            top_score = scores[idx]
-            if self.replace(top_score):
-                print ("Setting new elite")
-                elite = pool[idx]
-                self.clone_elite(elite)
-                self.elite_score = top_score
-                self.elapsed_steps = 0
-                return
-            self.elapsed_steps += 1
-            print ("Elite Score: %f" %self.elite_score)
+        idx = get_top_score_idx(scores)
+        top_score = scores[idx]
+        if self.replace(top_score):
+            print ("Setting new elite")
+            elite = pool[idx]
+            self.clone_elite(elite)
+            self.elite_score = top_score
+            return
+        print ("Elite Score: %f" %self.elite_score)
 
     def get_top_score_idx(self, scores):
         if self.minimizing:

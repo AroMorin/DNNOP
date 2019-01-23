@@ -16,12 +16,6 @@ class Elite:
             self.elite_score = top_score
         print ("Elite Score: %f" %self.elite_score)
 
-    def get_top_score_idx(self, scores):
-        if self.minimizing:
-            return argmin(scores)
-        else:
-            return argmax(scores)
-
     def replace(self, top_score):
         if self.minimizing:
             return top_score < self.elite_score

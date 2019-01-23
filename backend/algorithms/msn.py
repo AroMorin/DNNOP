@@ -37,14 +37,20 @@ class MSN:
         """
         outputs = self.optim.inference(self.pool, env)
         self.scores = self.optim.calculate_scores(outputs)
-        self.optim.update(self.scores)
+        self.pool = self.optim.update(self.scores)
 
     def test(self, env):
         """This is a method for testing."""
         pass
 
     def achieved_target(self):
-        if self.optim.hp.minimizing:
+        if self.hyper_params.minimizing:
             return self.test_loss <= self.optim.hp.target_loss
         else:
             return self.test_loss >= self.optim.hp.target_loss
+
+
+
+
+
+#

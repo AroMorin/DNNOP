@@ -1,16 +1,16 @@
 """Base class for anchors"""
 
+import math
+
 class Anchors:
     def __init__(self, hp):
         self.hp = hp
         self.models = []
         self.anchors_idxs = []
-        self.backtracking = False
         self.elapsed_steps = 0
 
     def set_anchors(self, pool, scores, elite):
         self.reset_state()
-        self.review()
         if not self.backtracking:
             sorted_scores = self.sort_scores(scores)
             sorted_idxs = self.get_sorted_idxs(sorted_scores, scores)
@@ -25,38 +25,6 @@ class Anchors:
     def reset_state(self):
         self.models = []
         self.anchors_idxs = []
-
-    def review(self):
-        if self.elapsed_steps > self.hp.patience:
-            self.backtracking = True
-        else:
-            self.elapsed_steps += 1
-
-    def sort_scores(self, scores):
-        """This function sorts the values in the list. Duplicates are removed
-        also.
-        """
-        if self.hp.minimizing:
-            sorted_scores = sorted(set(scores))
-        else:
-            sorted_scores = sorted(set(scores), reverse=True)
-        return sorted_scores
-
-    def get_sorted_idxs(self, sorted_scores, scores):
-        """This function checks each element in the sorted list to retrieve
-        all matching indices in the original scores list. This preserves
-        duplicates. It reduces the likelihood that anchor slots will be
-        unfilled.
-        """
-        sorted_idxs = []
-        for i in range(len(scores)):
-            score = sorted_scores[i]
-            idxs = [idx for idx, value in enumerate(scores) if value == score]
-            sorted_idxs.append(idxs)
-        # Sanity checks
-        assert len(sorted_idxs) == len(scores)  # No missing elements
-        assert len(set(sorted_idxs)) == len(sorted_idxs)  # No duplicates
-        return sorted_idxs
 
     def set_anchors_idxs(self, sorted_idxs, pool):
         for i in sorted_idxs:

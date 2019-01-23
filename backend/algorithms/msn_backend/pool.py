@@ -27,6 +27,15 @@ class Pool:
         self.set_weights_dicts()
         self.set_param_vecs()
 
+    def set_new_pool(self, scores):
+        self.set_param_vecs()
+        self.elite.set_elite(pool, scores)
+        elite = self.elite.model
+        self.anchors.set_anchors(self.param_vecs, scores, elite)
+        anchors = self.anchors.models
+        self.probes.set_probes(scores)
+        self.blends.set_blends(scores)
+
     def set_param_vecs(self):
         """This method takes in the list of weight dictionaries and produces
         a list of parameter vectors.
@@ -41,5 +50,3 @@ class Pool:
         """
         #self.weights_dicts =
         pass
-
-    def set_new_pool(self, scores):

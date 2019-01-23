@@ -46,21 +46,9 @@ class Optimizer:
         selection and update process can occur.
         The pool thus updates itself.
         """
-        self.pool.set_param_vecs()
-        models = self.pool.param_vecs
-        self.pool.elite.set_elite(pool, scores)
-        elite = self.pool.elite.model
-        self.pool.anchors.set_anchors(models, scores, elite)
-        anchors = self.pool.anchors.models
-        self.probes.set_probes(scores)
-        self.blends.set_blends(scores)
-        self.pool.set_new_pool(scores)
-
-    def set_integrity(self, scores):
-        if self.hp.step_size
-
-    def achieved_entropy(self, top_score):
-
+        self.set_integrity(scores)
+        self.pool.set_new_pool()
+        return self.pool.get_pool()
 
 
 

@@ -1,26 +1,22 @@
 """Base class for anchors"""
 
-import math
-
 class Anchors:
     def __init__(self, hp):
         self.hp = hp
         self.models = []
         self.anchors_idxs = []
-        self.elapsed_steps = 0
 
-    def set_anchors(self, pool, scores, elite):
-        self.reset_state()
-        if not self.backtracking:
-            sorted_scores = self.sort_scores(scores)
-            sorted_idxs = self.get_sorted_idxs(sorted_scores, scores)
-            anchors_idxs = self.get_anchors_idxs(sorted_idxs, pool)
+    def set_anchors(self, pool, analysis, elite):
+        """The func is structured as below in order for the conditional to
+        evaluate to True most of the time.
+        """
+        if not analysis.backtracking:
+            self.reset_state()
+            anchors_idxs = self.get_anchors_idxs(analysis.sorted_idxs, pool)
             self.assign_models()
         else:
-            self.models[-1] = elite  # Replace worst anchor with Elite
-            # Reset state
-            self.backtracking = False
-            self.elapsed_steps = 0
+            print ("Backtracking Activated! Inserting Elite")
+            self.models[-1] = elite  # Insert elite
 
     def reset_state(self):
         self.models = []
@@ -44,10 +40,11 @@ class Anchors:
             self.anchors_idxs.append(i)
 
     def check_distances(self, candidate, pool):
+        """Make sure the candidate is far enough from every anchor."""
         for i in self.anchors_idxs:
             anchor = pool[i]
             distance = self.canberra_distance(candidate, anchor)
-            if distance<self.hp.min_dist:
+            if distance < self.hp.min_dist:
                 return False
         return True
 

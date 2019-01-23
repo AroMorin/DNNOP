@@ -1,22 +1,25 @@
 """Class for analysis operations on the scores."""
 
+import math
+
 class Analysis:
-    def __init__(self, scores, hyper_params):
-        self.scores = scores
+    def __init__(self, hyper_params):
         self.hp = hyper_params
-        self.current_top = self.hyper_params.initial_score
-        self.new_top = self.hyper_params.initial_score
+        self.current_top = self.hp.initial_score
+        self.new_top = self.hp.initial_score
         self.top_idx = 0
+        self.scores = []
         self.sorted_scores = []
         self.sorted_idxs = []
         self.backtracking = False
+        self.elapsed_steps = 0  # Counts steps without improvement
 
     def analyze(self, scores):
         self.clean_list(scores)
-        self.review()
         self.sort_scores()
-        self.set_sorted_idxs()
+        self.sort_idxs()
         self.set_integrity()
+        self.review()
 
     def clean_list(self, mylist):
         # Remove NaNs
@@ -33,7 +36,7 @@ class Analysis:
         self.new_top = self.sorted_scores[0]
         print("New top score: %f" %self.new_top)
 
-    def get_sorted_idxs(self):
+    def sort_idxs(self):
         """This function checks each element in the sorted list to retrieve
         all matching indices in the original scores list. This preserves
         duplicates. It reduces the likelihood that anchor slots will be
@@ -53,7 +56,9 @@ class Analysis:
         if not self.improved():
             # Reduce integrity, but not below the minimum allowed level
             self.integrity = max(self.hp.step_size, self.hp.min_integrity)
-
+            self.elapsed_steps += 1
+        else:
+            self.elapsed_steps = 0
 
     def improved(self):
         """Calculate whether the score has satisfactorily improved or not based
@@ -68,18 +73,29 @@ class Analysis:
             return True
 
     def set_entropy(self):
+        """Function is constructed such that the conditional will evaluate to
+        True most of the time.
+        The integrity needs to be reset at some point, however. Maybe backtracking
+        is just enough for now? I want to reset integrity once no improvement
+        was detected (but only the first instance of such occasion).
+        """
         if self.current_top != 0:
-            self.entropy = ((self.new_top - self.current_top)./abs(self.current_top))*100
+            # Percentage change
+            self.entropy = ((self.new_top-self.current_top)./abs(self.current_top))*100
         else:
-            self.entropy = 0
+            # Prevent division by zero
+            self.entropy = ((self.new_top-self.current_top)./abs(self.hp.epsilon))*100
         print("Entropy: %f" %self.entropy)
 
     def review(self):
+        """Only activate backtracking for the current iteration, if the conditions
+        are met. Then reset it the following turn(s). If activated, reset
+        counter.
+        """
+        self.backtracking = False
         if self.elapsed_steps > self.hp.patience:
             self.backtracking = True
-        else:
-            self.elapsed_steps += 1
-
+            self.elapsed_steps = 0
 
 
 

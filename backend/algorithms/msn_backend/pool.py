@@ -12,6 +12,8 @@ from .anchors import Anchors
 from .probes import Probes
 from .blends import Blends
 from .elite import Elite
+from .analysis import Analysis
+from .perturbation import Perturbation
 
 class Pool:
     def __init__(self, models, hyper_params):
@@ -23,18 +25,37 @@ class Pool:
         self.anchors = Anchors(hyper_params)
         self.probes = Probes(hyper_params)
         self.blends = Blends(hyper_params)
+        self.perturb = Perturbation(hyper_params)
+        self.analyzer = Analysis(hyper_params)
         self.scores = []
-        self.set_weights_dicts()
+        self.get_weights_dicts()
         self.set_param_vecs()
 
     def set_new_pool(self, scores):
-        self.set_param_vecs()
-        self.elite.set_elite(pool, scores)
+        self.analyzer.analyze(scores)
+
+        self.elite.set_elite(self.param_vecs, self.analyzer)
         elite = self.elite.model
-        self.anchors.set_anchors(self.param_vecs, scores, elite)
+
+        self.anchors.set_anchors(self.param_vecs, self.analyzer, elite)
         anchors = self.anchors.models
-        self.probes.set_probes(scores)
-        self.blends.set_blends(scores)
+
+        self.probes.set_probes(anchors, self.analyzer)
+        probes = self.probes.models
+
+        self.blends.set_blends(self.anchors.models, self.analyzer)
+        blends = self.blends.models
+
+        self.construct_pool()
+        self.set_weight_dicts()
+        self.update_models()
+
+    def get_weights_dicts(self):
+        """This method takes in the list of models, i.e. pool, and produces
+        a list of weight dictionaries.
+        """
+        #self.weights_dicts =
+        pass
 
     def set_param_vecs(self):
         """This method takes in the list of weight dictionaries and produces
@@ -44,9 +65,39 @@ class Pool:
         #self.param_vecs =
         pass
 
-    def set_weights_dicts(self):
-        """This method takes in the list of models, i.e. pool, and produces
-        a list of weight dictionaries.
+    def construct_pool(self):
+        self.apply_perturbation(self.probes)
+        self.apply_perturbation(self.blends)
+        self.pool = []
+        self.append_to_list(self.pool, self.anchors)
+        self.append_to_list(self.pool, self.probes)
+        self.append_to_list(self.pool, self.blends)
+        assert len(self.pool) == self.hp.pool_size  # Sanity check
+
+    def apply_perturbation(self, models):
+        for v in vectors:
+            self.perturb.apply(v, self.probes.radial_expansion)
+
+    def append_to_list(self, mylist, incoming):
+        for item in incoming:
+            mylist.append(item)
+        return mylist
+
+    def set_weight_dicts(self):
+        """This method takes in parameter vectors and shapes them into weight
+        dictionaries.
         """
-        #self.weights_dicts =
         pass
+
+    def update_models(self):
+        """This function updates the ".parameters" of the models using the
+        newly-constructed weight dictionaries.
+        """
+        pass
+
+
+
+
+
+
+#

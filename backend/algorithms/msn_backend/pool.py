@@ -43,7 +43,7 @@ class Pool:
         self.probes.set_probes(anchors, self.analyzer)
         probes = self.probes.models
 
-        self.blends.set_blends(self.anchors.models, self.analyzer)
+        self.blends.set_blends(self.anchors.models, self.models, self.analyzer)
         blends = self.blends.models
 
         self.construct_pool()
@@ -67,7 +67,6 @@ class Pool:
 
     def construct_pool(self):
         # Define noise magnitude and scale
-        self.perturb.set_perturbation(self.analyzer.integrity)
         self.apply_perturbation(self.probes)
         self.apply_perturbation(self.blends)
         self.pool = []
@@ -76,9 +75,9 @@ class Pool:
         self.append_to_list(self.pool, self.blends)
         assert len(self.pool) == self.hp.pool_size  # Sanity check
 
-    def apply_perturbation(self, models):
-        for v in vectors:
-            self.perturb.apply(v, self.probes.radial_expansion)
+    def apply_perturbation(self, tensors):
+        for t in tensors:
+            self.perturb.apply(t, self.analyzer)
 
     def append_to_list(self, mylist, incoming):
         for item in incoming:

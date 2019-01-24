@@ -22,6 +22,8 @@ class Analysis:
         self.sort_idxs()
         self.set_integrity()
         self.review()
+        self.set_num_selections()
+        self.set_search_radius()
 
     def clean_list(self, mylist):
         # Remove NaNs
@@ -110,6 +112,26 @@ class Analysis:
             self.backtracking = True
             self.elapsed_steps = 0
 
+        if self.hp.radial_expansion:
+            self.hp.radial_expansion = False
+            self.hp.lr = self.hp.lr * self.hp.expansion_factor
+            self.hp.alpha = self.hp.alpha * self.hp.expansion_factor
+            self.hp.lambda_ = self.hp.lambda_*self.hp.expansion_factor
+        else:
+            # If I want to reset values after expansion
+            pass
+
+    def set_num_selections(self):
+        p = 1-self.integrity
+        numerator = self.hp.alpha
+        denominator = 1+(self.hp.beta/p)
+        self.num_selections = numerator/denominator
+
+    def set_search_radius(self):
+        p = 1-self.integrity
+        argument = (self.hp.lamda_*p)-2.5
+        exp1 = np.tanh(argument)+1
+        self.search_radius = exp1*self.hp.lr
 
 
 

@@ -1,5 +1,7 @@
 """Base class for anchors"""
 
+import torch
+
 class Anchors:
     def __init__(self, hp):
         self.hp = hp
@@ -50,7 +52,8 @@ class Anchors:
 
     def canberra_distance(a, b):
         """Calculates Canberra distance between two vectors."""
-        numerator = torch.abs(torch.add(a, -1, b))
+        #numerator = torch.abs(torch.add(a, -1, b))
+        numerator = torch.abs(a.sub(b))
         denominator = torch.add(torch.abs(a), torch.abs(b))
         return torch.div(numerator, denominator)
 

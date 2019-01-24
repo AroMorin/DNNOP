@@ -41,7 +41,7 @@ def main():
     # Make a solver
     slv = Solver(env, alg)
 
-    slv.batch_train_dataset_with_validation(args.epochs)
+    slv.batch_train_dataset_with_validation( )
     #hyper_params = {"learning_rate": args.lr, "epochs":args.epochs,
     #"batch_size":args.batch_size}
     #experiment.log_multiple_params(hyper_params)
@@ -52,26 +52,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

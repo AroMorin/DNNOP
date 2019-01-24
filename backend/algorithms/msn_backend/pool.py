@@ -66,6 +66,8 @@ class Pool:
         pass
 
     def construct_pool(self):
+        # Define noise magnitude and scale
+        self.perturb.set_perturbation(self.analyzer.integrity)
         self.apply_perturbation(self.probes)
         self.apply_perturbation(self.blends)
         self.pool = []

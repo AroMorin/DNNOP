@@ -3,6 +3,7 @@ It is expected that the optimizer object will be compatible with the SGD
 interface.
 """
 
+from __future__ import division
 import torch
 import torch.nn.functional as F
 import torch.optim as optim

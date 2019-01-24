@@ -1,5 +1,6 @@
 """Class for analysis operations on the scores."""
 
+from __future__ import division
 import math
 
 class Analysis:
@@ -13,6 +14,7 @@ class Analysis:
         self.sorted_idxs = []
         self.backtracking = False
         self.elapsed_steps = 0  # Counts steps without improvement
+        self.reset_integrity = False
 
     def analyze(self, scores):
         self.clean_list(scores)
@@ -53,11 +55,22 @@ class Analysis:
         self.top_idx = self.sorted_idxs[0]
 
     def set_integrity(self):
+        """Once an improvement is detected, the flag "reset_integrity" is set
+        to True. This means that if later there wasn't an improvement, integrity
+        would be reset. Hence, it ensures that integrity restarts with every
+        improvement, and only with improvement. If once searching starts, then
+        integrity is reduced normally.
+        """
         if not self.improved():
-            # Reduce integrity, but not below the minimum allowed level
-            self.integrity = max(self.hp.step_size, self.hp.min_integrity)
-            self.elapsed_steps += 1
-        else:
+            if not self.search_start:
+                # Reduce integrity, but not below the minimum allowed level
+                self.integrity = max(self.hp.step_size, self.hp.min_integrity)
+                self.elapsed_steps += 1
+            else:
+                self.integrity = self.hp.def_integrity  # Reset integrity
+                self.search_start = False
+        else:  # Improved
+            self.search_start = True
             self.elapsed_steps = 0
 
     def improved(self):
@@ -81,10 +94,10 @@ class Analysis:
         """
         if self.current_top != 0:
             # Percentage change
-            self.entropy = ((self.new_top-self.current_top)./abs(self.current_top))*100
+            self.entropy = ((self.new_top-self.current_top)/abs(self.current_top))*100
         else:
             # Prevent division by zero
-            self.entropy = ((self.new_top-self.current_top)./abs(self.hp.epsilon))*100
+            self.entropy = ((self.new_top-self.current_top)/abs(self.hp.epsilon))*100
         print("Entropy: %f" %self.entropy)
 
     def review(self):

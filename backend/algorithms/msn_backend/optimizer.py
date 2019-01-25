@@ -47,9 +47,8 @@ class Optimizer:
         The pool thus updates itself.
         """
         self.set_integrity(scores)
-        self.pool.set_new_pool()
-        return self.pool.get_pool()
-
+        self.pool.prep_new_pool()
+        self.pool.update_models()
 
 
 

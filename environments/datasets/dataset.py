@@ -24,13 +24,15 @@ class Dataset(Environment):
         self.batch_size = 0
         self.current_batch_idx = 0
         self.set_batch_size(batch_size)
-        assert isinstance(data_path, str) # Sanity check
+        assert isinstance(data_path, str)  # Sanity check
         self.data_path = data_path
 
     def set_batch_size(self, batch_size):
-        if batch_size != None:
-            assert isinstance(batch_size, int) # Sanity check
+        if batch_size != 0:
+            assert isinstance(batch_size, int)  # Sanity check
             self.batch_size = batch_size
+        else:
+            self.batch_size = self.train_size
 
     def load_dataset(self):
         """Placeholder method for initializing and loading the dataset."""

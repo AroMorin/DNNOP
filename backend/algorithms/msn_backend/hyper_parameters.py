@@ -25,6 +25,7 @@ class Hyper_Parameters:
         self.min_entropy = 0
         self.step_size = 0
         self.patience = 0
+        self.expansion_factor = 0
         self.def_integrity = 0
         self.min_integrity = 0
         self.max_integrity = 0
@@ -33,8 +34,8 @@ class Hyper_Parameters:
         self.minimizing = True
         self.initial_score = math.inf
         self.epsilon = 0.00000001  # Prevents division by zero
-        self.set_hyperparams_dict()
-        self.set_hyperparams(hyper_params)
+        self.set_hyperparams_dict(hyper_params)
+        self.set_hyperparams()
 
     def set_hyperparams_dict(self, hyper_params):
         """This function updates the default hyper parameters dictionary. It
@@ -48,10 +49,10 @@ class Hyper_Parameters:
                                 "number of anchors": 4,
                                 "number of probes per anchor": 8,
                                 "pool size": 50,
-                                "learning rate": 1,
-                                "alpha":1,
-                                "beta": 1,
-                                "lambda":1,
+                                "alpha":0.7,
+                                "beta": 0.3,
+                                "learning rate": 2,
+                                "lambda":0.75,
                                 "patience": 80,
                                 "minimum distance": 10,
                                 "minimum entropy": 0.01,
@@ -63,6 +64,7 @@ class Hyper_Parameters:
                                 "maximum integrity": 0.9,
                                 "minimization mode": True,
                                 "target": 0,
+                                "expansion factor": 0.05
                             }
         # Update dictionary if appropriate
         if isinstance(hyper_params, dict):
@@ -76,9 +78,9 @@ class Hyper_Parameters:
             self.nb_anchors = self.hyper_params["number of anchors"]
             self.nb_probes = self.hyper_params["number of probes per anchor"]
             self.pool_size = self.hyper_params["pool size"]
-            self.lr = self.hyper_params["learning rate"]
             self.alpha = self.hyper_params["alpha"]
             self.beta = self.hyper_params["beta"]
+            self.lr = self.hyper_params["learning rate"]
             self.lambda_ = self.hyper_params["lambda"]
             self.min_dist = self.hyper_params["minimum distance"]
             self.min_entropy = self.hyper_params["minimum entropy"]
@@ -90,6 +92,7 @@ class Hyper_Parameters:
             self.max_integrity = self.hyper_params["maximum integrity"]
             self.minimizing = self.hyper_params["minimization mode"]
             self.target = self.hyper_params["target"]
+            self.expansion_factor = self.hyper_params["expansion factor"]
             self.set_initial_score()
 
     def set_initial_score(self):

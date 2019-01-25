@@ -8,7 +8,7 @@ desired hyper parameters. An example of hyper params is the number of Anchors.
 The optimizer object will own the pool.?
 """
 import torch
-from .msn_backend import optimizer as optim
+from .msn_backend.optimizer import Optimizer
 
 class MSN:
     def __init__(self, pool, hyper_params, optimizer):
@@ -27,7 +27,7 @@ class MSN:
         algorithm to function, for example inference().
         """
         if self.optim == None:
-            self.optim = optimizer(self.pool, self.hyper_params)
+            self.optim = Optimizer(self.pool, self.hyper_params)
         else:
             self.optim = self.optim
 
@@ -35,9 +35,9 @@ class MSN:
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        outputs = self.optim.inference(self.pool, env)
+        outputs = self.optim.inference(env)
         self.scores = self.optim.calculate_scores(outputs)
-        self.pool = self.optim.update(self.scores)
+        self.optim.update(self.scores)
 
     def test(self, env):
         """This is a method for testing."""

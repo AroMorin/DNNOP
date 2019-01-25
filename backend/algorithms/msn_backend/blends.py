@@ -22,6 +22,7 @@ class Blends:
         self.nb_anchors = len(anchors)
         self.nb_blends = self.pool_size-(self.nb_anchors*self.hp.nb_probes)
         if self.nb_blends>0:
+            self.select_indices()
             self.select_parents1()
             self.select_parents2()
             self.blend()
@@ -30,6 +31,7 @@ class Blends:
         # In case I wanted a variable blending method
         #indices = random.sample(range(self.vec_length), self.analyzer.num_selections)
         #self.indices = random.sample(range(self.vec_length), self.vec_length/2)
+        # I can select/determine a random sequence, and keep it for the iteration
         self.indices = np.arange(start=0, stop=self.vec_length, step=2)
 
     def select_anchors(self):
@@ -42,5 +44,5 @@ class Blends:
         for i in range(self.nb_blends):
             p1 = self.anchors[self.parents1[i]]
             p2 = self.current_pool[self.parents2[i]]
-            p1.put_(indices=self.indices,tensor=p2)
+            p1.put_(indices=self.indices, tensor=p2)  # Accumulate false
             self.models.append(p1)

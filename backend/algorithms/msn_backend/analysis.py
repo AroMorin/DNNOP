@@ -24,6 +24,8 @@ class Analysis:
         self.review()
         self.set_num_selections()
         self.set_search_radius()
+        print("Integrity: %f" %self.integrity)
+
 
     def clean_list(self, mylist):
         # Remove NaNs
@@ -75,6 +77,7 @@ class Analysis:
             self.search_start = True
             self.elapsed_steps = 0
 
+
     def improved(self):
         """Calculate whether the score has satisfactorily improved or not based
         on the pre-defined hyper parameters.
@@ -111,6 +114,7 @@ class Analysis:
         if self.elapsed_steps > self.hp.patience:
             self.backtracking = True
             self.elapsed_steps = 0
+            self.integrity = self.hp.def_integrity  # Reset integrity
 
         if self.hp.radial_expansion:
             self.hp.radial_expansion = False

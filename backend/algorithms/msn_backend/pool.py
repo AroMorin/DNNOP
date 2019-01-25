@@ -15,11 +15,17 @@ from .elite import Elite
 from .analysis import Analysis
 from .perturbation import Perturbation
 
+import torch
+
 class Pool:
     def __init__(self, models, hyper_params):
         self.models = models # List of Models
-        self.weights_dicts = [] # List of weight dictionaries
+        self.state_dicts = [] # List of weight dictionaries
         self.param_vecs = [] # List of parameter vectors
+        self.nb_layers = 0
+        self.shapes = []
+        self.num_elems = []
+        self.elite_dict = {}
         self.hp = hyper_params
         self.elite = Elite(hyper_params)
         self.anchors = Anchors(hyper_params)
@@ -28,10 +34,10 @@ class Pool:
         self.perturb = Perturbation(hyper_params)
         self.analyzer = Analysis(hyper_params)
         self.scores = []
-        self.get_weights_dicts()
+        self.set_state_dicts()
         self.set_param_vecs()
 
-    def set_new_pool(self, scores):
+    def prep_new_pool(self, scores):
         self.analyzer.analyze(scores)
 
         self.elite.set_elite(self.param_vecs, self.analyzer)
@@ -39,6 +45,8 @@ class Pool:
 
         self.anchors.set_anchors(self.param_vecs, self.analyzer, elite)
         anchors = self.anchors.models
+
+        exit()
 
         self.probes.set_probes(anchors, self.analyzer)
         probes = self.probes.models
@@ -50,20 +58,44 @@ class Pool:
         self.set_weight_dicts()
         self.update_models()
 
-    def get_weights_dicts(self):
+    def set_state_dicts(self):
         """This method takes in the list of models, i.e. pool, and produces
         a list of weight dictionaries.
         """
-        #self.weights_dicts =
-        pass
+        for model in self.models:
+            self.state_dicts.append(model.state_dict())
+        self.nb_layers = len(model.state_dict())
 
     def set_param_vecs(self):
         """This method takes in the list of weight dictionaries and produces
         a list of parameter vectors.
         Note: parameter vectors are essentially "flattened" weights.
         """
-        #self.param_vecs =
-        pass
+        for state_dict in self.state_dicts:
+            vec = self.dict_to_vec(state_dict)
+            self.param_vecs.append(vec)
+
+    def dict_to_vec(self, dict):
+        vec = torch.empty(self.nb_layers)
+        for i, key in enumerate(dict):
+            x = torch.tensor(dict[key])
+            self.shapes.append(x.size())
+            self.num_elems.append(x.numel())
+            print(x.size())
+            print(x.numel())
+            vec[i] = x.reshape(1, 250)
+        print (mylist)
+        print (len(mylist))
+        print(type(mylist[0]))
+        print(mylist[0].size())
+        print(mylist[1].size())
+        vec = torch.as_tensor(mylist)
+        print (vec.size())
+        print (type(vec))
+        print (type(vec[0]))
+        print (vec[0].size())
+        exit()
+        return vec
 
     def construct_pool(self):
         # Define noise magnitude and scale
@@ -95,7 +127,6 @@ class Pool:
         newly-constructed weight dictionaries.
         """
         pass
-
 
 
 

@@ -8,6 +8,7 @@ desired hyper parameters. An example of hyper params is the number of Anchors.
 The optimizer object will own the pool.?
 """
 import torch
+import torch.nn.functional as F
 from .msn_backend.optimizer import Optimizer
 
 class MSN:
@@ -16,6 +17,11 @@ class MSN:
         self.pool = pool
         self.pool_size = len(pool)
         self.optim = optimizer
+        self.train_loss = 0.
+        self.test_loss = 0.
+        self.train_acc = 0.
+        self.test_acc = 0.
+        self.correct_test_preds = 0
         self.hyper_params = hyper_params
         self.scores = []
         self.set_optimizer()
@@ -35,13 +41,33 @@ class MSN:
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        outputs = self.optim.inference(env)
-        self.scores = self.optim.calculate_scores(outputs)
+        outputs = self.optim.inference(env.x)
+        if env.loss:
+            if env.loss_type == 'NLL loss':
+                self.train_loss = F.nll_loss(outputs, env.y)
+                print(self.train_loss)
+                print("Loss: %f" %self.train_loss)
+            else:
+                print("Unknown loss type")
+                exit()
+            self.scores = self.optim.calculate_scores(self.train_loss)
+        else:
+            self.scores = self.optim.calculate_scores(outputs)
         self.optim.update(self.scores)
 
     def test(self, env):
         """This is a method for testing."""
-        pass
+        outputs = self.optim.inference(env.x_t, test=True)
+        if env.loss:
+            if env.loss_type == 'NLL loss':
+                self.test_loss = F.nll_loss(outputs, env.y_t, reduction='sum').item()
+                pred = predictions.max(1, keepdim=True)[1]
+                self.correct_test_preds = pred.eq(env.y_t.view_as(pred)).sum().item()
+            else:
+                print("Unknown loss type")
+                exit()
+        else:
+            self.scores = self.optim.calculate_scores(outputs)
 
     def achieved_target(self):
         if self.hyper_params.minimizing:

@@ -10,6 +10,7 @@ updated.
 
 from .hyper_parameters import Hyper_Parameters
 from .pool import Pool
+import torch
 
 class Optimizer:
     def __init__(self, models, hyper_params):
@@ -17,15 +18,18 @@ class Optimizer:
         self.pool = Pool(models, self.hp) # Create a pool object
         self.integrity = self.hp.initial_integrity
 
-    def inference(self, env):
+    def inference(self, env, test=False):
         """This method runs inference on the given environment using the models.
         I'm not sure, but I think there could be many ways to run inference. For
         that reason, I designate this function, to be a single point of contact
         for running inference, in whatever way the user/problem requires.
         """
         outputs = []
-        for model in self.pool:
-            outputs.append(model(env))
+        with torch.no_grad():
+            for model in self.pool.models:
+                if test:
+                    model.eval()  # Turn on evaluation mode
+                outputs.append(model(env))
         return outputs
 
     def calculate_scores(self, outputs):

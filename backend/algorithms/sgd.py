@@ -13,10 +13,10 @@ class SGD:
         """Model is owned by the class, so it is set as a class attribute."""
         print("Using SGD algorithm")
         self.model = model # Model is set as a class attribute
-        self.train_loss = 0
-        self.test_loss = 0
-        self.train_acc = 0
-        self.test_acc = 0
+        self.train_loss = 0.
+        self.test_loss = 0.
+        self.train_acc = 0.
+        self.test_acc = 0.
         # Number of instances where the model's prediction was correct
         self.correct_test_preds = 0
         self.hyper_params = {}
@@ -58,8 +58,6 @@ class SGD:
             return self.test_loss >= self.hyper_params["target loss"]
 
     def optimize(self, env):
-        """I chose not to use local variables.
-        """
         self.model.train() #Sets behavior to "training" mode
         self.optimizer.zero_grad()
         predictions = self.model(env.x)

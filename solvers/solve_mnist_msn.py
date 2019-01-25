@@ -16,12 +16,12 @@ import torch
 def main():
     # Assumes CUDA is available
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-    parser.add_argument('--pool_size', type=int, default=50, metavar='N',
-                        help='number of samples in the pool (def: 50)')
-    parser.add_argument('--nb_anchors', type=int, default=4, metavar='N',
-                        help='number of anchors (def: 4)')
-    parser.add_argument('--nb_probes', type=int, default=8, metavar='N',
-                        help='number of probes per anchor (def: 8)')
+    parser.add_argument('--pool_size', type=int, default=15, metavar='N',
+                        help='number of samples in the pool (def: 25)')
+    parser.add_argument('--nb_anchors', type=int, default=3, metavar='N',
+                        help='number of anchors (def: 3)')
+    parser.add_argument('--nb_probes', type=int, default=3, metavar='N',
+                        help='number of probes per anchor (def: 3)')
     parser.add_argument('--iterations', type=int, default=500, metavar='N',
                         help='maximum number of optimization steps (def: 500)')
     args = parser.parse_args()
@@ -36,9 +36,11 @@ def main():
     pool = model_factory.make_pool("MNIST CNN", args.pool_size, precision)
 
     # Make an algorithm --algorithm takes control of the pool--
-    hyper_params = {"pool size": args.pool_size,
+    hyper_params = {
+                    "pool size": args.pool_size,
                     "number of anchors": args.nb_anchors,
-                    "number of probes per anchor": args.nb_probes}
+                    "number of probes per anchor": args.nb_probes
+                    }
     alg = algorithm_factory.make_alg("MSN", pool, hyper_params)
 
     # Make a solver

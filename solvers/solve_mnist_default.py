@@ -41,7 +41,7 @@ def main():
     # Make a solver
     slv = Solver(env, alg)
 
-    slv.batch_train_dataset_with_validation( )
+    slv.batch_train_dataset_with_validation(args.epochs)
     #hyper_params = {"learning_rate": args.lr, "epochs":args.epochs,
     #"batch_size":args.batch_size}
     #experiment.log_multiple_params(hyper_params)

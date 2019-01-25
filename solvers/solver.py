@@ -44,6 +44,7 @@ class Solver():
 
         # Process
         for _ in range(optimization_steps):
+            env.step()
             alg.optimize(env)
             alg.test(env)
             alg.print_test_accuracy(env)

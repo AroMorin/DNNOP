@@ -15,8 +15,9 @@ def make_pool(name, pool_size, precision=torch.float, init_scheme='Xavier Normal
     pool = []
     for _ in range(pool_size):
         if name == "MNIST CNN":
-            model = MNIST_CNN()
-            model.cuda().to(precision)
-            pool.append(model)
+            with torch.no_grad():
+                model = MNIST_CNN()
+                model.cuda().to(precision)
+                pool.append(model)
     assert len(pool) == pool_size
     return pool

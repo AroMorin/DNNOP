@@ -76,26 +76,20 @@ class Pool:
             self.param_vecs.append(vec)
 
     def dict_to_vec(self, dict):
-        vec = torch.empty(self.nb_layers)
+        mylist = []
         for i, key in enumerate(dict):
             x = torch.tensor(dict[key])
             self.shapes.append(x.size())
             self.num_elems.append(x.numel())
-            print(x.size())
-            print(x.numel())
-            vec[i] = x.reshape(1, 250)
-        print (mylist)
-        print (len(mylist))
-        print(type(mylist[0]))
-        print(mylist[0].size())
-        print(mylist[1].size())
-        vec = torch.as_tensor(mylist)
-        print (vec.size())
-        print (type(vec))
-        print (type(vec[0]))
-        print (vec[0].size())
-        exit()
+            mylist.append(x.reshape(x.numel()))
+        vec = torch.cat(mylist)
         return vec
+
+    def vec_to_dict(self, vec):
+        x = vec.split(self.num_elems)
+        for i in range(self.nb_layers):
+            x[i] = x[i].reshape(self.shapes[i])
+        return x
 
     def construct_pool(self):
         # Define noise magnitude and scale

@@ -22,6 +22,7 @@ class Pool:
         self.models = models # List of Models
         self.state_dicts = [] # List of weight dictionaries
         self.param_vecs = [] # List of parameter vectors
+        self.new_pool = []
         self.nb_layers = 0
         self.shapes = []
         self.num_elems = []
@@ -48,15 +49,12 @@ class Pool:
 
 
         self.probes.set_probes(anchors, self.analyzer)
-        probes = self.probes.models
+        self.blends.set_blends(anchors, self.param_vecs, self.analyzer)
 
-        self.blends.set_blends(self.anchors.models, self.param_vecs, self.analyzer)
-        blends = self.blends.models
-
-        exit()
         self.construct_pool()
         self.set_weight_dicts()
         self.update_models()
+        exit()
 
     def set_state_dicts(self):
         """This method takes in the list of models, i.e. pool, and produces
@@ -93,12 +91,17 @@ class Pool:
 
     def construct_pool(self):
         # Define noise magnitude and scale
-        self.apply_perturbation(self.probes)
-        self.apply_perturbation(self.blends)
+        self.apply_perturbation(self.probes.models)
+        self.apply_perturbation(self.blends.models)
         self.pool = []
-        self.append_to_list(self.pool, self.anchors)
-        self.append_to_list(self.pool, self.probes)
-        self.append_to_list(self.pool, self.blends)
+        self.append_to_list(self.pool, self.anchors.models)
+        self.append_to_list(self.pool, self.probes.models)
+        self.append_to_list(self.pool, self.blends.models)
+        print(len(self.anchors.models))
+        print(len(self.probes.models))
+        print(len(self.blends.models))
+        print(len(self.pool))
+        print(self.hp.pool_size)
         assert len(self.pool) == self.hp.pool_size  # Sanity check
 
     def apply_perturbation(self, tensors):

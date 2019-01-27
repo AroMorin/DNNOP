@@ -15,19 +15,25 @@ class Analysis:
         self.backtracking = False
         self.elapsed_steps = 0  # Counts steps without improvement
         self.reset_integrity = False
+        self.integrity = self.hp.initial_integrity
+        self.lr = self.hp.lr
+        self.alpha = self.hp.alpha
+        self.lambda_ = self.hp.lambda_
 
-    def analyze(self, scores):
+    def analyze(self, scores, nb_anchors):
         self.clean_list(scores)
         self.sort_scores()
         self.sort_idxs()
         self.set_integrity()
-        self.review()
+        self.review(nb_anchors)
         self.set_num_selections()
         self.set_search_radius()
         print("Integrity: %f" %self.integrity)
 
 
     def clean_list(self, mylist):
+        # Get scores
+        mylist = [i.item() for i in mylist]
         # Remove NaNs
         self.scores = [x for x in mylist if not math.isnan(x)]
 
@@ -49,15 +55,13 @@ class Analysis:
         unfilled.
         """
         self.sorted_idxs = []
-        for i in range(len(self.scores)):
+        for i in range(len(self.sorted_scores)):
             score = self.sorted_scores[i]
             idxs = [idx for idx, value in enumerate(self.scores) if value == score]
-            self.sorted_idxs.append(idxs)
+            for idx in idxs:
+                self.sorted_idxs.append(idx)
         # Sanity checks
         assert len(self.sorted_idxs) == len(self.scores)  # No missing elements
-        print (type(self.sorted_idxs))
-        print (len(set(self.sorted_idxs)))
-        print (len(self.sorted_idxs))
         assert len(set(self.sorted_idxs)) == len(self.sorted_idxs)  # No duplicates
         self.top_idx = self.sorted_idxs[0]
 
@@ -108,25 +112,39 @@ class Analysis:
             self.entropy = ((self.new_top-self.current_top)/abs(self.hp.epsilon))*100
         print("Entropy: %f" %self.entropy)
 
-    def review(self):
+    def review(self, nb_anchors):
+        self.set_backtracking()
+        self.set_radial_expansion(nb_anchors)
+
+
+    def set_backtracking(self):
         """Only activate backtracking for the current iteration, if the conditions
         are met. Then reset it the following turn(s). If activated, reset
-        counter.
-        """
-        self.backtracking = False
+        counter."""
         if self.elapsed_steps > self.hp.patience:
             self.backtracking = True
             self.elapsed_steps = 0
             self.integrity = self.hp.def_integrity  # Reset integrity
-
-        if self.hp.radial_expansion:
-            self.hp.radial_expansion = False
-            self.hp.lr = self.hp.lr * self.hp.expansion_factor
-            self.hp.alpha = self.hp.alpha * self.hp.expansion_factor
-            self.hp.lambda_ = self.hp.lambda_*self.hp.expansion_factor
         else:
-            # If I want to reset values after expansion
-            pass
+            self.backtracking = False
+
+    def set_radial_expansion(self, nb_anchors):
+        """Triggers radial expansion only if the condition is met. Then in the
+        new turn it switches it off again.
+        It compares the actual number of anchors with the desired number of
+        anchors
+        """
+        if nb_anchors < self.hp.nb_anchors:
+            print("--Expanding Search Radius!--")
+            self.radial_expansion = True
+            self.lr = self.lr * self.hp.expansion_factor
+            self.alpha = self.alpha * self.hp.expansion_factor
+            self.lambda_ = self.lambda_ * self.hp.expansion_factor
+        else:
+            self.radial_expansion = False
+            self.lr = self.hp.lr
+            self.alpha = self.hp.alpha
+            self.lambda_ = self.hp.lambda_
 
     def set_num_selections(self):
         p = 1-self.integrity
@@ -136,8 +154,8 @@ class Analysis:
 
     def set_search_radius(self):
         p = 1-self.integrity
-        argument = (self.hp.lamda_*p)-2.5
-        exp1 = np.tanh(argument)+1
+        argument = (self.hp.lambda_*p)-2.5
+        exp1 = math.tanh(argument)+1
         self.search_radius = exp1*self.hp.lr
 
 

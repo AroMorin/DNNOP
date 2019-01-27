@@ -38,7 +38,7 @@ class Pool:
         self.set_param_vecs()
 
     def prep_new_pool(self, scores):
-        self.analyzer.analyze(scores)
+        self.analyzer.analyze(scores, self.anchors.nb_anchors)
 
         self.elite.set_elite(self.param_vecs, self.analyzer)
         elite = self.elite.model
@@ -46,14 +46,14 @@ class Pool:
         self.anchors.set_anchors(self.param_vecs, self.analyzer, elite)
         anchors = self.anchors.models
 
-        exit()
 
         self.probes.set_probes(anchors, self.analyzer)
         probes = self.probes.models
 
-        self.blends.set_blends(self.anchors.models, self.models, self.analyzer)
+        self.blends.set_blends(self.anchors.models, self.param_vecs, self.analyzer)
         blends = self.blends.models
 
+        exit()
         self.construct_pool()
         self.set_weight_dicts()
         self.update_models()

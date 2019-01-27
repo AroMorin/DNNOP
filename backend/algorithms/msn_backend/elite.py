@@ -6,11 +6,11 @@ class Elite:
         self.elite_score = hp.initial_score
         self.minimizing = hp.minimizing
 
-    def set_elite(self, pool, scores):
-        idx = get_top_score_idx(scores)
-        top_score = scores[idx]
+    def set_elite(self, pool, analyzer):
+        idx = analyzer.top_idx
+        top_score = analyzer.new_top
         if self.replace(top_score):
-            print ("Setting new elite")
+            print ("Setting new Elite")
             elite = pool[idx]
             self.clone_model(elite)
             self.elite_score = top_score

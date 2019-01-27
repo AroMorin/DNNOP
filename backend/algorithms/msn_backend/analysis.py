@@ -36,9 +36,9 @@ class Analysis:
         also.
         """
         if self.hp.minimizing:
-            self.sorted_scores = sorted(set(scores))
+            self.sorted_scores = sorted(set(self.scores))
         else:
-            self.sorted_scores = sorted(set(scores), reverse=True)
+            self.sorted_scores = sorted(set(self.scores), reverse=True)
         self.new_top = self.sorted_scores[0]
         print("New top score: %f" %self.new_top)
 
@@ -55,6 +55,9 @@ class Analysis:
             self.sorted_idxs.append(idxs)
         # Sanity checks
         assert len(self.sorted_idxs) == len(self.scores)  # No missing elements
+        print (type(self.sorted_idxs))
+        print (len(set(self.sorted_idxs)))
+        print (len(self.sorted_idxs))
         assert len(set(self.sorted_idxs)) == len(self.sorted_idxs)  # No duplicates
         self.top_idx = self.sorted_idxs[0]
 

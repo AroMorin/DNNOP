@@ -8,7 +8,6 @@ desired hyper parameters. An example of hyper params is the number of Anchors.
 The optimizer object will own the pool.?
 """
 import torch
-import torch.nn.functional as F
 from .msn_backend.optimizer import Optimizer
 
 class MSN:
@@ -17,11 +16,12 @@ class MSN:
         self.pool = pool
         self.pool_size = len(pool)
         self.optim = optimizer
-        self.train_loss = 0.
-        self.test_loss = 0.
-        self.train_acc = 0.
-        self.test_acc = 0.
-        self.correct_test_preds = 0
+        self.train_losses = []
+        self.test_losses = []
+        self.train_accs = []
+        self.test_accs = []
+        self.correct_test_preds = []
+        self.inferences = []
         self.hyper_params = hyper_params
         self.scores = []
         self.set_optimizer()
@@ -41,18 +41,13 @@ class MSN:
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        outputs = self.optim.inference(env.x)
+        self.optim.set_environment(env)  # Candidate for repositioning
+        self.inferences = self.optim.inference()
         if env.loss:
-            if env.loss_type == 'NLL loss':
-                self.train_loss = F.nll_loss(outputs, env.y)
-                print(self.train_loss)
-                print("Loss: %f" %self.train_loss)
-            else:
-                print("Unknown loss type")
-                exit()
-            self.scores = self.optim.calculate_scores(self.train_loss)
+            self.train_losses = self.optim.calculate_loss(self.inferences)
+            self.scores = self.optim.calculate_scores(self.train_losses)
         else:
-            self.scores = self.optim.calculate_scores(outputs)
+            self.scores = self.optim.calculate_scores(self.inferences)
         self.optim.update(self.scores)
 
     def test(self, env):

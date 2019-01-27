@@ -11,26 +11,47 @@ updated.
 from .hyper_parameters import Hyper_Parameters
 from .pool import Pool
 import torch
+import torch.nn.functional as F
 
 class Optimizer:
     def __init__(self, models, hyper_params):
         self.hp = Hyper_Parameters(hyper_params) # Create a hyper parameters object
         self.pool = Pool(models, self.hp) # Create a pool object
         self.integrity = self.hp.initial_integrity
+        self.env = None
 
-    def inference(self, env, test=False):
+    def set_environment(self, env):
+        self.env = env
+
+    def inference(self, test=False):
         """This method runs inference on the given environment using the models.
         I'm not sure, but I think there could be many ways to run inference. For
         that reason, I designate this function, to be a single point of contact
         for running inference, in whatever way the user/problem requires.
         """
+        assert self.env != None  # Sanity check
         outputs = []
         with torch.no_grad():
             for model in self.pool.models:
                 if test:
                     model.eval()  # Turn on evaluation mode
-                outputs.append(model(env))
+                outputs.append(model(self.env.x))  # env.x is the input data
         return outputs
+
+    def calculate_loss(self, inferences, test=False):
+        """This method calculates the loss."""
+        if self.env.loss_type == 'NLL loss':
+            losses = []
+            for inf in inferences:
+                if not test:
+                    loss = F.nll_loss(inf, self.env.y)
+                else:
+                    loss = F.nll_loss(inf, self.env.y_t, reduction='sum').item()
+                losses.append(loss)
+            return losses
+        else:
+            print("Unknown loss type")
+            exit()
 
     def calculate_scores(self, outputs):
         """This method calculates the scores based on the given outputs. There
@@ -50,8 +71,7 @@ class Optimizer:
         selection and update process can occur.
         The pool thus updates itself.
         """
-        self.set_integrity(scores)
-        self.pool.prep_new_pool()
+        self.pool.prep_new_pool(scores)
         self.pool.update_models()
 
 

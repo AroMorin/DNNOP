@@ -36,6 +36,7 @@ class Hyper_Parameters:
         self.epsilon = 0.00000001  # Prevents division by zero
         self.set_hyperparams_dict(hyper_params)
         self.set_hyperparams()
+        self.sanity_checks()
 
     def set_hyperparams_dict(self, hyper_params):
         """This function updates the default hyper parameters dictionary. It
@@ -94,6 +95,11 @@ class Hyper_Parameters:
             self.target = self.hyper_params["target"]
             self.expansion_factor = self.hyper_params["expansion factor"]
             self.set_initial_score()
+
+    def sanity_checks(self):
+        assert self.pool_size >= 7  # Minimum pool size
+        assert self.nb_anchors >= 2  # Minimum anchor count
+        assert self.nb_probes >= 2  # Minimum probes count
 
     def set_initial_score(self):
         """By default we assume minimization, if not, then we switch the

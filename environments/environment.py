@@ -14,6 +14,8 @@ class Environment:
             self.precision = torch.float
         else:
             self.precision = precision
+        self.loss = True  # assume environments require loss
+        self.loss_type = ''  # environments that require loss define a loss type
 
     def step(self):
         """Placeholder for step function. The step function is an essential

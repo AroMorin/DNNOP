@@ -7,8 +7,6 @@ import torch
 class Perturbation:
     def __init__(self, hp):
         self.hp = hp
-        self.search_radius = 0
-        self.num_selections = 0
         self.integrity = self.hp.initial_integrity
         self.noise_distribution = "normal"  # Or "uniform"
         self.noise_type = "continuous"  # Or "discrete"
@@ -26,14 +24,12 @@ class Perturbation:
         """
         self.vec_length = torch.numel(vec)
         indices = range(self.vec_length)
-        size = int(analyzer.num_selections)
+        size = int(analyzer.num_selections*self.vec_length)
         choices = np.random.choice(indices, size, replace = False)
         choices = torch.tensor(choices).cuda().long()
         temp = torch.empty((size))
         noise = temp.normal_(mean=0, std=analyzer.search_radius).cuda().half()
-        print (vec[0:100])
-        vec = vec.put_(choices, noise, accumulate=True)
-        print (vec[0:100])
+        vec.put_(choices, noise, accumulate=True)
         # I either explicitly return vector or this is sufficient
 
 

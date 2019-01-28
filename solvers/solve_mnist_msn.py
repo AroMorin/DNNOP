@@ -16,12 +16,12 @@ import torch
 def main():
     # Assumes CUDA is available
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-    parser.add_argument('--pool_size', type=int, default=15, metavar='N',
-                        help='number of samples in the pool (def: 25)')
-    parser.add_argument('--nb_anchors', type=int, default=3, metavar='N',
-                        help='number of anchors (def: 3)')
-    parser.add_argument('--nb_probes', type=int, default=3, metavar='N',
-                        help='number of probes per anchor (def: 3)')
+    parser.add_argument('--pool_size', type=int, default=50, metavar='N',
+                        help='number of samples in the pool (def: 50)')
+    parser.add_argument('--nb_anchors', type=int, default=5, metavar='N',
+                        help='number of anchors (def: 5)')
+    parser.add_argument('--nb_probes', type=int, default=8, metavar='N',
+                        help='number of probes per anchor (def: 8)')
     parser.add_argument('--iterations', type=int, default=500, metavar='N',
                         help='maximum number of optimization steps (def: 500)')
     args = parser.parse_args()

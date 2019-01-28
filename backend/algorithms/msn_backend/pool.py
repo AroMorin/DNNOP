@@ -47,7 +47,7 @@ class Pool:
 
         self.anchors.set_anchors(self.param_vecs, self.analyzer, elite)
         anchors = self.anchors.models
-
+        as_ = [scores[i].item() for i in self.anchors.anchors_idxs]
 
         self.probes.set_probes(anchors, self.analyzer)
         self.blends.set_blends(anchors, self.param_vecs, self.analyzer)
@@ -90,9 +90,7 @@ class Pool:
 
     def construct_pool(self):
         # Define noise magnitude and scale
-        #print (self.probes.models[0][0:100])
         self.apply_perturbation(self.probes.models)
-        #print (self.probes.models[0][0:100])
         self.apply_perturbation(self.blends.models)
         self.new_vecs = []
         self.append_to_list(self.new_vecs, self.anchors.models)
@@ -126,8 +124,6 @@ class Pool:
             # Update model's state dictionary
             self.models[i].load_state_dict(self.state_dicts[i])
 
-        #for i, model in enumerate(self.models):
-        #    model.load_state_dict(self.state_dicts[i])
 
     def vec_to_tensor(self, vec):
         a = vec.split(self.num_elems)  # Split parameter tensors

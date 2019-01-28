@@ -31,6 +31,7 @@ class Anchors:
             if len(self.anchors_idxs) == self.hp.nb_anchors:
                 # Terminate
                 break
+        print ("Anchors idxs: ", self.anchors_idxs)
 
     def admit(self, candidate, candidate_idx, pool):
         """Determines whether to admit a sample into the anchors list."""
@@ -61,7 +62,6 @@ class Anchors:
         self.models = []  # Reset state
         for i in self.anchors_idxs:
             self.models.append(pool[i])
-
 
 
 

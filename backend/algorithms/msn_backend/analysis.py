@@ -31,7 +31,6 @@ class Analysis:
         self.set_search_radius()
         print("Integrity: %f" %self.integrity)
 
-
     def clean_list(self, mylist):
         # Get scores
         mylist = [i.item() for i in mylist]
@@ -164,6 +163,7 @@ class Analysis:
         argument = (self.hp.lambda_*p)-2.5
         exp1 = math.tanh(argument)+1
         self.search_radius = exp1*self.hp.lr
+        print ("Search Radius: %f" %self.search_radius)
 
 
 

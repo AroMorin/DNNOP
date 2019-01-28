@@ -19,6 +19,7 @@ class Analysis:
         self.lr = self.hp.lr
         self.alpha = self.hp.alpha
         self.lambda_ = self.hp.lambda_
+        self.search_start = True
 
     def analyze(self, scores, nb_anchors):
         self.clean_list(scores)
@@ -41,12 +42,13 @@ class Analysis:
         """This function sorts the values in the list. Duplicates are removed
         also.
         """
+        self.current_top = self.new_top  # Inheritance
         if self.hp.minimizing:
             self.sorted_scores = sorted(set(self.scores))
         else:
             self.sorted_scores = sorted(set(self.scores), reverse=True)
         self.new_top = self.sorted_scores[0]
-        print("New top score: %f" %self.new_top)
+        print("Pool top score: %f" %self.new_top)
 
     def sort_idxs(self):
         """This function checks each element in the sorted list to retrieve
@@ -73,17 +75,21 @@ class Analysis:
         integrity is reduced normally.
         """
         if not self.improved():
+            print ("No improvement")
             if not self.search_start:
                 # Reduce integrity, but not below the minimum allowed level
-                self.integrity = max(self.hp.step_size, self.hp.min_integrity)
+                a = self.integrity-self.hp.step_size
+                b = self.hp.min_integrity
+                self.integrity = max(a, b)
                 self.elapsed_steps += 1
             else:
+                print("Start searching")
                 self.integrity = self.hp.def_integrity  # Reset integrity
                 self.search_start = False
         else:  # Improved
-            self.search_start = True
+            print ("Improved")
             self.elapsed_steps = 0
-
+            self.search_start = True
 
     def improved(self):
         """Calculate whether the score has satisfactorily improved or not based
@@ -122,6 +128,7 @@ class Analysis:
         are met. Then reset it the following turn(s). If activated, reset
         counter."""
         if self.elapsed_steps > self.hp.patience:
+            print ("Waited %d steps" %self.elapsed_steps)
             self.backtracking = True
             self.elapsed_steps = 0
             self.integrity = self.hp.def_integrity  # Reset integrity

@@ -39,7 +39,7 @@ def main():
     hyper_params = {
                     "pool size": args.pool_size,
                     "number of anchors": args.nb_anchors,
-                    "number of probes per anchor": args.nb_probes
+                    "number of probes per anchor": args.nb_probes,
                     }
     alg = algorithm_factory.make_alg("MSN", pool, hyper_params)
 

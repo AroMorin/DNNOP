@@ -22,10 +22,11 @@ class Pool:
         self.models = models # List of Models
         self.state_dicts = [] # List of weight dictionaries
         self.param_vecs = [] # List of parameter vectors
-        self.new_pool = []
+        self.new_vecs = []
         self.nb_layers = 0
         self.shapes = []
         self.num_elems = []
+        self.keys = []
         self.elite_dict = {}
         self.hp = hyper_params
         self.elite = Elite(hyper_params)
@@ -54,7 +55,6 @@ class Pool:
         self.construct_pool()
         self.set_weight_dicts()
         self.update_models()
-        exit()
 
     def set_state_dicts(self):
         """This method takes in the list of models, i.e. pool, and produces
@@ -75,34 +75,30 @@ class Pool:
 
     def dict_to_vec(self, dict):
         mylist = []
+        # Reset state
+        self.shapes = []
+        self.num_elems = []
+        self.keys = []
         for i, key in enumerate(dict):
-            x = torch.tensor(dict[key])
+            x = dict[key]  # Get tensor of parameters
             self.shapes.append(x.size())
             self.num_elems.append(x.numel())
-            mylist.append(x.reshape(x.numel()))
-        vec = torch.cat(mylist)
+            self.keys.append(key)
+            mylist.append(x.reshape(x.numel()))  # Flatten tensor
+        vec = torch.cat(mylist)  # Flatten all tensors in model
         return vec
-
-    def vec_to_dict(self, vec):
-        x = vec.split(self.num_elems)
-        for i in range(self.nb_layers):
-            x[i] = x[i].reshape(self.shapes[i])
-        return x
 
     def construct_pool(self):
         # Define noise magnitude and scale
+        #print (self.probes.models[0][0:100])
         self.apply_perturbation(self.probes.models)
+        #print (self.probes.models[0][0:100])
         self.apply_perturbation(self.blends.models)
-        self.pool = []
-        self.append_to_list(self.pool, self.anchors.models)
-        self.append_to_list(self.pool, self.probes.models)
-        self.append_to_list(self.pool, self.blends.models)
-        print(len(self.anchors.models))
-        print(len(self.probes.models))
-        print(len(self.blends.models))
-        print(len(self.pool))
-        print(self.hp.pool_size)
-        assert len(self.pool) == self.hp.pool_size  # Sanity check
+        self.new_vecs = []
+        self.append_to_list(self.new_vecs, self.anchors.models)
+        self.append_to_list(self.new_vecs, self.probes.models)
+        self.append_to_list(self.new_vecs, self.blends.models)
+        assert len(self.new_vecs) == self.hp.pool_size  # Sanity check
 
     def apply_perturbation(self, tensors):
         for t in tensors:
@@ -123,9 +119,26 @@ class Pool:
         """This function updates the ".parameters" of the models using the
         newly-constructed weight dictionaries.
         """
-        pass
+        for i, vec in enumerate(self.new_vecs):
+            param_list = self.vec_to_tensor(vec)  # Restore shape
+            state_dict = self.state_dicts[i]
+            self.update_dict(state_dict, param_list)
+            # Update model's state dictionary
+            self.models[i].load_state_dict(self.state_dicts[i])
 
+        #for i, model in enumerate(self.models):
+        #    model.load_state_dict(self.state_dicts[i])
 
+    def vec_to_tensor(self, vec):
+        a = vec.split(self.num_elems)  # Split parameter tensors
+        b = [None]*self.nb_layers
+        for i in range(self.nb_layers):
+            b[i] = a[i].reshape(self.shapes[i])  # Reconstruct tensor shape
+        return b
+
+    def update_dict(self, state_dict, param_list):
+        for i, key in enumerate(self.keys):
+            state_dict[key] = param_list[i]
 
 
 

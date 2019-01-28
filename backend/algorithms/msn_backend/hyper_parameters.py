@@ -56,7 +56,7 @@ class Hyper_Parameters:
                                 "lambda":0.75,
                                 "patience": 80,
                                 "minimum distance": 5000,
-                                "minimum entropy": 0.01,
+                                "minimum entropy": -0.25,
                                 "step size": 0.05,
                                 "patience": 15,
                                 "default integrity": 0.9,
@@ -96,14 +96,20 @@ class Hyper_Parameters:
             self.expansion_factor = self.hyper_params["expansion factor"]
             self.set_initial_score()
 
-    def sanity_checks(self):
-        assert self.pool_size >= 7  # Minimum pool size
-        assert self.nb_anchors >= 2  # Minimum anchor count
-        assert self.nb_probes >= 2  # Minimum probes count
-
     def set_initial_score(self):
         """By default we assume minimization, if not, then we switch the
         default score to negative infinity.
         """
         if not self.hyper_params['minimization mode']:
             self.initial_score = -math.inf
+
+    def set_min_entropy(self):
+        if self.hyper_params['minimization mode']:
+            assert self.hyper_params['minimum entropy'] < 0
+        else:
+            assert self.hyper_params['minimum entropy'] > 0
+
+    def sanity_checks(self):
+        assert self.pool_size >= 7  # Minimum pool size
+        assert self.nb_anchors >= 2  # Minimum anchor count
+        assert self.nb_probes >= 2  # Minimum probes count

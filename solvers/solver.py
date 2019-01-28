@@ -44,12 +44,13 @@ class Solver():
 
         # Process
         for _ in range(optimization_steps):
+            self.elapsed_steps += 1
+            print ("Iteration %d" %self.elapsed_steps)
             env.step()
             alg.optimize(env)
             alg.test(env)
             alg.print_test_accuracy(env)
-            self.elapsed_steps += 1
-            if alg.achieved_target:
+            if alg.achieved_target():
                 print ("Achieved/exceeded target")
                 break # Terminate optimization
 

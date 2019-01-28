@@ -35,7 +35,10 @@ class Optimizer:
             for model in self.pool.models:
                 if test:
                     model.eval()  # Turn on evaluation mode
-                outputs.append(model(self.env.x))  # env.x is the input data
+                    inf = model(self.env.x_t)  # env.x_t is the test data
+                else:
+                    inf = model(self.env.x)  # env.x is the training data
+                outputs.append(inf)
         return outputs
 
     def calculate_loss(self, inferences, test=False):
@@ -75,6 +78,14 @@ class Optimizer:
         self.pool.update_models()
 
 
+    def calculate_correct_predictions(self, inferences, losses):
+        correct_preds = []
+        for inference in inferences:
+            pred = inference.max(1, keepdim=True)[1]
+            # Correct for single model on all test data
+            correct = pred.eq(self.env.y_t.view_as(pred)).sum().item()
+            correct_preds.append(correct)
+        return correct_preds
 
 
 

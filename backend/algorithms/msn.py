@@ -7,7 +7,9 @@ We need to create an optimizer object. This object will be initialized with the
 desired hyper parameters. An example of hyper params is the number of Anchors.
 The optimizer object will own the pool.?
 """
+from __future__ import division
 import torch
+import numpy as np
 from .msn_backend.optimizer import Optimizer
 
 class MSN:
@@ -50,25 +52,37 @@ class MSN:
             self.scores = self.optim.calculate_scores(self.inferences)
         self.optim.update(self.scores)
 
+
     def test(self, env):
         """This is a method for testing."""
-        outputs = self.optim.inference(env.x_t, test=True)
+        self.inferences = self.optim.inference(test=True)
         if env.loss:
-            if env.loss_type == 'NLL loss':
-                self.test_loss = F.nll_loss(outputs, env.y_t, reduction='sum').item()
-                pred = predictions.max(1, keepdim=True)[1]
-                self.correct_test_preds = pred.eq(env.y_t.view_as(pred)).sum().item()
-            else:
-                print("Unknown loss type")
-                exit()
+            self.test_losses = self.optim.calculate_loss(self.inferences, test=True)
+            self.correct_test_preds = self.optim.calculate_correct_predictions(
+                                            self.inferences, self.test_losses)
         else:
-            self.scores = self.optim.calculate_scores(outputs)
+            print ("Environment has no test cases!")
+            exit()
+
+    def print_test_accuracy(self, env):
+        test_size = len(env.x_t)
+        idx = np.argmin(self.test_losses)
+        loss = self.test_losses[idx]  # Assuming minizming loss
+        correct = self.correct_test_preds[idx]
+        self.test_acc = 100.*correct/test_size
+        loss /= test_size # Not really sure what this does
+        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+            loss, correct, test_size, self.test_acc))
 
     def achieved_target(self):
-        if self.hyper_params.minimizing:
-            return self.test_loss <= self.optim.hp.target_loss
+        if self.optim.hp.minimizing:
+            best = min(self.scores)
+            return best <= self.optim.hp.target
         else:
-            return self.test_loss >= self.optim.hp.target_loss
+            best = max(self.scores)
+            return best >= self.optim.hp.target
+
+
 
 
 

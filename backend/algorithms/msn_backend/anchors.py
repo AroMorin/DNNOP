@@ -17,7 +17,7 @@ class Anchors:
         anchors_idxs = self.set_anchors_idxs(analyzer.sorted_idxs, pool)
         self.assign_models(pool)
         if analyzer.backtracking:
-            print ("Backtracking Activated! Inserting Elite")
+            print("Backtracking Activated! Inserting Elite")
             self.models[-1] = elite  # Insert elite in last position
 
     def reset_state(self):
@@ -31,7 +31,7 @@ class Anchors:
             if len(self.anchors_idxs) == self.hp.nb_anchors:
                 # Terminate
                 break
-        print ("Anchors idxs: ", self.anchors_idxs)
+        print("Anchors idxs: ", self.anchors_idxs)
 
     def admit(self, candidate, candidate_idx, pool):
         """Determines whether to admit a sample into the anchors list."""

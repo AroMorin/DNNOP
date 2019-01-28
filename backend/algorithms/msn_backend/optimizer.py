@@ -32,13 +32,15 @@ class Optimizer:
         assert self.env != None  # Sanity check
         outputs = []
         with torch.no_grad():
-            for model in self.pool.models:
-                if test:
-                    model.eval()  # Turn on evaluation mode
-                    inf = model(self.env.x_t)  # env.x_t is the test data
-                else:
-                    inf = model(self.env.x)  # env.x is the training data
+            if test:
+                model = self.pool.models[0]
+                model.eval()  # Turn on evaluation mode
+                inf = model(self.env.x_t)  # env.x_t is the test data
                 outputs.append(inf)
+            else:
+                for model in self.pool.models:
+                    inf = model(self.env.x)  # env.x is the training data
+                    outputs.append(inf)
         return outputs
 
     def calculate_loss(self, inferences, test=False):

@@ -47,6 +47,7 @@ class Pool:
         elite = self.elite.model
 
         self.anchors.set_anchors(self.param_vecs, self.analyzer, elite)
+
         anchors = self.anchors.models
         as_ = [scores[i].item() for i in self.anchors.anchors_idxs]
 
@@ -54,7 +55,6 @@ class Pool:
         self.blends.set_blends(anchors, self.param_vecs, self.analyzer)
 
         self.construct_pool()
-        self.set_weight_dicts()
         self.update_models()
 
     def set_state_dicts(self):
@@ -95,8 +95,8 @@ class Pool:
         self.apply_perturbation(self.probes.models)
         self.apply_perturbation(self.blends.models)
         self.new_vecs = []
-        self.append_to_list(self.new_vecs, self.probes.models)
         self.append_to_list(self.new_vecs, self.anchors.models)
+        self.append_to_list(self.new_vecs, self.probes.models)
         self.append_to_list(self.new_vecs, self.blends.models)
         assert len(self.new_vecs) == self.hp.pool_size  # Sanity check
 
@@ -104,17 +104,10 @@ class Pool:
         for t in tensors:
             self.perturb.apply(t)
 
-
     def append_to_list(self, mylist, incoming):
         for item in incoming:
             mylist.append(item)
         return mylist
-
-    def set_weight_dicts(self):
-        """This method takes in parameter vectors and shapes them into weight
-        dictionaries.
-        """
-        pass
 
     def update_models(self):
         """This function updates the ".parameters" of the models using the
@@ -137,6 +130,13 @@ class Pool:
     def update_dict(self, state_dict, param_list):
         for i, key in enumerate(self.keys):
             state_dict[key] = param_list[i]
+
+
+
+
+
+
+
 
 
 #

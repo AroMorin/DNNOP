@@ -19,9 +19,9 @@ class MSN:
         self.pool_size = len(pool)
         self.optim = optimizer
         self.train_losses = []
-        self.test_losses = []
+        self.test_loss = []
         self.train_accs = []
-        self.test_accs = []
+        self.test_acc = []
         self.correct_test_preds = []
         self.inferences = []
         self.hyper_params = hyper_params
@@ -57,20 +57,19 @@ class MSN:
         """This is a method for testing."""
         self.inferences = self.optim.inference(test=True)
         if env.loss:
-            self.test_losses = self.optim.calculate_loss(self.inferences, test=True)
+            self.test_loss = self.optim.calculate_loss(self.inferences, test=True)
             self.correct_test_preds = self.optim.calculate_correct_predictions(
-                                            self.inferences, self.test_losses)
+                                            self.inferences, self.test_loss)
         else:
             print ("Environment has no test cases!")
             exit()
 
     def print_test_accuracy(self, env):
         test_size = len(env.x_t)
-        idx = np.argmin(self.test_losses)
-        loss = self.test_losses[idx]  # Assuming minizming loss
-        correct = self.correct_test_preds[idx]
+        loss = self.test_loss[0]  # Assuming minizming loss
+        correct = self.correct_test_preds[0]
         self.test_acc = 100.*correct/test_size
-        loss /= test_size # Not really sure what this does
+        loss /= test_size  # Not really sure what this does
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
             loss, correct, test_size, self.test_acc))
 

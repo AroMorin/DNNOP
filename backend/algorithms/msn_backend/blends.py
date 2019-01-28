@@ -27,7 +27,8 @@ class Blends:
         self.analyzer = analyzer
         self.vec_length = torch.numel(anchors[0])
         self.nb_anchors = len(anchors)
-        self.nb_blends = self.hp.pool_size-(self.nb_anchors+(self.nb_anchors * self.hp.nb_probes))
+        self.nb_blends = self.hp.pool_size-(self.nb_anchors+(
+                                    self.nb_anchors * self.hp.nb_probes))
         if self.nb_blends>0:
             self.select_indices()
             self.select_parents1()

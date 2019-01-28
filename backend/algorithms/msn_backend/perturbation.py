@@ -29,7 +29,7 @@ class Perturbation:
         choices = torch.tensor(choices).cuda().long()
         temp = torch.empty((size))
         noise = temp.normal_(mean=0, std=analyzer.search_radius).cuda().half()
-        vec.put_(choices, noise, accumulate=True)
+        vec = vec.put_(choices, noise, accumulate=True)
         # I either explicitly return vector or this is sufficient
 
 

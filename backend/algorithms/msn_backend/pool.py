@@ -90,6 +90,7 @@ class Pool:
 
     def construct_pool(self):
         # Define noise magnitude and scale
+        print(self.probes.models[0][0:20])
         self.apply_perturbation(self.probes.models)
         self.apply_perturbation(self.blends.models)
         self.new_vecs = []
@@ -123,7 +124,6 @@ class Pool:
             self.update_dict(state_dict, param_list)
             # Update model's state dictionary
             self.models[i].load_state_dict(self.state_dicts[i])
-
 
     def vec_to_tensor(self, vec):
         a = vec.split(self.num_elems)  # Split parameter tensors

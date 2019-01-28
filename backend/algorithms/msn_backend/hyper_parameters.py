@@ -52,7 +52,7 @@ class Hyper_Parameters:
                                 "pool size": 50,
                                 "alpha":1,
                                 "beta": 0.7,
-                                "learning rate": 0.2,
+                                "learning rate": 0.25,
                                 "lambda":5,
                                 "patience": 80,
                                 "minimum distance": 5000,

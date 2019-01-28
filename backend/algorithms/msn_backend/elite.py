@@ -10,7 +10,7 @@ class Elite:
         idx = analyzer.top_idx
         top_score = analyzer.new_top
         if self.replace(top_score):
-            print ("Setting new Elite")
+            print ("------Setting new Elite-------")
             elite = pool[idx]
             self.clone_model(elite)
             self.elite_score = top_score

@@ -15,6 +15,7 @@ from .elite import Elite
 from .analysis import Analysis
 from .perturbation import Perturbation
 
+import time
 import torch
 
 class Pool:
@@ -90,18 +91,19 @@ class Pool:
 
     def construct_pool(self):
         # Define noise magnitude and scale
-        print(self.probes.models[0][0:20])
+        self.perturb.set_perturbation(self.elite.model, self.analyzer)
         self.apply_perturbation(self.probes.models)
         self.apply_perturbation(self.blends.models)
         self.new_vecs = []
-        self.append_to_list(self.new_vecs, self.anchors.models)
         self.append_to_list(self.new_vecs, self.probes.models)
+        self.append_to_list(self.new_vecs, self.anchors.models)
         self.append_to_list(self.new_vecs, self.blends.models)
         assert len(self.new_vecs) == self.hp.pool_size  # Sanity check
 
     def apply_perturbation(self, tensors):
         for t in tensors:
-            self.perturb.apply(t, self.analyzer)
+            self.perturb.apply(t)
+
 
     def append_to_list(self, mylist, incoming):
         for item in incoming:
@@ -135,7 +137,6 @@ class Pool:
     def update_dict(self, state_dict, param_list):
         for i, key in enumerate(self.keys):
             state_dict[key] = param_list[i]
-
 
 
 #

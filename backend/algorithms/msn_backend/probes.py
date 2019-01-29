@@ -23,10 +23,9 @@ class Probes:
 
     def create_probes(self, anchor):
         for _ in range(self.nb_probes):
-            clone = anchor.clone()
-            probe = self.perturb.apply(clone)
+            probe = anchor.clone()
+            self.perturb.apply(probe)
             self.models.append(probe)
-
 
 
 

@@ -21,16 +21,6 @@ import torch
 class Pool:
     def __init__(self, models, hyper_params):
         self.models = models # List of Models
-        self.state_dicts = [] # List of weight dictionaries
-        self.vectors = [] # List of parameter vectors
-        self.new_vecs = []
-        self.new_idxs = []
-        self.new_vecs_idxs = []
-        self.nb_layers = 0
-        self.shapes = []
-        self.num_elems = []
-        self.keys = []
-        self.elite_dict = {}
         self.hp = hyper_params
         self.analyzer = Analysis(hyper_params)
         self.elite = Elite(hyper_params)
@@ -38,6 +28,15 @@ class Pool:
         self.perturb = Perturbation(hyper_params)
         self.probes = Probes(hyper_params)
         self.blends = Blends(hyper_params)
+        self.state_dicts = [] # List of weight dictionaries
+        self.vectors = [] # List of parameter vectors
+        self.nb_layers = 0
+        self.shapes = []
+        self.num_elems = []
+        self.keys = []
+        self.available_idxs = range(self.hp.pool_size)
+        self.idx = None
+        self.elite_dict = {}
         self.scores = []
         self.set_state_dicts()
         # Arbitrarily chose 4th model in pool
@@ -82,54 +81,47 @@ class Pool:
 
     def prep_new_pool(self, scores):
         self.reset_state()
+
         self.analyzer.analyze(scores, self.anchors.nb_anchors)
 
         self.elite.set_elite(self.vectors, self.analyzer)
-        elite = self.elite.model
-
-        self.anchors.set_anchors(self.vectors, self.analyzer, elite)
-        self.append_to_list(self.new_idxs, self.anchors.anchors_idxs)
-
+        self.anchors.set_anchors(self.vectors, self.analyzer, self.elite.model)
+        # Define noise magnitude and scale
         self.perturb.set_perturbation(self.elite.model, self.analyzer)
-
-        #as_ = [scores[i].item() for i in self.anchors.anchors_idxs]
-
         self.probes.set_probes(self.anchors, self.perturb)
         self.blends.set_blends(self.anchors, self.vectors, self.analyzer, self.perturb)
 
-        self.construct_pool()
-        self.update_models()
+        #as_ = [scores[i].item() for i in self.anchors.anchors_idxs]
 
     def reset_state(self):
-        self.new_vecs = []
-        self.new_vecs_idxs = []
+        self.available_idxs = range(self.hp.pool_size)
+        self.idx = None
 
-    def construct_pool(self):
-        # Define noise magnitude and scale
-        self.append_to_list(self.new_vecs, self.anchors.models)
-        self.append_to_list(self.new_vecs, self.probes.models)
-        self.append_to_list(self.new_vecs, self.blends.models)
-        assert len(self.new_vecs) == self.hp.pool_size  # Sanity check
-
-    def apply_perturbation(self, tensors):
-        for t in tensors:
-            self.perturb.apply(t)
-
-    def append_to_list(self, mylist, incoming):
-        for item in incoming:
-            mylist.append(item)
-        return mylist
-
-    def update_models(self):
+    def implement(self):
         """This function updates the ".parameters" of the models using the
         newly-constructed weight dictionaries.
         """
-        for i, vec in enumerate(self.new_vecs):
-            param_list = self.vec_to_tensor(vec)  # Restore shape
-            state_dict = self.state_dicts[i]
-            self.update_dict(state_dict, param_list)
+        self.available_idxs = [x for x in self.available_idxs
+                                if x not in self.anchors.anchors_idxs]
+        self.update_models(self.probes.models)
+        self.update_models(self.blends.models)
+        assert len(self.available_idxs) == 0  # Sanity
+
+    def update_models(self, vectors):
+        for i, vector in enumerate(vectors):
+            self.set_idx()
+            param_list = self.vec_to_tensor(vector)  # Restore shape
+            self.update_dict(param_list)
             # Update model's state dictionary
-            self.models[i].load_state_dict(self.state_dicts[i])
+            self.models[self.idx].load_state_dict(self.state_dicts[self.idx])
+
+    def set_idx(self):
+        """This method blindly takes the first available index and loads it into
+        the idx attribute. It then proceeds to remove that index from the list
+        of available indices.
+        """
+        self.idx = self.available_idxs[0]
+        del self.available_idxs[0]
 
     def vec_to_tensor(self, vec):
         a = vec.split(self.num_elems)  # Split parameter tensors
@@ -138,7 +130,8 @@ class Pool:
             b[i] = a[i].reshape(self.shapes[i])  # Reconstruct tensor shape
         return b
 
-    def update_dict(self, state_dict, param_list):
+    def update_dict(self, param_list):
+        state_dict = self.state_dicts[self.idx]
         for i, key in enumerate(self.keys):
             state_dict[key] = param_list[i]
 

@@ -14,7 +14,6 @@ class Blends:
         self.blend_type = "crisscross"  # Or "random choice"
         self.anchors = None
         self.analyzer = None
-        self.
         self.vectors = []
         self.vec_length = 0
         self.compounds1 = []
@@ -29,7 +28,7 @@ class Blends:
             self.set_compounds2()
             self.blend()
 
-    def update_state(self):
+    def update_state(self, anchors, vectors, analyzer, perturb):
         self.models = [] # Reset state
         self.anchors = anchors
         self.vectors = vectors
@@ -40,7 +39,7 @@ class Blends:
         self.nb_blends = self.hp.pool_size-(self.nb_anchors+(
                                     self.nb_anchors * self.hp.nb_probes))
 
-    def select_indices(self):
+    def set_indices(self):
         # In case I wanted a variable blending method
         #indices = random.sample(range(self.vec_length), self.analyzer.num_selections)
         #self.indices = random.sample(range(self.vec_length), self.vec_length/2)
@@ -51,19 +50,20 @@ class Blends:
     def set_compounds1(self):
         # From anchors
         idxs = choices(range(self.nb_anchors), k=self.nb_blends)
-        self.compounds1 = self.anchors.models[idxs]
+        self.compounds1 = [self.anchors.models[i] for i in idxs]
 
     def set_compounds2(self):
         # From pool, i.e. vectors
         idxs = choices(range(self.hp.pool_size), k=self.nb_blends)
-        self.compounds2 = self.vectors[idxs]
+        self.compounds2 = [self.vectors[i] for i in idxs]
 
     def blend(self):
         for i in range(self.nb_blends):
-            c1 = self.compunds1[i]
-            c2 = self.compunds2[i]
+            c1 = self.compounds1[i]
+            c2 = self.compounds2[i]
             c1[self.indices] = c2[self.indices]
+            blend = c1
             #p2 = torch.take(p2, self.indices)
             #p1.put_(self.indices, p2)  # Accumulate false
-            blend = self.perturb.apply(c1)
+            self.perturb.apply(blend)
             self.models.append(blend)

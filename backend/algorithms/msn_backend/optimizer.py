@@ -77,7 +77,7 @@ class Optimizer:
         The pool thus updates itself.
         """
         self.pool.prep_new_pool(scores)
-        self.pool.update_models()
+        self.pool.implement()
 
 
     def calculate_correct_predictions(self, inferences, losses):

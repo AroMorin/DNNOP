@@ -51,7 +51,7 @@ class Hyper_Parameters:
                                 "number of probes per anchor": 8,
                                 "pool size": 50,
                                 "alpha":1,
-                                "beta": 0.7,
+                                "beta": 1.9,
                                 "learning rate": 0.1,
                                 "lambda":7.5,
                                 "minimum distance": 5000,

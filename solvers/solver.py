@@ -43,10 +43,10 @@ class Solver():
         alg = self.algorithm
 
         # Process
+        env.step()
         for _ in range(optimization_steps):
             self.elapsed_steps += 1
             print ("Iteration %d" %self.elapsed_steps)
-            env.step()
             alg.optimize(env)
             alg.test(env)
             alg.print_test_accuracy(env)

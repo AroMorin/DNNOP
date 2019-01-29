@@ -33,7 +33,7 @@ def main():
     env = environments.make_env("dataset", "mnist", data_path=data_path, precision=precision)
 
     # Make a pool
-    pool = model_factory.make_pool("MNIST CNN", args.pool_size, precision)
+    pool = model_factory.make_pool("MNIST CNN MSN", args.pool_size, precision)
 
     # Make an algorithm --algorithm takes control of the pool--
     hyper_params = {

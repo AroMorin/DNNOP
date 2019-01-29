@@ -8,32 +8,37 @@ import numpy as np
 class Blends:
     def __init__(self, hp):
         self.hp = hp
-        self.nb_blends = self.hp.pool_size-((self.hp.nb_anchors*self.hp.nb_probes)+1)
+        self.nb_blends = self.hp.pool_size-((self.hp.nb_anchors*self.hp.nb_probes))
         self.nb_anchors = 0  # State not hyperparameter
         self.models = []
         self.blend_type = "crisscross"  # Or "random choice"
-        self.anchors = []
-        self.pool = []
+        self.anchors = None
         self.analyzer = None
+        self.
+        self.vectors = []
         self.vec_length = 0
-        self.idxs1 = []
-        self.idxs2 = []
+        self.compounds1 = []
+        self.compounds2 = []
         self.indices = []
 
-    def set_blends(self, anchors, pool, analyzer):
+    def set_blends(self, anchors, vectors, analyzer, perturb):
+        self.update_state(anchors, vectors, analyzer, perturb)
+        if self.nb_blends>0:
+            self.set_indices()
+            self.set_compounds1()
+            self.set_compounds2()
+            self.blend()
+
+    def update_state(self):
         self.models = [] # Reset state
         self.anchors = anchors
-        self.pool = pool
+        self.vectors = vectors
         self.analyzer = analyzer
-        self.vec_length = torch.numel(anchors[0])
-        self.nb_anchors = len(anchors)
+        self.perturb = perturb
+        self.vec_length = torch.numel(anchors.models[0])
+        self.nb_anchors = len(anchors.models)
         self.nb_blends = self.hp.pool_size-(self.nb_anchors+(
                                     self.nb_anchors * self.hp.nb_probes))
-        if self.nb_blends>0:
-            self.select_indices()
-            self.select_parents1()
-            self.select_parents2()
-            self.blend()
 
     def select_indices(self):
         # In case I wanted a variable blending method
@@ -43,18 +48,22 @@ class Blends:
         self.indices = np.arange(start=0, stop=self.vec_length, step=2)
         self.indices = torch.tensor(self.indices).cuda().long()
 
-    def select_parents1(self):
+    def set_compounds1(self):
         # From anchors
-        self.idxs1 = choices(range(self.nb_anchors), k=self.nb_blends)
+        idxs = choices(range(self.nb_anchors), k=self.nb_blends)
+        self.compounds1 = self.anchors.models[idxs]
 
-    def select_parents2(self):
-        # From pool
-        self.idxs2 = choices(range(self.hp.pool_size), k=self.nb_blends)
+    def set_compounds2(self):
+        # From pool, i.e. vectors
+        idxs = choices(range(self.hp.pool_size), k=self.nb_blends)
+        self.compounds2 = self.vectors[idxs]
 
     def blend(self):
         for i in range(self.nb_blends):
-            p1 = self.anchors[self.idxs1[i]]
-            p2 = self.pool[self.idxs2[i]]
-            p2 = torch.take(p2, self.indices)
-            p1.put_(self.indices, p2)  # Accumulate false
-            self.models.append(p1)
+            c1 = self.compunds1[i]
+            c2 = self.compunds2[i]
+            c1[self.indices] = c2[self.indices]
+            #p2 = torch.take(p2, self.indices)
+            #p1.put_(self.indices, p2)  # Accumulate false
+            blend = self.perturb.apply(c1)
+            self.models.append(blend)

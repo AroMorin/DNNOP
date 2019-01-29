@@ -29,9 +29,7 @@ class Anchors:
             candidate = pool[i]
             self.admit(candidate, i, pool)
             if len(self.anchors_idxs) == self.hp.nb_anchors:
-                # Terminate
-                break
-        print("Anchors idxs: ", self.anchors_idxs)
+                break  # Terminate
 
     def admit(self, candidate, candidate_idx, pool):
         """Determines whether to admit a sample into the anchors list."""
@@ -59,7 +57,6 @@ class Anchors:
         return torch.div(numerator, denominator).sum()
 
     def assign_models(self, pool):
-        self.models = []  # Reset state
         for i in self.anchors_idxs:
             self.models.append(pool[i])
 

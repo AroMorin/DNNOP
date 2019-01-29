@@ -42,12 +42,10 @@ def main():
     slv = Solver(env, alg)
 
     slv.batch_train_dataset_with_validation(args.epochs)
-    #hyper_params = {"learning_rate": args.lr, "epochs":args.epochs,
-    #"batch_size":args.batch_size}
     #experiment.log_multiple_params(hyper_params)
     #experiment = Experiment(api_key = "5xNPTUDWzZVquzn8R9oEFkUaa",
     #                        project_name="mnist_examples", workspace="aromorin")
-    #experiment.log_metric("Validation accuracy (%)", test_acc)
+    #experiment.log_metric("Validation accuracy (%)", alg.test_acc)
 
 
 if __name__ == '__main__':

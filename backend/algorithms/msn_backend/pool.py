@@ -22,40 +22,27 @@ class Pool:
     def __init__(self, models, hyper_params):
         self.models = models # List of Models
         self.state_dicts = [] # List of weight dictionaries
-        self.param_vecs = [] # List of parameter vectors
+        self.vectors = [] # List of parameter vectors
         self.new_vecs = []
+        self.new_idxs = []
+        self.new_vecs_idxs = []
         self.nb_layers = 0
         self.shapes = []
         self.num_elems = []
         self.keys = []
         self.elite_dict = {}
         self.hp = hyper_params
+        self.analyzer = Analysis(hyper_params)
         self.elite = Elite(hyper_params)
         self.anchors = Anchors(hyper_params)
+        self.perturb = Perturbation(hyper_params)
         self.probes = Probes(hyper_params)
         self.blends = Blends(hyper_params)
-        self.perturb = Perturbation(hyper_params)
-        self.analyzer = Analysis(hyper_params)
         self.scores = []
         self.set_state_dicts()
-        self.set_param_vecs()
-
-    def prep_new_pool(self, scores):
-        self.analyzer.analyze(scores, self.anchors.nb_anchors)
-
-        self.elite.set_elite(self.param_vecs, self.analyzer)
-        elite = self.elite.model
-
-        self.anchors.set_anchors(self.param_vecs, self.analyzer, elite)
-
-        anchors = self.anchors.models
-        as_ = [scores[i].item() for i in self.anchors.anchors_idxs]
-
-        self.probes.set_probes(anchors, self.analyzer)
-        self.blends.set_blends(anchors, self.param_vecs, self.analyzer)
-
-        self.construct_pool()
-        self.update_models()
+        # Arbitrarily chose 4th model in pool
+        self.set_shapes(self.state_dicts[4])
+        self.set_vectors()
 
     def set_state_dicts(self):
         """This method takes in the list of models, i.e. pool, and produces
@@ -65,36 +52,60 @@ class Pool:
             self.state_dicts.append(model.state_dict())
         self.nb_layers = len(model.state_dict())
 
-    def set_param_vecs(self):
+    def set_shapes(self, dict):
+        """We only call this method once since all the pool models are the same
+        shape.
+        Traverse the dictionary and acquire the shapes.
+        """
+        for i, key in enumerate(dict):
+            x = dict[key]  # Get tensor of parameters
+            self.shapes.append(x.size())
+            self.num_elems.append(x.numel())
+            self.keys.append(key)
+
+    def set_vectors(self):
         """This method takes in the list of weight dictionaries and produces
         a list of parameter vectors.
         Note: parameter vectors are essentially "flattened" weights.
         """
         for state_dict in self.state_dicts:
             vec = self.dict_to_vec(state_dict)
-            self.param_vecs.append(vec)
+            self.vectors.append(vec)
 
     def dict_to_vec(self, dict):
         mylist = []
-        # Reset state
-        self.shapes = []
-        self.num_elems = []
-        self.keys = []
         for i, key in enumerate(dict):
             x = dict[key]  # Get tensor of parameters
-            self.shapes.append(x.size())
-            self.num_elems.append(x.numel())
-            self.keys.append(key)
             mylist.append(x.reshape(x.numel()))  # Flatten tensor
         vec = torch.cat(mylist)  # Flatten all tensors in model
         return vec
 
+    def prep_new_pool(self, scores):
+        self.reset_state()
+        self.analyzer.analyze(scores, self.anchors.nb_anchors)
+
+        self.elite.set_elite(self.vectors, self.analyzer)
+        elite = self.elite.model
+
+        self.anchors.set_anchors(self.vectors, self.analyzer, elite)
+        self.append_to_list(self.new_idxs, self.anchors.anchors_idxs)
+
+        self.perturb.set_perturbation(self.elite.model, self.analyzer)
+
+        #as_ = [scores[i].item() for i in self.anchors.anchors_idxs]
+
+        self.probes.set_probes(self.anchors, self.perturb)
+        self.blends.set_blends(self.anchors, self.vectors, self.analyzer, self.perturb)
+
+        self.construct_pool()
+        self.update_models()
+
+    def reset_state(self):
+        self.new_vecs = []
+        self.new_vecs_idxs = []
+
     def construct_pool(self):
         # Define noise magnitude and scale
-        self.perturb.set_perturbation(self.elite.model, self.analyzer)
-        self.apply_perturbation(self.probes.models)
-        self.apply_perturbation(self.blends.models)
-        self.new_vecs = []
         self.append_to_list(self.new_vecs, self.anchors.models)
         self.append_to_list(self.new_vecs, self.probes.models)
         self.append_to_list(self.new_vecs, self.blends.models)

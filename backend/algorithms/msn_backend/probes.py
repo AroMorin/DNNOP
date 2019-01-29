@@ -6,15 +6,31 @@ class Probes:
     def __init__(self, hp):
         self.nb_probes = hp.nb_probes
         self.models = []
+        self.perturb = None
+        self.anchors = None
 
-    def set_probes(self, anchors, analyzer):
-        self.models = []  # Reset state
-        self.create_clones(anchors)
+    def set_probes(self, anchors, perturb):
+        self.update_state(anchors, perturb)
+        for anchor in anchors.models:
+            self.create_probes(anchor)
         # Sanity check
-        assert len(self.models) == ((len(anchors))*(self.nb_probes))
+        assert len(self.models) == ((len(anchors.models))*(self.nb_probes))
 
-    def create_clones(self, anchors):
-        for anchor in anchors:
-            for _ in range(self.nb_probes):
-                clone = anchor.clone()
-                self.models.append(clone)
+    def update_state(self, anchors, perturb):
+        self.models = []  # Reset state
+        self.anchors = anchors
+        self.perturb = perturb
+
+    def create_probes(self, anchor):
+        for _ in range(self.nb_probes):
+            clone = anchor.clone()
+            probe = self.perturb.apply(clone)
+            self.models.append(probe)
+
+
+
+
+
+
+
+#

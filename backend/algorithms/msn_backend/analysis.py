@@ -157,6 +157,7 @@ class Analysis:
         numerator = self.hp.alpha
         denominator = 1+(self.hp.beta/p)
         self.num_selections = numerator/denominator
+        print("Number of selections: %d" %self.num_selections)
 
     def set_search_radius(self):
         p = 1-self.integrity

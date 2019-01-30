@@ -20,9 +20,10 @@ class Perturbation:
         self.vec_length = torch.numel(vec)
         self.indices = range(self.vec_length)
         self.size = int(analyzer.num_selections*self.vec_length)
+        print("Number of selections: %d" %self.size)
         a = -analyzer.search_radius
         b = analyzer.search_radius
-        self.distribution = uniform.Uniform(torch.Tensor([a]),torch.Tensor([b]))
+        self.distribution = uniform.Uniform(torch.Tensor([a]), torch.Tensor([b]))
 
     def apply(self, vec):
         """Generate a list of random indices based on the number of selections,

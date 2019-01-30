@@ -23,7 +23,9 @@ class Analysis:
 
     def analyze(self, scores, nb_anchors):
         self.clean_list(scores)
+        print("Cleaned scores: ", self.scores)
         self.sort_scores()
+        print("Sorted scores: ", self.sorted_scores)
         self.sort_idxs()
         self.set_integrity()
         self.review(nb_anchors)
@@ -34,6 +36,7 @@ class Analysis:
     def clean_list(self, mylist):
         # Get scores
         mylist = [i.item() for i in mylist]
+        print("Raw scores: ", mylist)
         # Remove NaNs
         self.scores = [x for x in mylist if not math.isnan(x)]
 
@@ -157,7 +160,6 @@ class Analysis:
         numerator = self.hp.alpha
         denominator = 1+(self.hp.beta/p)
         self.num_selections = numerator/denominator
-        print("Number of selections: %d" %self.num_selections)
 
     def set_search_radius(self):
         p = 1-self.integrity

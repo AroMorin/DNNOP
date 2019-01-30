@@ -7,7 +7,7 @@ class Anchors:
         self.hp = hp
         self.models = []
         self.anchors_idxs = []
-        self.nb_anchors = self.hp.nb_anchors  # State not hyperparameter
+        self.nb_anchors = 0  # State not hyperparameter
 
     def set_anchors(self, pool, analyzer, elite):
         """The func is structured as below in order for the conditional to
@@ -23,28 +23,35 @@ class Anchors:
     def reset_state(self):
         self.models = []
         self.anchors_idxs = []
+        self.nb_anchors = 0
 
     def set_anchors_idxs(self, sorted_idxs, pool):
+        print("There are %d candidates" %len(sorted_idxs))
         for i in sorted_idxs:
             candidate = pool[i]
             self.admit(candidate, i, pool)
-            if len(self.anchors_idxs) == self.hp.nb_anchors:
+            if self.nb_anchors == self.hp.nb_anchors:
                 break  # Terminate
 
     def admit(self, candidate, candidate_idx, pool):
         """Determines whether to admit a sample into the anchors list."""
         if self.anchors_idxs:
-            if self.check_distances(candidate, pool):
+            print("Checking candidate")
+            if self.accept_candidate(candidate, pool):
                 self.anchors_idxs.append(candidate_idx)
+                self.nb_anchors += 1
         else:
             # List is empty, admit
             self.anchors_idxs.append(candidate_idx)
+            self.nb_anchors += 1
+            print("Admitted first candidate")
 
-    def check_distances(self, candidate, pool):
+    def accept_candidate(self, candidate, pool):
         """Make sure the candidate is far enough from every anchor."""
         for i in self.anchors_idxs:
             anchor = pool[i]
             distance = self.canberra_distance(candidate, anchor)
+            print("Distance: ", distance)
             if distance.item() < self.hp.min_dist:
                 return False
         return True

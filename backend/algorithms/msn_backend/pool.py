@@ -86,6 +86,7 @@ class Pool:
 
         self.elite.set_elite(self.vectors, self.analyzer)
         self.anchors.set_anchors(self.vectors, self.analyzer, self.elite.model)
+        print("Anchors: ", len(self.anchors.anchors_idxs))
         # Define noise magnitude and scale
         self.perturb.set_perturbation(self.elite.model, self.analyzer)
         self.probes.set_probes(self.anchors, self.perturb)

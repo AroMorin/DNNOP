@@ -1,6 +1,7 @@
 """Base class for anchors"""
 
 import torch
+import math
 
 class Anchors:
     def __init__(self, hp):
@@ -53,6 +54,8 @@ class Anchors:
             distance = self.canberra_distance(candidate, anchor)
             print("Distance: ", distance)
             if distance.item() < self.hp.min_dist:
+                return False
+            elif math.isnan(distance.item()):
                 return False
         return True
 

@@ -47,7 +47,7 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(args.iterations)
+    slv.batch_train_dataset_with_validation(args.iterations)
 
 
 if __name__ == '__main__':

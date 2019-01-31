@@ -10,6 +10,6 @@ def make_env(type, name, data_path='', batch_size=0, precision=None):
     if type == 'dataset':
         return dataset.make_dataset(name, data_path, batch_size, precision)
     elif type == 'function':
-        return funcs.make_func(name)
+        return funcs.make_func(name, nb_dimensions, plot=False)
 
 #

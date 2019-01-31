@@ -37,7 +37,7 @@ class Anchors:
     def admit(self, candidate, candidate_idx, pool):
         """Determines whether to admit a sample into the anchors list."""
         if self.anchors_idxs:
-            print("Checking candidate")
+            print("Anchors: %d" %self.nb_anchors)
             if self.accept_candidate(candidate, pool):
                 self.anchors_idxs.append(candidate_idx)
                 self.nb_anchors += 1

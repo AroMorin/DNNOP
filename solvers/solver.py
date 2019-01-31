@@ -23,15 +23,15 @@ class Solver():
         env = self.env
         alg = self.algorithm
         batches = self.env.nb_batches
+        self.reset_state()
 
-        # Process
         for _ in range(epochs):
             for __ in range(batches):
                 env.step()
                 alg.optimize(env)
                 self.elapsed_steps +=1
 
-    def train_dataset_with_validation(self, optimization_steps):
+    def train_dataset_with_validation(self, steps):
         """In cases where a dataset is being trained with a validation component
         such as MNIST.
         Note: the names of the functions called here have to be universal among
@@ -41,10 +41,10 @@ class Solver():
         # Local variable definition
         env = self.env
         alg = self.algorithm
-
+        self.reset_state()
         # Process
         env.step()
-        for _ in range(optimization_steps):
+        for _ in range(steps):
             self.elapsed_steps += 1
             print ("Iteration %d" %self.elapsed_steps)
             alg.optimize(env)
@@ -54,7 +54,7 @@ class Solver():
                 print ("Achieved/exceeded target")
                 break # Terminate optimization
 
-    def batch_train_dataset_with_validation(self, optimization_steps):
+    def batch_train_dataset_with_validation(self, steps):
         """In cases where a dataset is being trained with a validation component
         such as MNIST.
         """
@@ -63,10 +63,12 @@ class Solver():
         env = self.env
         alg = self.algorithm
         batches = self.env.nb_batches
+        self.reset_state()
 
         # Process
-        for _ in range(optimization_steps):
+        for _ in range(steps):
             for __ in range(batches):
+                print("Batch %d" %self.current_step)
                 env.step()
                 alg.optimize(env)
                 self.current_step +=1
@@ -74,7 +76,7 @@ class Solver():
             alg.print_test_accuracy(env)
             self.elapsed_steps += 1
 
-    def reset(self):
+    def reset_state(self):
         """This is probably in cases of RL and such where an "envrionment"
         can be reset.
         """

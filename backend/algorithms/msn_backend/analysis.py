@@ -37,8 +37,9 @@ class Analysis:
         # Get scores
         mylist = [i.item() for i in mylist]
         print("Raw scores: ", mylist)
-        # Remove NaNs
-        self.scores = [x for x in mylist if not math.isnan(x)]
+        # Remove NaNs and infinities
+        #self.scores = [x for x in mylist if not math.isnan(x)]
+        self.scores = [x for x in mylist if not math.isnan(x) and not math.isinf(x)]
 
     def sort_scores(self):
         """This function sorts the values in the list. Duplicates are removed

@@ -41,6 +41,8 @@ class Optimizer:
                 for model in self.pool.models:
                     inf = model(self.env.x)  # env.x is the training data
                     outputs.append(inf)
+        x = [i.item() for i in outputs[0][0]]
+        print("Inference: ", x)
         return outputs
 
     def calculate_loss(self, inferences, test=False):

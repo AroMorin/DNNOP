@@ -30,7 +30,8 @@ def main():
 
     # Make an MNIST Dataset environment
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
-    env = environments.make_env("dataset", "mnist", data_path=data_path, batch_size=32, precision=precision)
+    env = environments.make_env("dataset", "mnist", data_path=data_path, precision=precision)
+    #env = environments.make_env("dataset", "mnist", data_path=data_path, batch_size=32, precision=precision)
 
     # Make a pool
     pool = model_factory.make_pool("MNIST CNN MSN", args.pool_size, precision)
@@ -47,8 +48,8 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.batch_train_dataset_with_validation(args.iterations)
-
+    slv.train_dataset_with_validation(args.iterations)
+    #slv.batch_train_dataset_with_validation(args.iterations)
 
 if __name__ == '__main__':
     main()

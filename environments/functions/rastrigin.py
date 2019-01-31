@@ -34,6 +34,8 @@ class Rastrigin(Function):
         self.x = x
         self.z = self.get_func()
 
+    def step(self):
+        pass
 
 
 

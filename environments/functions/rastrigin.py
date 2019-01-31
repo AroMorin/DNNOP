@@ -30,7 +30,9 @@ class Rastrigin(Function):
         e = np.sum(d)
         return a + e
 
-    def
+    def evaluate(self, x):
+        self.x = x
+        self.z = self.get_func()
 
 
 

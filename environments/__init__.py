@@ -3,7 +3,12 @@
 import environments.datasets as dataset
 import environments.functions as funcs
 
-def make_env(type, name, data_path='', batch_size=0, precision=None):
+def make_env(type,
+            name,
+            nb_dimension=2,
+            data_path='',
+            batch_size=0,
+            precision=None):
     """Class factory method. This method takes the name of the desired
     dataset and returns an object of the corresponding class.
     """

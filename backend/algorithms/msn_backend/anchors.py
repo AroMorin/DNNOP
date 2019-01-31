@@ -18,7 +18,7 @@ class Anchors:
         anchors_idxs = self.set_anchors_idxs(analyzer.sorted_idxs, pool)
         self.assign_models(pool)
         if analyzer.backtracking:
-            print("Backtracking Activated! Inserting Elite")
+            print("-------Backtracking Activated! Inserting Elite-------")
             self.models[-1] = elite  # Insert elite in last position
 
     def reset_state(self):
@@ -27,7 +27,6 @@ class Anchors:
         self.nb_anchors = 0
 
     def set_anchors_idxs(self, sorted_idxs, pool):
-        print("There are %d candidates" %len(sorted_idxs))
         for i in sorted_idxs:
             candidate = pool[i]
             self.admit(candidate, i, pool)
@@ -37,7 +36,6 @@ class Anchors:
     def admit(self, candidate, candidate_idx, pool):
         """Determines whether to admit a sample into the anchors list."""
         if self.anchors_idxs:
-            print("Anchors: %d" %self.nb_anchors)
             if self.accept_candidate(candidate, pool):
                 self.anchors_idxs.append(candidate_idx)
                 self.nb_anchors += 1
@@ -45,14 +43,12 @@ class Anchors:
             # List is empty, admit
             self.anchors_idxs.append(candidate_idx)
             self.nb_anchors += 1
-            print("Admitted first candidate")
 
     def accept_candidate(self, candidate, pool):
         """Make sure the candidate is far enough from every anchor."""
         for i in self.anchors_idxs:
             anchor = pool[i]
             distance = self.canberra_distance(candidate, anchor)
-            print("Distance: ", distance)
             if distance.item() < self.hp.min_dist:
                 return False
             elif math.isnan(distance.item()):

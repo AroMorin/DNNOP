@@ -92,8 +92,6 @@ class Pool:
         self.perturb.set_perturbation(self.elite.model, self.analyzer)
         self.probes.set_probes(self.anchors, self.perturb)
         self.blends.set_blends(self.anchors, self.vectors, self.analyzer, self.perturb)
-        as_ = [scores[i].item() for i in self.anchors.anchors_idxs]
-        print("Anchors scores: ", as_)
 
     def reset_state(self):
         self.available_idxs = range(self.hp.pool_size)

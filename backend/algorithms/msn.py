@@ -56,7 +56,7 @@ class MSN:
     def test(self, env):
         """This is a method for testing."""
         self.inferences = self.optim.inference(test=True)
-        if env.test_data:
+        if env.test_data is not None:
             self.correct_test_preds = self.optim.calculate_correct_predictions(
                                                                 self.inferences)
         else:

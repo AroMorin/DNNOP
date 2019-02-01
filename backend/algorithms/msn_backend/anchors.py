@@ -20,6 +20,9 @@ class Anchors:
         if analyzer.backtracking:
             print("-------Backtracking Activated! Inserting Elite-------")
             self.models[-1] = elite  # Insert elite in last position
+        #as_ = [self.analyzer.scores[i] for i in self.anchors.anchors_idxs]
+        #print("Anchors scores: ", as_)
+
 
     def reset_state(self):
         self.models = []

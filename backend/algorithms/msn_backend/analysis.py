@@ -34,12 +34,16 @@ class Analysis:
         print("Integrity: %f" %self.integrity)
 
     def clean_list(self, mylist):
-        print (mylist)
-        # Get scores
-        if mylist[0].item():
+        # Check for type
+        if int(mylist[0]) != mylist[0]:
+            # Tensor
             mylist = [i.item() for i in mylist]
-        else:
+        elif int(mylist[0]) == mylist[0]:
+            # Integer
             mylist = [i for i in mylist]
+        else:
+            print("Error in score variable type")
+            exit()
         print("Raw scores: ", mylist)
         # Remove NaNs and infinities
         #self.scores = [x for x in mylist if not math.isnan(x)]

@@ -33,7 +33,7 @@ class Optimizer:
         outputs = []
         with torch.no_grad():
             if test:
-                model = self.pool.elite.model
+                model = self.pool.models[self.pool.anchors.anchors_idxs[0]]
                 model.eval()  # Turn on evaluation mode
                 inf = model(self.env.train_data)
                 outputs.append(inf)

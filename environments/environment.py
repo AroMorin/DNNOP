@@ -19,6 +19,8 @@ class Environment:
         self.acc = False  # Use when the environment has an accuracy measure
         self.train_data = None
         self.train_targets = None
+        self.test_data = None
+        self.test_targets = None
 
     def step(self):
         """Placeholder for step function. The step function is an essential

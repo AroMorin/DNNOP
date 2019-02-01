@@ -46,32 +46,37 @@ class MSN:
         self.optim.set_environment(env)  # Candidate for repositioning
         self.inferences = self.optim.inference()
         if env.loss:
-            self.train_losses = self.optim.calculate_loss(self.inferences)
-            self.scores = self.optim.calculate_scores(self.train_losses)
+            self.scores = self.optim.calculate_losses(self.inferences)
+        elif env.acc:
+            self.scores = self.optim.calculate_correct_predictions(self.inferences)
         else:
-            self.scores = self.optim.calculate_scores(self.inferences)
+            self.scores = self.inferences
         self.optim.update(self.scores)
 
 
     def test(self, env):
         """This is a method for testing."""
         self.inferences = self.optim.inference(test=True)
-        if env.loss:
-            self.test_loss = self.optim.calculate_loss(self.inferences, test=True)
+        if env.test_data:
             self.correct_test_preds = self.optim.calculate_correct_predictions(
-                                            self.inferences, self.test_loss)
+                                                                self.inferences)
         else:
             print ("Environment has no test cases!")
             exit()
 
     def print_test_accuracy(self, env):
-        test_size = len(env.x_t)
-        loss = self.test_loss[0]  # Assuming minizming loss
+        test_size = len(env.test_data)
         correct = self.correct_test_preds[0]
         self.test_acc = 100.*correct/test_size
-        loss /= test_size  # Not really sure what this does
-        print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-            loss, correct, test_size, self.test_acc))
+        if env.loss:
+            loss = self.test_loss[0]  # Assuming minizming loss
+            loss /= test_size  # Not really sure what this does
+            print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+                                    loss, correct, test_size, self.test_acc))
+        else:
+            print('\nTest set: Accuracy: {}/{} ({:.0f}%)\n'.format(
+                                    correct, test_size, self.test_acc))
+
 
     def achieved_target(self):
         if self.optim.hp.minimizing:

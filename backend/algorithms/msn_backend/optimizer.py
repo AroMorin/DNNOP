@@ -33,45 +33,44 @@ class Optimizer:
         outputs = []
         with torch.no_grad():
             if test:
-                model = self.pool.models[0]
+                model = self.pool.elite.model
                 model.eval()  # Turn on evaluation mode
-                inf = model(self.env.x_t)  # env.x_t is the test data
+                inf = model(self.env.train_data)
                 outputs.append(inf)
             else:
                 for model in self.pool.models:
-                    inf = model(self.env.x)  # env.x is the training data
-                    outputs.append(inf)
+                    inference = model(self.env.train_data)
+                    outputs.append(inference)
         x = [i.item() for i in outputs[0][0]]
         print("Inference: ", x)
         return outputs
 
-    def calculate_loss(self, inferences, test=False):
+    def calculate_losses(self, inferences, test=False):
         """This method calculates the loss."""
         if self.env.loss_type == 'NLL loss':
             losses = []
             for inf in inferences:
                 if not test:
-                    loss = F.nll_loss(inf, self.env.y)
+                    loss = F.nll_loss(inf, self.env.train_targets)
                 else:
-                    loss = F.nll_loss(inf, self.env.y_t, reduction='sum').item()
+                    loss = F.nll_loss(inf, self.env.test_targets, reduction='sum').item()
                 losses.append(loss)
             return losses
         else:
             print("Unknown loss type")
             exit()
 
-    def calculate_scores(self, outputs):
-        """This method calculates the scores based on the given outputs. There
-        are many ways to calculate a score, it depends on the type of problem
-        being solved.
-        Thus, this method can use a second argument, or a hyper parameter, to
-        set what type of calculation to use.
-        """
-        scores = []
-        for output in outputs:
-            score = output-self.hp.target
-            scores.append(score)
-        return scores
+    def calculate_correct_predictions(self, inferences, test=False):
+        correct_preds = []
+        for inference in inferences:
+            # Correct predictions on all test data for a single model
+            pred = inference.max(1, keepdim=True)[1]
+            if not test:
+                correct = pred.eq(self.env.train_targets.view_as(pred)).sum().item()
+            else:
+                correct = pred.eq(self.env.test_targets.view_as(pred)).sum().item()
+            correct_preds.append(correct)
+        return correct_preds
 
     def update(self, scores):
         """This method takes in the scores, feeds it to the pool so that the
@@ -80,16 +79,6 @@ class Optimizer:
         """
         self.pool.prep_new_pool(scores)
         self.pool.implement()
-
-
-    def calculate_correct_predictions(self, inferences, losses):
-        correct_preds = []
-        for inference in inferences:
-            pred = inference.max(1, keepdim=True)[1]
-            # Correct for single model on all test data
-            correct = pred.eq(self.env.y_t.view_as(pred)).sum().item()
-            correct_preds.append(correct)
-        return correct_preds
 
 
 

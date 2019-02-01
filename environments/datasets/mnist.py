@@ -57,15 +57,15 @@ class MNIST(Dataset):
         test_set = list(self.test_loader)
 
         # batch 0: all images, mode 0: data
-        train_data = train_set[0][0].cuda().to(self.precision)
-        self.x_t = test_set[0][0].cuda().to(self.precision)
+        x = train_set[0][0].cuda().to(self.precision)
+        self.test_data = test_set[0][0].cuda().to(self.precision)
 
         # batch 0: all images, mode 1: labels/targets
-        train_labels = train_set[0][1].cuda()
-        self.y_t = test_set[0][1].cuda()
+        y = train_set[0][1].cuda()
+        self.test_targets = test_set[0][1].cuda()
 
-        self.train_data = torch.split(train_data, self.batch_size)
-        self.train_labels = torch.split(train_labels, self.batch_size)
+        self.x = torch.split(x, self.batch_size)
+        self.y = torch.split(y, self.batch_size)
         self.nb_batches = len(self.train_data)
         print ("Number of Batches: %d" %self.nb_batches)
 
@@ -74,8 +74,8 @@ class MNIST(Dataset):
         This method can be further customized to randomize the batch
         contents.
         """
-        self.x = self.train_data[self.current_batch_idx]
-        self.y = self.train_labels[self.current_batch_idx]
+        self.train_data = self.x[self.current_batch_idx]
+        self.train_targets = self.y[self.current_batch_idx]
         self.current_batch_idx += 1
         if self.check_reset():
             self.reset()

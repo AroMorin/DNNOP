@@ -53,7 +53,6 @@ class MSN:
             self.scores = self.inferences
         self.optim.update(self.scores)
 
-
     def test(self, env):
         """This is a method for testing."""
         self.inferences = self.optim.inference(test=True)
@@ -77,7 +76,6 @@ class MSN:
             print('\nTest set: Accuracy: {}/{} ({:.0f}%)\n'.format(
                                     correct, test_size, self.test_acc))
 
-
     def achieved_target(self):
         if self.optim.hp.minimizing:
             best = min(self.scores)
@@ -85,6 +83,13 @@ class MSN:
         else:
             best = max(self.scores)
             return best >= self.optim.hp.target
+
+
+
+
+
+
+
 
 
 

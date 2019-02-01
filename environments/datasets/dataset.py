@@ -25,6 +25,7 @@ class Dataset(Environment):
         self.current_batch_idx = 0
         self.loss = True  # Whether this environment has a loss or not
         self.loss_type = 'NLL loss'
+        self.acc = True  # Datasets have accuracy measures
         self.set_batch_size(batch_size)
         assert isinstance(data_path, str)  # Sanity check
         self.data_path = data_path

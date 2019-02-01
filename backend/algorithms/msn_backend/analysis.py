@@ -34,8 +34,12 @@ class Analysis:
         print("Integrity: %f" %self.integrity)
 
     def clean_list(self, mylist):
+        print (mylist)
         # Get scores
-        mylist = [i.item() for i in mylist]
+        if mylist[0].item():
+            mylist = [i.item() for i in mylist]
+        else:
+            mylist = [i for i in mylist]
         print("Raw scores: ", mylist)
         # Remove NaNs and infinities
         #self.scores = [x for x in mylist if not math.isnan(x)]

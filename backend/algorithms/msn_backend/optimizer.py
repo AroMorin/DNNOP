@@ -41,9 +41,16 @@ class Optimizer:
                 for model in self.pool.models:
                     inference = model(self.env.train_data)
                     outputs.append(inference)
-        x = [i.item() for i in outputs[0][0]]
-        print("Inference: ", x)
+        self.print_inference(outputs)
         return outputs
+
+    def print_inference(self, outputs):
+        if outputs[0][0][0].item():
+            x = [i.item() for i in outputs[0][0]]
+        else:
+            x = [i for i in outputs[0][0]]
+        print("Inference: ", x)
+
 
     def calculate_losses(self, inferences, test=False):
         """This method calculates the loss."""

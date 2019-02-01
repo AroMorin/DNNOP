@@ -29,4 +29,5 @@ class Net(nn.Module):
         x = self.fc1(x)
         x = self.act3(x)
         x = self.fc2(x)
-        return F.log_softmax(x, dim=1)
+        x = F.log_softmax(x, dim=1)
+        return x

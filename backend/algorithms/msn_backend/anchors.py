@@ -63,6 +63,8 @@ class Anchors:
         #numerator = torch.abs(torch.add(a, -1, b))
         numerator = torch.abs(a.sub(b))
         denominator = torch.add(torch.abs(a), torch.abs(b))
+        epsilon = 0.00001
+        denominator = torch.clamp(denominator, min=epsilon)
         return torch.div(numerator, denominator).sum()
 
     def assign_models(self, pool):

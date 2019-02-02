@@ -14,8 +14,9 @@ class Solver():
         print("Creating Solver")
         self.env = env
         self.algorithm = algorithm
+        self.current_iteration = 0
+        self.current_batch = 0
         self.current_step = 0
-        self.elapsed_steps = 0
 
     def batch_training(self, epochs):
         """In cases where batch training is needed."""
@@ -29,7 +30,7 @@ class Solver():
             for __ in range(batches):
                 env.step()
                 alg.optimize(env)
-                self.elapsed_steps +=1
+                self.current_iteration +=1
 
     def train_dataset_with_validation(self, steps):
         """In cases where a dataset is being trained with a validation component
@@ -45,8 +46,8 @@ class Solver():
         # Process
         env.step()
         for _ in range(steps):
-            self.elapsed_steps += 1
-            print ("Iteration %d" %self.elapsed_steps)
+            self.current_iteration += 1
+            print ("Iteration %d" %self.current_iteration)
             alg.optimize(env)
             alg.test(env)
             alg.print_test_accuracy(env)
@@ -67,15 +68,15 @@ class Solver():
 
         # Process
         for _ in range(steps):
-            print ("Iteration %d" %self.elapsed_steps)
+            print ("Iteration %d" %self.current_iteration)
             for __ in range(batches):
-                print("Batch %d" %self.current_step)
+                print("Batch %d" %self.current_batch)
                 env.step()
                 alg.optimize(env)
-                self.current_step +=1
+                self.current_batch +=1
             alg.test(env)
             alg.print_test_accuracy(env)
-            self.elapsed_steps += 1
+            self.current_iteration += 1
 
     def repeated_batch_train_dataset_with_validation(self, steps):
         """In cases where a dataset is being trained with a validation component
@@ -91,20 +92,24 @@ class Solver():
 
         # Process
         for _ in range(steps):
-            print ("Iteration %d" %self.elapsed_steps)
+            print ("Iteration %d" %self.current_iteration)
             for __ in range(batches):
-                print("Batch %d" %self.current_step)
+                print("Batch %d" %self.current_batch)
                 env.step()
+                self.current_step = 0  # Reset step count
                 for ___ in range(patience):
+                    print("Step %d" %self.current_step)
                     alg.optimize(env)
-                self.current_step +=1
+                    self.current_step += 1
+                self.current_batch +=1
             alg.test(env)
             alg.print_test_accuracy(env)
-            self.elapsed_steps += 1
+            self.current_iteration += 1
 
     def reset_state(self):
         """This is probably in cases of RL and such where an "envrionment"
         can be reset.
         """
-        self.current_epoch = 0
+        self.current_iteration = 0
+        self.current_batch = 0
         self.current_step = 0

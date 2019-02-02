@@ -24,7 +24,7 @@ class Rastrigin(Function):
         x1 = np.linspace(self.x1_low, self.x1_high, self.resolution)
         x2 = np.linspace(self.x2_low, self.x2_high, self.resolution)
         x1_domain, x2_domain = np.meshgrid(x1_domain, x2_domain)
-        self.range = self.
+        #self.range = 
 
     def init_plot(self):
         if self.plot:

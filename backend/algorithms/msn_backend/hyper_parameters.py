@@ -52,10 +52,10 @@ class Hyper_Parameters:
                                 "pool size": 50,
                                 "alpha":1,
                                 "beta": 0.9,
-                                "learning rate": 0.5,
+                                "learning rate": 0.1,
                                 "lambda":6,
-                                "minimum distance": 5000,
-                                "minimum entropy": -5,
+                                "minimum distance": 2500,
+                                "minimum entropy": 5,
                                 "step size": 0.07,
                                 "patience": 15,
                                 "default integrity": 0.99,
@@ -102,13 +102,14 @@ class Hyper_Parameters:
         if not self.hyper_params['minimization mode']:
             self.initial_score = -math.inf
 
-    def set_min_entropy(self):
-        if self.hyper_params['minimization mode']:
-            assert self.hyper_params['minimum entropy'] < 0
-        else:
-            assert self.hyper_params['minimum entropy'] > 0
-
     def sanity_checks(self):
         assert self.pool_size >= 7  # Minimum pool size
         assert self.nb_anchors >= 2  # Minimum anchor count
         assert self.nb_probes >= 2  # Minimum probes count
+        self.check_min_entropy()
+
+    def check_min_entropy(self):
+        if self.hyper_params['minimization mode']:
+            assert self.hyper_params['minimum entropy'] < 0
+        else:
+            assert self.hyper_params['minimum entropy'] > 0

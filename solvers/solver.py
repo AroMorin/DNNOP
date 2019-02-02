@@ -58,7 +58,7 @@ class Solver():
         """In cases where a dataset is being trained with a validation component
         such as MNIST.
         """
-        print("Training model(s) on a dataset w/ validation")
+        print("Mini-batch training model(s) on a dataset w/ validation")
         # Local variable definition
         env = self.env
         alg = self.algorithm
@@ -67,10 +67,36 @@ class Solver():
 
         # Process
         for _ in range(steps):
+            print ("Iteration %d" %self.elapsed_steps)
             for __ in range(batches):
                 print("Batch %d" %self.current_step)
                 env.step()
                 alg.optimize(env)
+                self.current_step +=1
+            alg.test(env)
+            alg.print_test_accuracy(env)
+            self.elapsed_steps += 1
+
+    def repeated_batch_train_dataset_with_validation(self, steps):
+        """In cases where a dataset is being trained with a validation component
+        such as MNIST.
+        """
+        print("Mini-batch training model(s) on a dataset w/ validation")
+        # Local variable definition
+        env = self.env
+        alg = self.algorithm
+        batches = self.env.nb_batches
+        patience = 16
+        self.reset_state()
+
+        # Process
+        for _ in range(steps):
+            print ("Iteration %d" %self.elapsed_steps)
+            for __ in range(batches):
+                print("Batch %d" %self.current_step)
+                env.step()
+                for ___ in range(patience):
+                    alg.optimize(env)
                 self.current_step +=1
             alg.test(env)
             alg.print_test_accuracy(env)

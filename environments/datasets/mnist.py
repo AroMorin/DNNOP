@@ -66,7 +66,7 @@ class MNIST(Dataset):
 
         self.x = torch.split(x, self.batch_size)
         self.y = torch.split(y, self.batch_size)
-        self.nb_batches = len(self.train_data)
+        self.nb_batches = len(self.x)
         print ("Number of Batches: %d" %self.nb_batches)
 
     def step(self):

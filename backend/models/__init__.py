@@ -32,4 +32,5 @@ def make_pool(name, pool_size, precision=torch.float, init_scheme='Xavier Normal
 
 def init_uniform(m):
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        nn.init.uniform_(m.weight, a=-2, b=2)
+        limit = 0.5
+        nn.init.uniform_(m.weight, a=-limit, b=limit)

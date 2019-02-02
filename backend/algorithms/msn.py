@@ -58,14 +58,14 @@ class MSN:
         self.inferences = self.optim.inference(test=True)
         if env.test_data is not None:
             self.correct_test_preds = self.optim.calculate_correct_predictions(
-                                                                self.inferences)
+                                                    self.inferences, test=True)
         else:
             print ("Environment has no test cases!")
             exit()
 
     def print_test_accuracy(self, env):
         test_size = len(env.test_data)
-        correct = self.correct_test_preds[0]
+        correct = self.correct_test_preds
         self.test_acc = 100.*correct/test_size
         if env.loss:
             loss = self.test_loss[0]  # Assuming minizming loss

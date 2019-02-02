@@ -29,13 +29,13 @@ class Optimizer:
         that reason, I designate this function, to be a single point of contact
         for running inference, in whatever way the user/problem requires.
         """
-        assert self.env != None  # Sanity check
+        assert self.env is not None  # Sanity check
         outputs = []
         with torch.no_grad():
             if test:
                 model = self.pool.models[self.pool.anchors.anchors_idxs[0]]
                 model.eval()  # Turn on evaluation mode
-                inf = model(self.env.train_data)
+                inf = model(self.env.test_data)
                 outputs.append(inf)
             else:
                 for model in self.pool.models:
@@ -74,9 +74,11 @@ class Optimizer:
             pred = inference.max(1, keepdim=True)[1]
             if not test:
                 correct = pred.eq(self.env.train_targets.view_as(pred)).sum().item()
+                correct_preds.append(correct)
             else:
+                print(len(inferences))
                 correct = pred.eq(self.env.test_targets.view_as(pred)).sum().item()
-            correct_preds.append(correct)
+                return correct
         return correct_preds
 
     def update(self, scores):

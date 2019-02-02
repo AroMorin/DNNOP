@@ -109,7 +109,10 @@ class Analysis:
         # Make sure we are not in the very first iteration
         if self.current_top != self.hp.initial_score:
             self.set_entropy()
-            return self.entropy < self.hp.min_entropy
+            if self.hp.minimizing:
+                return self.entropy <= self.hp.min_entropy
+            else:
+                return self.entropy >= self.hp.min_entropy
         else:
             # Improved over the initial score
             return True
@@ -155,9 +158,9 @@ class Analysis:
         if nb_anchors < self.hp.nb_anchors:
             print("--Expanding Search Radius!--")
             self.radial_expansion = True
-            self.lr = self.lr * self.hp.expansion_factor
-            self.alpha = self.alpha * self.hp.expansion_factor
-            self.lambda_ = self.lambda_ * self.hp.expansion_factor
+            self.lr += self.lr * self.hp.expansion_factor
+            self.alpha += self.alpha * self.hp.expansion_factor
+            self.lambda_ += self.lambda_ * self.hp.expansion_factor
         else:
             self.radial_expansion = False
             self.lr = self.hp.lr
@@ -172,9 +175,9 @@ class Analysis:
 
     def set_search_radius(self):
         p = 1-self.integrity
-        argument = (self.hp.lambda_*p)-2.5
+        argument = (self.lambda_*p)-2.5
         exp1 = math.tanh(argument)+1
-        self.search_radius = exp1*self.hp.lr
+        self.search_radius = exp1*self.lr
         print ("Search Radius: %f" %self.search_radius)
 
 

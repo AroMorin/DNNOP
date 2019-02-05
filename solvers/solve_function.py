@@ -24,8 +24,6 @@ def main():
                         help='maximum number of optimization steps (def: 500)')
     args = parser.parse_args()
 
-    precision = torch.half # Set precision
-
     # Make an MNIST Dataset environment
     env = environments.make_env("function",
                                 "rastrigin",
@@ -33,15 +31,17 @@ def main():
                                 plot = True
                                 )
 
+    precision = torch.half # Set precision
+
     # Make a pool
-    pool = model_factory.make_pool("MNIST CNN MSN", args.pool_size, precision)
+    pool = model_factory.make_pool("Function FC model", args.pool_size, precision)
 
     # Make an algorithm --algorithm takes control of the pool--
     hyper_params = {
                     "pool size": args.pool_size,
                     "number of anchors": args.nb_anchors,
                     "number of probes per anchor": args.nb_probes,
-                    "target": env.optimal_y,
+                    "target": env.target,
                     "minimization mode": env.minimize
                     }
     alg = algorithm_factory.make_alg("MSN", pool, hyper_params)

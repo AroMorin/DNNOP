@@ -18,6 +18,17 @@ class Solver():
         self.current_batch = 0
         self.current_step = 0
 
+    def solve(self, iterations):
+        """In cases where training is needed."""
+        print("Training regular function solver \n")
+        # Local variable definition
+        env = self.env
+        alg = self.algorithm
+        for _ in range(iterations):
+            env.step()
+            alg.optimize(env)
+            self.current_iteration +=1
+
     def batch_training(self, epochs):
         """In cases where batch training is needed."""
         # Local variable definition
@@ -42,7 +53,6 @@ class Solver():
         # Local variable definition
         env = self.env
         alg = self.algorithm
-        self.reset_state()
         # Process
         env.step()
         for _ in range(steps):
@@ -64,7 +74,6 @@ class Solver():
         env = self.env
         alg = self.algorithm
         batches = self.env.nb_batches
-        self.reset_state()
 
         # Process
         for _ in range(steps):

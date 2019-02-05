@@ -22,7 +22,7 @@ def make_pool(name, pool_size, precision=torch.float, init_scheme='Xavier Normal
                 model = MNIST_CNN()
             elif name == "MNIST CNN MSN":
                 model = MNIST_CNN_MSN()
-            elif name == "FC model":
+            elif name == "Function FC model":
                 model = BASIC_FC()
             else:
                 print("Unknown model selected")

@@ -4,6 +4,7 @@ is chosen.
 
 from .cnn_mnist import Net as MNIST_CNN
 from .mnist_cnn_msn import Net as MNIST_CNN_MSN
+from .basic_fc import Net as BASIC_FC
 import torch
 import torch.nn as nn
 
@@ -21,6 +22,8 @@ def make_pool(name, pool_size, precision=torch.float, init_scheme='Xavier Normal
                 model = MNIST_CNN()
             elif name == "MNIST CNN MSN":
                 model = MNIST_CNN_MSN()
+            elif name == "FC model":
+                model = BASIC_FC()
             else:
                 print("Unknown model selected")
                 exit()

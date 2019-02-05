@@ -5,18 +5,15 @@ import matplotlib as plt
 from .plotter import Plotter
 
 class Function(Environment):
-    def ___init___(self, plot, nb_dimensions):
+    def ___init___(self, nb_dimensions, plot=False):
+        super().__init__()
         self.plot = plot
         self.nb_dimensions = nb_dimensions
         self.optimal_x = 0  # Location
-        self.resoultion = 512
+        self.resoultion = 50
         self.symmetrical = True
         self.x_low = 0
         self.x_high = 0
-        self.observation = 0
-        self.minimize = True  # Global optimum is a minimum/maximum
-        self.x1_domain = []
-        self.x2_domain = []
         self.domain = []  # Matrix of coordinate vectors
         self.init_plot()
 
@@ -28,7 +25,7 @@ class Function(Environment):
     def set_observation(self):
         self.observation = np.rando
 
-    def set_domains(self):
+    def set_domain(self):
         if self.symmetrical:
             x = []  # List of coordinate vectors
             for _ in range(self.nb_dimensions):

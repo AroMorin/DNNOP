@@ -7,7 +7,7 @@ for the solving algorithm to operate on.
 import torch
 
 class Environment:
-    def __init__(self, precision):
+    def __init__(self, precision=None):
         print("Initializing environment")
         self.device = torch.device("cuda") # Always assume GPU training/testing
         if precision == None:
@@ -18,7 +18,7 @@ class Environment:
         self.loss_type = ''  # environments that require loss define a loss type
         self.acc = False  # Use when the environment has an accuracy measure
         self.observation = None
-        self.target = None
+        self.target = 0
         self.minimize = True  # Is the target a minimum or a maximum?
 
     def step(self):

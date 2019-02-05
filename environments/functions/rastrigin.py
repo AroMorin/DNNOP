@@ -7,7 +7,7 @@ import numpy as np
 
 class Rastrigin(Function):
     def __init__(self, nb_dimensions, plot):
-        super().__init__(plot, nb_dimensions)
+        super().__init__(nb_dimensions, plot)
         self.x = None  # NP array
         self.x_low = -5.12
         self.x_high = 5.12

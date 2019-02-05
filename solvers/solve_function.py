@@ -13,7 +13,7 @@ import torch
 
 def main():
     # Assumes CUDA is available
-    parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
+    parser = argparse.ArgumentParser(description='Func Solver')
     parser.add_argument('--pool_size', type=int, default=50, metavar='N',
                         help='number of samples in the pool (def: 50)')
     parser.add_argument('--nb_anchors', type=int, default=5, metavar='N',
@@ -27,8 +27,11 @@ def main():
     precision = torch.half # Set precision
 
     # Make an MNIST Dataset environment
-    data_path = "C:/Users/aaa2cn/Documents/mnist_data"
-    env = environments.make_env("dataset", "mnist", data_path=data_path, precision=precision)
+    env = environments.make_env("function",
+                                "rastrigin",
+                                nb_dimensions = 2,
+                                plot = True
+                                )
 
     # Make a pool
     pool = model_factory.make_pool("MNIST CNN MSN", args.pool_size, precision)

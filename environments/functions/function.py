@@ -8,16 +8,12 @@ class Function(Environment):
     def ___init___(self, plot, nb_dimensions):
         self.plot = plot
         self.nb_dimensions = nb_dimensions
-        self.optimal_val = 0
-        self.optimal_x1 = 0  # Location
-        self.optimal_x2 = 0  # Location
-        self.optimal_y = 0  # Value
-        self.x1_low = 0
-        self.x1_high = 0
-        self.x2_low = 0
-        self.x2_high = 0
-        self.y = 0
+        self.optimal_x = 0  # Location
         self.resoultion = 512
+        self.symmetrical = True
+        self.x_low = 0
+        self.x_high = 0
+        self.observation = 0
         self.minimize = True  # Global optimum is a minimum/maximum
         self.x1_domain = []
         self.x2_domain = []
@@ -28,6 +24,9 @@ class Function(Environment):
         if self.plot:
             assert self.nb_dimensions == 2
             self.plotter = Plotter()
+
+    def set_observation(self):
+        self.observation = np.rando
 
     def set_domains(self):
         x1 = np.linspace(self.x1_low, self.x1_high, self.resolution)
@@ -44,3 +43,7 @@ class Function(Environment):
 
     def evaluate(self, position):
         pass
+
+
+
+#

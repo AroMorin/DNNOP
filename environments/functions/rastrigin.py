@@ -9,17 +9,15 @@ class Rastrigin(Function):
     def __init__(self, nb_dimensions, plot):
         super().__init__(plot, nb_dimensions)
         self.x = None  # NP array
-        self.x1_low = -5.12
-        self.x1_high = 5.12
-        self.x2_low = -5.12
-        self.x2_high = 5.12
-        self.optimal_x1 = 0  # Location
-        self.optimal_x2 = 0  # Location
-        self.optimal_y = 0
+        self.x_low = -5.12
+        self.x_high = 5.12
+        self.optimal_x = 0  # Location
         self.resoultion = 512
         self.minimize = True
+        self.target = 0  # Value of global optimum
         self.set_domains()
         self.set_range()
+        self.set_observation()
 
     def get_func(self):
         a = 10*self.nb_dimensions

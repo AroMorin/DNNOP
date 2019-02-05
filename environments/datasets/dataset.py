@@ -4,24 +4,24 @@ the developer, to make the class extendable intuitively.
 from ..environment import Environment
 
 class Dataset(Environment):
-    def __init__(self, data_path, batch_size, precision, train_size, test_size):
+    def __init__(self, data_path, precision):
         print("Creating Dataset")
         super().__init__(precision)
-        self.train_size = train_size # Size of the training set
-        self.test_size = test_size
+        assert isinstance(data_path, str)  # Sanity check
+        self.data_path = data_path
         self.train_dataset = None
         self.test_dataset = None
         self.train_loader = None
         self.test_loader = None
-        self.x = [] # Entire set of training images
-        self.y = [] # Entire set of training labels
-        self.train_data = [] # Current batch of training images
-        self.train_labels = [] # Current batch of training labels
-        self.test_data = [] # Test images (whole, not batches)
-        self.test_labels = [] # Test labels (whole, not batches)
         self.transforms = None
-        self.nb_batches = 0
+        self.train_data = [] # Entire set of training images
+        self.test_data = [] # Entire set of test images
+        self.train_labels = [] # Entire set of training labels
+        self.test_labels = [] # # Entire set of test labels
+        self.observation = [] # Current batch of training images
+        self.labels = [] # Current batch of labels
         self.batch_size = 0
+        self.nb_batches = 0
         self.current_batch_idx = 0
         self.loss = True  # Whether this environment has a loss or not
         self.loss_type = 'NLL loss'
@@ -29,9 +29,6 @@ class Dataset(Environment):
         self.minimize = True
         self.target = 0
         self.set_optimization_mode()
-        self.set_batch_size(batch_size)
-        assert isinstance(data_path, str)  # Sanity check
-        self.data_path = data_path
 
     def set_batch_size(self, batch_size):
         if batch_size != 0:

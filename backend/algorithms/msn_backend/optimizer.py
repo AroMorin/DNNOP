@@ -35,11 +35,11 @@ class Optimizer:
             if test:
                 model = self.pool.models[self.pool.anchors.anchors_idxs[0]]
                 model.eval()  # Turn on evaluation mode
-                inf = model(self.env.test_data)
-                outputs.append(inf)
+                inference = model(self.env.test_data)
+                outputs.append(inference)
             else:
                 for model in self.pool.models:
-                    inference = model(self.env.train_data)
+                    inference = model(self.env.observation)
                     outputs.append(inference)
         self.print_inference(outputs)
         return outputs
@@ -58,9 +58,9 @@ class Optimizer:
             losses = []
             for inf in inferences:
                 if not test:
-                    loss = F.nll_loss(inf, self.env.train_targets)
+                    loss = F.nll_loss(inf, self.env.labels)
                 else:
-                    loss = F.nll_loss(inf, self.env.test_targets, reduction='sum').item()
+                    loss = F.nll_loss(inf, self.env.test_labels, reduction='sum').item()
                 losses.append(loss)
             return losses
         else:
@@ -73,11 +73,11 @@ class Optimizer:
             # Correct predictions on all test data for a single model
             pred = inference.max(1, keepdim=True)[1]
             if not test:
-                correct = pred.eq(self.env.train_targets.view_as(pred)).sum().item()
+                correct = pred.eq(self.env.labels.view_as(pred)).sum().item()
                 correct_preds.append(correct)
             else:
                 print(len(inferences))
-                correct = pred.eq(self.env.test_targets.view_as(pred)).sum().item()
+                correct = pred.eq(self.env.test_labels.view_as(pred)).sum().item()
                 return correct
         return correct_preds
 

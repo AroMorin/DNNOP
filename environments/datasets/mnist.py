@@ -10,10 +10,11 @@ class MNIST(Dataset):
     """
     def __init__(self, data_path, batch_size, precision):
         # Initialize base class
-        super().__init__(data_path, batch_size, precision, train_size=60000,
-                        test_size=10000)
+        super().__init__(data_path, precision)
+        self.train_size = 60000 # Size of the training set
+        self.test_size = 10000
+        self.set_batch_size(batch_size)
         self.load_dataset()
-
 
     def load_dataset(self):
         """This dataset is organized as such: it is a list of batches. Each
@@ -64,9 +65,9 @@ class MNIST(Dataset):
         y = train_set[0][1].cuda()
         self.test_labels = test_set[0][1].cuda()
 
-        self.x = torch.split(x, self.batch_size)
-        self.y = torch.split(y, self.batch_size)
-        self.nb_batches = len(self.x)
+        self.train_data = torch.split(x, self.batch_size)
+        self.train_labels = torch.split(y, self.batch_size)
+        self.nb_batches = len(self.train_data)
         print ("Number of Batches: %d" %self.nb_batches)
 
     def step(self):
@@ -74,8 +75,8 @@ class MNIST(Dataset):
         This method can be further customized to randomize the batch
         contents.
         """
-        self.train_data = self.x[self.current_batch_idx]
-        self.train_labels = self.y[self.current_batch_idx]
+        self.observation = self.train_data[self.current_batch_idx]
+        self.labels = self.train_labels[self.current_batch_idx]
         self.current_batch_idx += 1
         if self.check_reset():
             self.reset()

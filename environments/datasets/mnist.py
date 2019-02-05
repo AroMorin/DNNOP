@@ -60,9 +60,9 @@ class MNIST(Dataset):
         x = train_set[0][0].cuda().to(self.precision)
         self.test_data = test_set[0][0].cuda().to(self.precision)
 
-        # batch 0: all images, mode 1: labels/targets
+        # batch 0: all images, mode 1: labels
         y = train_set[0][1].cuda()
-        self.test_targets = test_set[0][1].cuda()
+        self.test_labels = test_set[0][1].cuda()
 
         self.x = torch.split(x, self.batch_size)
         self.y = torch.split(y, self.batch_size)
@@ -75,7 +75,7 @@ class MNIST(Dataset):
         contents.
         """
         self.train_data = self.x[self.current_batch_idx]
-        self.train_targets = self.y[self.current_batch_idx]
+        self.train_labels = self.y[self.current_batch_idx]
         self.current_batch_idx += 1
         if self.check_reset():
             self.reset()

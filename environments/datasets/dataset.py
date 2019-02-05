@@ -9,23 +9,26 @@ class Dataset(Environment):
         super().__init__(precision)
         self.train_size = train_size # Size of the training set
         self.test_size = test_size
-        self.train_dataset = ''
-        self.test_dataset = ''
-        self.train_loader = ''
-        self.test_loader = ''
-        self.x = '' # Entire set of training images
-        self.y = '' # Entire set of training labels
-        self.train_data = '' # Current batch of training images
-        self.train_targets = '' # Current batch of training labels
-        self.test_data = '' # Test images (whole, not batches)
-        self.test_targets = '' # Test labels (whole, not batches)
-        self.transforms = ''
+        self.train_dataset = None
+        self.test_dataset = None
+        self.train_loader = None
+        self.test_loader = None
+        self.x = [] # Entire set of training images
+        self.y = [] # Entire set of training labels
+        self.train_data = [] # Current batch of training images
+        self.train_labels = [] # Current batch of training labels
+        self.test_data = [] # Test images (whole, not batches)
+        self.test_labels = [] # Test labels (whole, not batches)
+        self.transforms = None
         self.nb_batches = 0
         self.batch_size = 0
         self.current_batch_idx = 0
         self.loss = True  # Whether this environment has a loss or not
         self.loss_type = 'NLL loss'
         self.acc = True  # Datasets have accuracy measures
+        self.minimize = True
+        self.target = 0
+        self.set_optimization_mode()
         self.set_batch_size(batch_size)
         assert isinstance(data_path, str)  # Sanity check
         self.data_path = data_path
@@ -36,6 +39,14 @@ class Dataset(Environment):
             self.batch_size = batch_size
         else:
             self.batch_size = self.train_size
+
+    def set_optimization_mode(self):
+        if self.loss:
+            self.minimize = True
+            self.target = 0
+        else:
+            self.minimize = False
+            self.target = 100  # 100% accuracy
 
     def load_dataset(self):
         """Placeholder method for initializing and loading the dataset."""

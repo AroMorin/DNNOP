@@ -42,8 +42,8 @@ def main():
                     "pool size": args.pool_size,
                     "number of anchors": args.nb_anchors,
                     "number of probes per anchor": args.nb_probes,
-                    "target": 60000,
-                    "minimization mode": False
+                    "target": env.train_size,
+                    "minimization mode": env.minimize
                     }
     alg = algorithm_factory.make_alg("MSN", pool, hyper_params)
 

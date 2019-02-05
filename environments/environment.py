@@ -18,9 +18,10 @@ class Environment:
         self.loss_type = ''  # environments that require loss define a loss type
         self.acc = False  # Use when the environment has an accuracy measure
         self.train_data = None
-        self.train_targets = None
+        self.train_target = None
         self.test_data = None
-        self.test_targets = None
+        self.test_target = None
+        self.minimize = True  # Is the target a minimum or a maximum?
 
     def step(self):
         """Placeholder for step function. The step function is an essential

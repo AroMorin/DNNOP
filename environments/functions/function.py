@@ -17,7 +17,7 @@ class Function(Environment):
         self.minimize = True  # Global optimum is a minimum/maximum
         self.x1_domain = []
         self.x2_domain = []
-        self.domain = []
+        self.domain = []  # Matrix of coordinate vectors
         self.init_plot()
 
     def init_plot(self):
@@ -29,10 +29,17 @@ class Function(Environment):
         self.observation = np.rando
 
     def set_domains(self):
-        x1 = np.linspace(self.x1_low, self.x1_high, self.resolution)
-        x2 = np.linspace(self.x2_low, self.x2_high, self.resolution)
-        self.domain = np.meshgrid(x1_domain, x2_domain)
-        #self.x1_domain, self.x2_domain = np.meshgrid(x1_domain, x2_domain)
+        if self.symmetrical:
+            x = []  # List of coordinate vectors
+            for _ in range(self.nb_dimensions):
+                xi = np.linspace(self.x_low, self.x_high, self.resolution)
+                x.append(xi)
+        else:
+            assert self.nb_dimensions == 2
+            x1 = np.linspace(self.x_low[0], self.x_high[0], self.resolution)
+            x = [x1, x2]
+            x2 = np.linspace(self.x_low[1], self.x_high[1], self.resolution)
+        self.domain = np.meshgrid(x)
 
     def set_range(self):
         self.x = self.domain

@@ -1,5 +1,7 @@
 """Class for plotting functions"""
 
+import matplotlib.pyplot as plt
+
 class Plotter:
     def __init__(self):
         self.top = None
@@ -9,17 +11,16 @@ class Plotter:
         self.x_2 = 0
         self.y_1 = 0
         self.y_2 = 0
-        self.domain = 0
-        # Range of the function, not range of axes
-        self.range = range
         self.color_scheme = None
         self.step = 0
 
-    def set_domain(self):
-        pass
-
-    def plot_base(self):
-        pass
+    def plot_base(self, x, y, levels):
+        print(x.shape)
+        print(len(x[1]))
+        plt.figure()
+        plt.contourf(x[0], x[1], y)
+        plt.show()
+        exit()
 
     def init_fig(self):
         pass

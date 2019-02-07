@@ -3,14 +3,15 @@
 import numpy as np
 import matplotlib as plt
 from .plotter import Plotter
+from ..environment import Environment
 
 class Function(Environment):
-    def ___init___(self, nb_dimensions, plot=False):
+    def __init__(self, nb_dimensions, plot):
         super().__init__()
-        self.plot = plot
         self.nb_dimensions = nb_dimensions
+        self.plot = plot
         self.optimal_x = 0  # Location
-        self.resoultion = 50
+        self.resolution = 50
         self.symmetrical = True
         self.x_low = 0
         self.x_high = 0
@@ -23,20 +24,25 @@ class Function(Environment):
             self.plotter = Plotter()
 
     def set_observation(self):
-        self.observation = np.rando
+        self.observation = np.random.uniform(self.x_low,
+                                            self.x_high,
+                                            self.nb_dimensions)
 
     def set_domain(self):
         if self.symmetrical:
             x = []  # List of coordinate vectors
             for _ in range(self.nb_dimensions):
                 xi = np.linspace(self.x_low, self.x_high, self.resolution)
+                print (xi.shape)
                 x.append(xi)
         else:
             assert self.nb_dimensions == 2
             x1 = np.linspace(self.x_low[0], self.x_high[0], self.resolution)
             x = [x1, x2]
             x2 = np.linspace(self.x_low[1], self.x_high[1], self.resolution)
-        self.domain = np.meshgrid(x)
+        domain = np.meshgrid(x)
+
+        self.domain = np.array(np.split(domain[0], self.nb_dimensions))
 
     def set_range(self):
         self.x = self.domain

@@ -7,8 +7,8 @@ class Net(nn.Module):
         print("\nCreating basic Fully-Connected model for Function Solving\n")
         super(Net, self).__init__()
         self.fc1 = nn.Linear(2, 128)
-        #self.act3 = nn.PReLU()
-        #self.act3 = nn.ReLU6()
+        #self.act1 = nn.PReLU()
+        #self.act1 = nn.ReLU6()
         self.act1 = nn.Tanh()
         self.fc2 = nn.Linear(128, 2)
 

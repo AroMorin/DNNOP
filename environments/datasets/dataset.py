@@ -4,7 +4,7 @@ the developer, to make the class extendable intuitively.
 from ..environment import Environment
 
 class Dataset(Environment):
-    def __init__(self, data_path, precision):
+    def __init__(self, data_path, precision, loss):
         print("Creating Dataset")
         super().__init__(precision)
         assert isinstance(data_path, str)  # Sanity check
@@ -18,17 +18,11 @@ class Dataset(Environment):
         self.test_data = [] # Entire set of test images
         self.train_labels = [] # Entire set of training labels
         self.test_labels = [] # # Entire set of test labels
-        self.observation = [] # Current batch of training images
         self.labels = [] # Current batch of labels
         self.batch_size = 0
         self.nb_batches = 0
         self.current_batch_idx = 0
-        self.loss = True  # Whether this environment has a loss or not
-        self.loss_type = 'NLL loss'
-        self.acc = True  # Datasets have accuracy measures
-        self.minimize = True
-        self.target = 0
-        self.set_optimization_mode()
+        self.set_optimization_mode(loss)
 
     def set_batch_size(self, batch_size):
         if batch_size != 0:
@@ -37,13 +31,18 @@ class Dataset(Environment):
         else:
             self.batch_size = self.train_size
 
-    def set_optimization_mode(self):
-        if self.loss:
+    def set_optimization_mode(self, loss):
+        if loss:
+            self.loss = True
+            self.loss_type = 'NLL loss'
+            self.acc = False
             self.minimize = True
             self.target = 0
         else:
+            self.loss = False
+            self.acc = True
             self.minimize = False
-            self.target = 100  # 100% accuracy
+            self.target = 100.  # 100% accuracy
 
     def load_dataset(self):
         """Placeholder method for initializing and loading the dataset."""

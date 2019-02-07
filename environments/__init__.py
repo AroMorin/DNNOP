@@ -9,12 +9,13 @@ def make_env(type,
             plot = False,
             data_path='',
             batch_size=0,
-            precision=None):
+            precision=None,
+            loss=True):
     """Class factory method. This method takes the name of the desired
     dataset and returns an object of the corresponding class.
     """
     if type == 'dataset':
-        return dataset.make_dataset(name, data_path, batch_size, precision)
+        return dataset.make_dataset(name, data_path, batch_size, precision, loss)
     elif type == 'function':
         return funcs.make_function(name, nb_dimensions, plot)
 

@@ -11,21 +11,21 @@ class Rastrigin(Function):
         self.x = None  # NP array
         self.x_low = -5.12
         self.x_high = 5.12
-        self.optimal_x = 0  # Location
-        self.resoultion = 512
-        self.minimize = True
-        self.target = 0  # Value of global optimum
-        self.set_domains()
-        self.set_range()
+        self.optimal_x = [0, 0]  # Location
+        self.resolution = 150
         self.set_observation()
+        self.set_domain()
+        self.set_range()
+        self.levels = np.arange(self.resolution)
+        self.plotter.plot_base(self.domain, self.range, self.levels)
 
     def get_func(self):
         a = 10*self.nb_dimensions
         b = np.square(self.x)
         c = 10*np.cos(2*np.pi*self.x)
         d = b - c
-        e = np.sum(d)
-        return a + e
+        #e = np.sum(d)
+        return a + d
 
     def get_funcs(x):
         a = 10*2

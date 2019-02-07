@@ -5,6 +5,7 @@ from __future__ import print_function
 import sys, os
 # Append SYSPATH in order to access different modules of the library
 sys.path.insert(0, os.path.abspath('..'))
+
 import environments
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory
@@ -31,8 +32,12 @@ def main():
     # Make an MNIST Dataset environment
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
     #env = environments.make_env("dataset", "mnist", data_path=data_path, precision=precision)
-    env = environments.make_env("dataset", "mnist", data_path=data_path, batch_size=32, precision=precision)
-    env.loss = False  # Don't use loss
+    env = environments.make_env("dataset",
+                                "mnist",
+                                data_path=data_path,
+                                batch_size=32,
+                                precision=precision,
+                                loss=False)
 
     # Make a pool
     pool = model_factory.make_pool("MNIST CNN MSN", args.pool_size, precision)
@@ -42,7 +47,7 @@ def main():
                     "pool size": args.pool_size,
                     "number of anchors": args.nb_anchors,
                     "number of probes per anchor": args.nb_probes,
-                    "target": env.train_size,
+                    "target": env.target,
                     "minimization mode": env.minimize
                     }
     alg = algorithm_factory.make_alg("MSN", pool, hyper_params)

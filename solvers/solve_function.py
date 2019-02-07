@@ -27,7 +27,6 @@ def main():
     # Make an MNIST Dataset environment
     env = environments.make_env("function",
                                 "rastrigin",
-                                nb_dimensions = 2,
                                 plot = True
                                 )
 

@@ -5,7 +5,6 @@ import environments.functions as funcs
 
 def make_env(type,
             name,
-            nb_dimensions=2,
             plot = False,
             data_path='',
             batch_size=0,
@@ -17,6 +16,6 @@ def make_env(type,
     if type == 'dataset':
         return dataset.make_dataset(name, data_path, batch_size, precision, loss)
     elif type == 'function':
-        return funcs.make_function(name, nb_dimensions, plot)
+        return funcs.make_function(name, plot)
 
 #

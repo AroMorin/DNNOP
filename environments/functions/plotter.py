@@ -14,13 +14,24 @@ class Plotter:
         self.color_scheme = None
         self.step = 0
 
-    def plot_base(self, x, y, levels):
-        print(x.shape)
-        print(len(x[1]))
-        plt.figure()
-        plt.contourf(x[0], x[1], y)
+    def plot_base(self, x, z, N):
+        fig = plt.figure()
+        fig.set_size_inches(18.5, 10.5)
+        grid = plt.GridSpec(1, 2, wspace=0.5)
+        ax1 = plt.subplot(grid[0])
+        ax2 = plt.subplot(grid[1])
         plt.show()
         exit()
+        CS = ax1.contourf(x[0], x[1], z, N)
+        ax1.set_title('Top View')
+        ax1.set_xlabel('x1')
+        ax1.set_ylabel('x2')
+        cbar = fig.colorbar(CS)
+        cbar.ax.set_ylabel('z')
+        ax2.contourf(x[0], z, x[1], N)
+        ax2.set_title('Front View')
+        ax2.set_xlabel('x1')
+        ax2.set_ylabel('z')
 
     def init_fig(self):
         pass

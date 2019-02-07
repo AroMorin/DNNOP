@@ -6,13 +6,14 @@ from .function import Function
 import numpy as np
 
 class Rastrigin(Function):
-    def __init__(self, nb_dimensions, plot):
-        super().__init__(nb_dimensions, plot)
+    def __init__(self, plot):
+        super().__init__(plot)
         self.x = None  # NP array
         self.x_low = -5.12
         self.x_high = 5.12
         self.optimal_x = [0, 0]  # Location
         self.resolution = 150
+        self.z = None  # Function evaluation
         self.set_observation()
         self.set_domain()
         self.set_range()
@@ -20,20 +21,11 @@ class Rastrigin(Function):
         self.plotter.plot_base(self.domain, self.range, self.levels)
 
     def get_func(self):
-        a = 10*self.nb_dimensions
-        b = np.square(self.x)
-        c = 10*np.cos(2*np.pi*self.x)
-        d = b - c
-        #e = np.sum(d)
-        return a + d
-
-    def get_funcs(x):
         a = 10*2
-        b = np.square(x)
-        c = 10*np.cos(2*np.pi*x)
-        d = b - c
-        e = np.sum(d)
-        return a + e
+        b = np.square(self.x[0]) - 10*np.cos(2*np.pi*self.x[0])
+        c = np.square(self.x[1]) - 10*np.cos(2*np.pi*self.x[1])
+        d = b + c
+        return a + d
 
     def evaluate(self, x):
         self.x = x

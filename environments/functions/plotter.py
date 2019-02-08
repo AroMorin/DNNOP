@@ -24,7 +24,7 @@ class Plotter:
         self.z_high = 0
         self.set_limits(func)
         self.z_levels = np.linspace(self.z_low, self.z_high, func.resolution)
-        self.x1_levels = np.linspace(self.x1_low, self.x1_high, func.resolution)
+        self.x2_levels = np.linspace(self.x2_low, self.x2_high, func.resolution)
         self.plot_base()
 
     def set_limits(self, func):
@@ -50,35 +50,60 @@ class Plotter:
         self.plot_top()
         self.plot_front()
         self.plot_iso()
-        plt.tight_layout()
+        self.plot_colorbar()
         plt.show()
         exit()
 
     def init_fig(self):
+        #self.fig, (self.top, self.front, self.iso, self.cb) = plt.subplots(
+        #                                                ncols=4,
+        #                                                figsize=(30, 10),
+        #                                                subplot_kw={
+        #                                                'projection':'3d'
+        #                                                },
+        #                                                gridspec_kw={
+        #                                                "width_ratios":[1,
+        #                                                1.2, 1, 1]
+        #                                                })
+
         self.fig = plt.figure(figsize=(30, 10))
-        self.gs = gridspec.GridSpec(1, 4, width_ratios=[0.5, 1.2, 1, 1])
+        self.gs = gridspec.GridSpec(1, 3, width_ratios=[1.2, 1, 1],
+                                    figure=self.fig)
         self.cmap = cm.get_cmap('Spectral', len(self.z_levels))
-        self.top = plt.subplot(self.gs[1])
-        CS = self.top.contourf(self.x1, self.x2, self.z, self.z_levels,
-                                cmap=self.cmap)
-        cbar = self.fig.colorbar(CS, ax=self.gs[0])
 
     def plot_top(self):
+        self.top = plt.subplot(self.gs[0])
+        self.CS = self.top.contourf(self.x1, self.x2, self.z,
+                                self.z_levels,
+                                vmin=self.z_low, vmax=self.z_high,
+                                cmap=self.cmap)
         self.top.set_title('Top View')
         self.top.set_xlabel('x1')
         self.top.set_ylabel('x2')
 
     def plot_front(self):
-        self.front = plt.subplot(self.gs[2])
-        self.front.contourf(self.x1, self.z, self.x2, self.x1_levels,
-                            cmap=self.cmap)
+        self.front = plt.subplot(self.gs[1])
+        self.front.contourf(self.x1, self.z, self.x2,
+                            self.z_levels,
+                            vmin=self.z_low, vmax=self.z_high,
+                            cmap='Spectral')
         self.front.set_title('Front View')
         self.front.set_xlabel('x1')
         self.front.set_ylabel('z')
 
     def plot_iso(self):
-        self.iso = plt.subplot(self.gs[3], projection='3d')
-        self.iso.plot_surface(self.x1, self.x2, self.z, cmap='Spectral')
+        self.iso = plt.subplot(self.gs[2], projection='3d')
+        self.iso.plot_surface(self.x1, self.x2, self.z,
+                            vmin=self.z_low, vmax=self.z_high,
+                            cmap='Spectral')
+
+    def plot_colorbar(self):
+        norm = colors.Normalize(vmin=self.z_low, vmax=self.z_high)
+        mtop = cm.ScalarMappable(cmap=self.cmap, norm=norm)
+        mtop.set_array([])
+        colorbar = self.fig.colorbar(mtop, orientation='vertical')
+        colorbar.set_label('z')
+        #colorbar = self.fig.colorbar(self.CS, cax=self.cb)
 
     def plot_anchors(self, anchors):
         pass

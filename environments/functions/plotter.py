@@ -1,49 +1,62 @@
 """Class for plotting functions"""
 
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
+from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+from matplotlib import cm, colors
 
 class Plotter:
-    def __init__(self):
+    def __init__(self, func):
         self.top = None
+        self.front = None
         self.artists = None
         self.fig = None
-        self.x_1 = 0
-        self.x_2 = 0
-        self.y_1 = 0
-        self.y_2 = 0
-        self.color_scheme = None
-        self.step = 0
+        self.gs = None
+        self.x1 = func.domain[0]
+        self.x2 = func.domain[1]
+        self.z = func.range
+        self.x1_low = self.x1[0]
+        self.x2_low = self.x2[0]
+        self.x1_high = self.x1[-1]
+        self.x2_high = self.x2[-1]
+        self.z_low = np.min(self.z)
+        self.z_high = np.max(self.z)
+        self.N = np.linspace(self.z_low, self.z_high, func.resolution)
+        self.plot_base()
 
-    def plot_base(self, x, z, N):
-        fig = plt.figure()
-        fig.set_size_inches(18.5, 10.5)
-        grid = plt.GridSpec(1, 2, wspace=0.5)
-        ax1 = plt.subplot(grid[0])
-        ax2 = plt.subplot(grid[1])
+    def plot_base(self):
+        self.init_fig()
+        self.plot_top()
+        self.plot_front()
+        self.plot_iso()
+        plt.tight_layout()
         plt.show()
         exit()
-        CS = ax1.contourf(x[0], x[1], z, N)
-        ax1.set_title('Top View')
-        ax1.set_xlabel('x1')
-        ax1.set_ylabel('x2')
-        cbar = fig.colorbar(CS)
-        cbar.ax.set_ylabel('z')
-        ax2.contourf(x[0], z, x[1], N)
-        ax2.set_title('Front View')
-        ax2.set_xlabel('x1')
-        ax2.set_ylabel('z')
 
     def init_fig(self):
-        pass
+        self.fig = plt.figure(figsize=(30, 10))
+        self.gs = gridspec.GridSpec(1, 3, width_ratios=[1.2, 1, 1])
 
     def plot_top(self):
-        pass
+        self.top = plt.subplot(self.gs[0])
+        CS = self.top.contourf(self.x1, self.x2, self.z, self.N, cmap='Spectral')
+        self.top.set_title('Top View')
+        self.top.set_xlabel('x1')
+        self.top.set_ylabel('x2')
+        cbar = self.fig.colorbar(CS, ax=self.top, ticks=[self.z_low, self.z_high])
+        cbar.ax.set_ylabel('z')
 
     def plot_front(self):
-        pass
+        self.front = plt.subplot(self.gs[1])
+        self.front.contour(self.x1, self.z, self.x2, cmap='Spectral')
+        self.front.set_title('Front View')
+        self.front.set_xlabel('x1')
+        self.front.set_ylabel('z')
 
     def plot_iso(self):
-        pass
+        self.iso = plt.subplot(self.gs[2], projection='3d')
+        self.iso.plot_surface(self.x1, self.x2, self.z, cmap='Spectral')
 
     def plot_anchors(self, anchors):
         pass

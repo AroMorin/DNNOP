@@ -15,11 +15,11 @@ class Function(Environment):
         self.x_low = 0
         self.x_high = 0
         self.domain = []  # Matrix of coordinate vectors
-        self.init_plot()
+        self.range = []  # Matrix of function values
 
     def init_plot(self):
         if self.plot:
-            self.plotter = Plotter()
+            self.plotter = Plotter(self)
 
     def set_observation(self):
         self.observation = np.random.uniform(self.x_low, self.x_high, 2)

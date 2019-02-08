@@ -12,13 +12,12 @@ class Rastrigin(Function):
         self.x_low = -5.12
         self.x_high = 5.12
         self.optimal_x = [0, 0]  # Location
-        self.resolution = 150
+        self.resolution = 250
         self.z = None  # Function evaluation
         self.set_observation()
         self.set_domain()
         self.set_range()
-        self.levels = np.arange(self.resolution)
-        self.plotter.plot_base(self.domain, self.range, self.levels)
+        self.init_plot()
 
     def get_func(self):
         a = 10*2

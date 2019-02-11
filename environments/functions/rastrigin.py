@@ -6,12 +6,11 @@ from .function import Function
 import numpy as np
 
 class Rastrigin(Function):
-    def __init__(self, plot):
-        super().__init__(plot)
+    def __init__(self, plot, precision):
+        super().__init__(plot, precision)
         self.x = None  # NP array
-        self.symmetrical = True  # Symmetrical function about the X1,X2 axes
-        self.x_low = -5.12
-        self.x_high = 5.12
+        self.x_low = [-5.12, -5.12]
+        self.x_high = [5.12, 5.12]
         self.optimal_x = [0, 0]  # Location
         self.resolution = 250
         self.z = None  # Function evaluation
@@ -27,15 +26,6 @@ class Rastrigin(Function):
         d = b + c
         return a + d
 
-    def evaluate(self, x):
-        self.x = x
-        self.z = self.get_func()
-
-    def step(self):
-        pass
-
-    def plot(self, elite, anchors, probes, blends):
-        pass
 
 
 

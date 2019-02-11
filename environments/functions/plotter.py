@@ -24,20 +24,13 @@ class Plotter:
         self.z_high = 0
         self.set_limits(func)
         self.z_levels = np.linspace(self.z_low, self.z_high, func.resolution)
-        self.x2_levels = np.linspace(self.x2_low, self.x2_high, func.resolution)
         self.plot_base()
 
     def set_limits(self, func):
-        if func.symmetrical:
-            self.x1_low = func.x_low
-            self.x2_low = func.x_low
-            self.x1_high = func.x_high
-            self.x2_high = func.x_high
-        else:
-            self.x1_low = func.x_low[0]
-            self.x2_low = func.x_low[1]
-            self.x1_high = func.x_high[0]
-            self.x2_high = func.x_high[1]
+        self.x1_low = func.x_low[0]
+        self.x2_low = func.x_low[1]
+        self.x1_high = func.x_high[0]
+        self.x2_high = func.x_high[1]
         if func.minimize:
             self.z_low = func.target
             self.z_high = np.max(self.z)
@@ -57,7 +50,7 @@ class Plotter:
 
     def init_fig(self):
         self.fig = plt.figure(figsize=(30, 10))
-        self.gs = gridspec.GridSpec(1, 3, width_ratios=[1, 1, 1.5],
+        self.gs = gridspec.GridSpec(1, 3, width_ratios=[1, 1, 1.3],
                                     figure=self.fig)
         self.cmap = cm.get_cmap('Spectral', len(self.z_levels))
 

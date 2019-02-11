@@ -4,7 +4,7 @@ import torch
 
 class Net(nn.Module):
     def __init__(self):
-        print("\nCreating basic Fully-Connected model for Function Solving\n")
+        print("Creating basic Fully-Connected model for Function Solving")
         super(Net, self).__init__()
         self.fc1 = nn.Linear(2, 128)
         #self.act1 = nn.PReLU()
@@ -12,9 +12,15 @@ class Net(nn.Module):
         self.act1 = nn.Tanh()
         self.fc2 = nn.Linear(128, 2)
 
-    def forward(self, x, lower, upper):
-        x = self.fc1(x)
+    def forward(self, observation):
+        origin = observation[0]
+        x1_low = observation[1][0]
+        x2_low = observation[1][1]
+        x1_high = observation[2][0]
+        x2_high = observation[2][1]
+        x = self.fc1(origin)
         x = self.act1(x)
         x = self.fc2(x)
-        #x = F.log_softmax(x, dim=1)
-        return torch.clamp(x, lower, upper)
+        x1 = torch.clamp(x[0], x1_low, x1_high)
+        x2 = torch.clamp(x[1], x2_low, x2_high)
+        return [x1, x2]

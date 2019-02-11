@@ -17,6 +17,7 @@ class Environment:
         self.loss = False  # assume environments require loss
         self.loss_type = ''  # environments that require loss define a loss type
         self.acc = False  # Use when the environment has an accuracy measure
+        self.score = False  # Activate when the environment has an evaluation
         self.observation = None
         self.target = 0
         self.minimize = True  # Is the target a minimum or a maximum?

@@ -41,10 +41,11 @@ class Optimizer:
                 for model in self.pool.models:
                     inference = model(self.env.observation)
                     outputs.append(inference)
-        self.print_inference(outputs)
+        #self.print_inference(outputs)
         return outputs
 
     def print_inference(self, outputs):
+        print(outputs)
         if outputs[0][0][0].item():
             x = [i.item() for i in outputs[0][0]]
         else:
@@ -81,11 +82,20 @@ class Optimizer:
                 return correct
         return correct_preds
 
+    def calculate_scores(self, inferences):
+        scores = []
+        for inference in inferences:
+            score = self.env.evaluate(inference)
+            scores.append(score)
+        return scores
+
     def update(self, scores):
         """This method takes in the scores, feeds it to the pool so that the
         selection and update process can occur.
         The pool thus updates itself.
         """
+        print(scores)
+        exit()
         self.pool.prep_new_pool(scores)
         self.pool.implement()
 

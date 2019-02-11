@@ -24,14 +24,14 @@ def main():
                         help='maximum number of optimization steps (def: 500)')
     args = parser.parse_args()
 
+    precision = torch.half # Set precision
+
     # Make an MNIST Dataset environment
     env = environments.make_env("function",
                                 "rastrigin",
-                                plot = True
+                                plot = False,
+                                precision = precision
                                 )
-
-    precision = torch.half # Set precision
-
     # Make a pool
     pool = model_factory.make_pool("Function FC model", args.pool_size, precision)
 
@@ -41,7 +41,8 @@ def main():
                     "number of anchors": args.nb_anchors,
                     "number of probes per anchor": args.nb_probes,
                     "target": env.target,
-                    "minimization mode": env.minimize
+                    "minimization mode": env.minimize,
+                    "minimum entropy": -5  # Percentage
                     }
     alg = algorithm_factory.make_alg("MSN", pool, hyper_params)
 
@@ -50,7 +51,7 @@ def main():
 
     # Use solver to solve the problem
     #slv.train_dataset_with_validation(args.iterations)
-    slv.repeated_batch_train_dataset_with_validation(args.iterations)
+    slv.solve(args.iterations)
 
 if __name__ == '__main__':
     main()

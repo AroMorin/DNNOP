@@ -49,6 +49,8 @@ class MSN:
             self.scores = self.optim.calculate_losses(self.inferences)
         elif env.acc:
             self.scores = self.optim.calculate_correct_predictions(self.inferences)
+        elif env.score:
+            self.scores = self.optim.calculate_scores(self.inferences)
         else:
             self.scores = self.inferences
         self.optim.update(self.scores)

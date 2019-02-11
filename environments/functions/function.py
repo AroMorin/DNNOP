@@ -11,7 +11,7 @@ class Function(Environment):
         self.plot = plot
         self.optimal_x = 0  # Location
         self.resolution = 50
-        self.symmetrical = True
+        self.symmetrical = False
         self.x_low = 0
         self.x_high = 0
         self.domain = []  # Matrix of coordinate vectors

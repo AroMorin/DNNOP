@@ -51,23 +51,13 @@ class Plotter:
         self.plot_front()
         self.plot_iso()
         self.plot_colorbar()
+        plt.tight_layout()
         plt.show()
         exit()
 
     def init_fig(self):
-        #self.fig, (self.top, self.front, self.iso, self.cb) = plt.subplots(
-        #                                                ncols=4,
-        #                                                figsize=(30, 10),
-        #                                                subplot_kw={
-        #                                                'projection':'3d'
-        #                                                },
-        #                                                gridspec_kw={
-        #                                                "width_ratios":[1,
-        #                                                1.2, 1, 1]
-        #                                                })
-
         self.fig = plt.figure(figsize=(30, 10))
-        self.gs = gridspec.GridSpec(1, 3, width_ratios=[1.2, 1, 1],
+        self.gs = gridspec.GridSpec(1, 3, width_ratios=[1, 1, 1.5],
                                     figure=self.fig)
         self.cmap = cm.get_cmap('Spectral', len(self.z_levels))
 
@@ -83,10 +73,8 @@ class Plotter:
 
     def plot_front(self):
         self.front = plt.subplot(self.gs[1])
-        self.front.contourf(self.x1, self.z, self.x2,
-                            self.z_levels,
-                            vmin=self.z_low, vmax=self.z_high,
-                            cmap='Spectral')
+        self.front.pcolormesh(self.x1, self.z, self.z,
+                            cmap=self.cmap)
         self.front.set_title('Front View')
         self.front.set_xlabel('x1')
         self.front.set_ylabel('z')
@@ -95,7 +83,7 @@ class Plotter:
         self.iso = plt.subplot(self.gs[2], projection='3d')
         self.iso.plot_surface(self.x1, self.x2, self.z,
                             vmin=self.z_low, vmax=self.z_high,
-                            cmap='Spectral')
+                            cmap=self.cmap)
 
     def plot_colorbar(self):
         norm = colors.Normalize(vmin=self.z_low, vmax=self.z_high)

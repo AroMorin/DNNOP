@@ -9,6 +9,7 @@ class Rastrigin(Function):
     def __init__(self, plot):
         super().__init__(plot)
         self.x = None  # NP array
+        self.symmetrical = True  # Symmetrical function about the X1,X2 axes
         self.x_low = -5.12
         self.x_high = 5.12
         self.optimal_x = [0, 0]  # Location

@@ -7,7 +7,8 @@ import numpy as np
 from matplotlib import cm, colors
 
 class Plotter:
-    def __init__(self, func):
+    def __init__(self, func, data_path):
+        self.data_path = data_path
         self.top = None
         self.front = None
         self.artists = None
@@ -45,8 +46,7 @@ class Plotter:
         self.plot_iso()
         self.plot_colorbar()
         plt.tight_layout()
-        plt.show()
-        exit()
+        #plt.show()
 
     def init_fig(self):
         self.fig = plt.figure(figsize=(30, 10))
@@ -58,7 +58,6 @@ class Plotter:
         self.top = plt.subplot(self.gs[0])
         self.CS = self.top.contourf(self.x1, self.x2, self.z,
                                 self.z_levels,
-                                vmin=self.z_low, vmax=self.z_high,
                                 cmap=self.cmap)
         self.top.set_title('Top View')
         self.top.set_xlabel('x1')
@@ -75,8 +74,8 @@ class Plotter:
     def plot_iso(self):
         self.iso = plt.subplot(self.gs[2], projection='3d')
         self.iso.plot_surface(self.x1, self.x2, self.z,
-                            vmin=self.z_low, vmax=self.z_high,
                             cmap=self.cmap)
+        self.iso.set_title("3D view")
 
     def plot_colorbar(self):
         norm = colors.Normalize(vmin=self.z_low, vmax=self.z_high)
@@ -86,17 +85,34 @@ class Plotter:
         colorbar.set_label('z')
         #colorbar = self.fig.colorbar(self.CS, cax=self.cb)
 
-    def plot_anchors(self, anchors):
+    def plot_artists(self, positions, scores):
+        self.plot_elite(positions["elite"], scores["elite"])
+        self.plot_anchors(positions["anchors"], scores["anchors"])
+        plt.show()
+        exit()
+        self.plot_probes(positions["probes"], scores["probes"])
+        self.plot_blends(positions["blends"], scores["blends"])
+        self.fig.save(self.data_path)
+        self.remove_artists()
+
+    def plot_elite(self, position, score):
+        self.top.scatter(position, marker='.')
+        self.front.scatter(position[0], score, marker='.')
+        self.iso.scatter(position, score, marker='.')
+
+    def plot_anchors(self, positions, scores):
+        self.top.scatter(positions, marker='+')
+        self.front.scatter(positions[0], scores, marker='+')
+        self.iso.scatter(positions, scores, marker='+')
+
+    def plot_probes(self, positions, scores):
         pass
 
-    def plot_probes(self, probes):
-        pass
-
-    def plot_blends(self, blends):
-        pass
-
-    def plot_elite(self, elite):
+    def plot_blends(self, positions, scores):
         pass
 
     def save_figure(self):
+        pass
+
+    def remove_artists(self):
         pass

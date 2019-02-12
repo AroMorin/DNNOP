@@ -2,9 +2,9 @@
 
 class Elite:
     def __init__(self, hp):
-        self.model = None
         self.elite_score = hp.initial_score
         self.minimizing = hp.minimizing
+        self.elite_idx = 0
 
     def set_elite(self, pool, analyzer):
         idx = analyzer.top_idx
@@ -14,6 +14,7 @@ class Elite:
             elite = pool[idx]
             self.clone_model(elite)
             self.elite_score = top_score
+            self.elite_idx = analyzer.top_idx
         print ("Elite Score: %f" %self.elite_score)
 
     def replace(self, top_score):
@@ -31,4 +32,5 @@ class Elite:
         self.model = elite.clone()
 
     def query_elite(self, observation):
-        return self.model(observation)
+        out_ = self.model(observation)
+        return out_

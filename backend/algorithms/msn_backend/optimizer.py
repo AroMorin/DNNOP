@@ -30,19 +30,19 @@ class Optimizer:
         for running inference, in whatever way the user/problem requires.
         """
         assert self.env is not None  # Sanity check
-        outputs = []
+        inferences = []
         with torch.no_grad():
             if test:
                 model = self.pool.models[self.pool.anchors.anchors_idxs[0]]
                 model.eval()  # Turn on evaluation mode
                 inference = model(self.env.test_data)
-                outputs.append(inference)
+                inferences.append(inference)
             else:
                 for model in self.pool.models:
                     inference = model(self.env.observation)
-                    outputs.append(inference)
+                    inferences.append(inference)
         #self.print_inference(outputs)
-        return outputs
+        return inferences
 
     def print_inference(self, outputs):
         print(outputs)
@@ -57,7 +57,9 @@ class Optimizer:
         """This method calculates the loss."""
         if self.env.loss_type == 'NLL loss':
             losses = []
-            for inf in inferences:
+            for idx, inference in enumerate(inferences):
+                if idx == self.pool.elite.elite_idx:
+                    continue
                 if not test:
                     loss = F.nll_loss(inf, self.env.labels)
                 else:
@@ -70,7 +72,9 @@ class Optimizer:
 
     def calculate_correct_predictions(self, inferences, test=False):
         correct_preds = []
-        for inference in inferences:
+        for idx, inference in enumerate(inferences):
+            if idx == self.pool.elite.elite_idx:
+                continue
             # Correct predictions on all test data for a single model
             pred = inference.max(1, keepdim=True)[1]
             if not test:
@@ -84,7 +88,9 @@ class Optimizer:
 
     def calculate_scores(self, inferences):
         scores = []
-        for inference in inferences:
+        for idx, inference in enumerate(inferences):
+            if idx == self.pool.elite.elite_idx:
+                continue
             score = self.env.evaluate(inference)
             scores.append(score)
         return scores

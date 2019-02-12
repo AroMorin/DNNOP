@@ -24,12 +24,14 @@ def main():
                         help='maximum number of optimization steps (def: 500)')
     args = parser.parse_args()
 
+    data_path = "C:/Users/aaa2cn/Documents/function_data/rastrigin"
     precision = torch.half # Set precision
 
     # Make an MNIST Dataset environment
     env = environments.make_env("function",
                                 "rastrigin",
-                                plot = False,
+                                data_path = data_path,
+                                plot = True,
                                 precision = precision
                                 )
     # Make a pool
@@ -42,7 +44,8 @@ def main():
                     "number of probes per anchor": args.nb_probes,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -5  # Percentage
+                    "minimum entropy": -5,  # Percentage
+                    "minimum distance": 450
                     }
     alg = algorithm_factory.make_alg("MSN", pool, hyper_params)
 

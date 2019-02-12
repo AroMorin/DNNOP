@@ -16,6 +16,6 @@ def make_env(type,
     if type == 'dataset':
         return dataset.make_dataset(name, data_path, batch_size, precision, loss)
     elif type == 'function':
-        return funcs.make_function(name, plot, precision)
+        return funcs.make_function(name, plot, precision, data_path)
 
 #

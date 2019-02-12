@@ -52,11 +52,11 @@ class Hyper_Parameters:
                                 "pool size": 50,
                                 "alpha":1,
                                 "beta": 0.9,
-                                "learning rate": 0.1,
+                                "learning rate": 0.05,
                                 "lambda":6,
                                 "minimum distance": 16500,
-                                "minimum entropy": 5,
-                                "step size": 0.07,
+                                "minimum entropy": 1,
+                                "step size": 0.03,
                                 "patience": 15,
                                 "default integrity": 0.99,
                                 "initial integrity": 0.6,
@@ -64,7 +64,7 @@ class Hyper_Parameters:
                                 "maximum integrity": 0.99,
                                 "minimization mode": True,
                                 "target": 0,
-                                "expansion factor": 0.05
+                                "expansion factor": 0.01
                             }
         # Update dictionary if appropriate
         if isinstance(hyper_params, dict):

@@ -102,12 +102,13 @@ class Pool:
         newly-constructed weight dictionaries.
         """
         self.available_idxs = [x for x in self.available_idxs
-                                if x not in self.anchors.anchors_idxs]
+                                if x not in self.anchors.anchors_idxs
+                                and x != self.elite.elite_idx]
         self.probes.probes_idxs = self.update_models(self.probes.models)
         self.blends.blends_idxs = self.update_models(self.blends.models)
         assert len(self.available_idxs) == 0  # Sanity
 
-    def update_models(self, vectors, idxs):
+    def update_models(self, vectors):
         idxs = []
         for i, vector in enumerate(vectors):
             self.set_idx()

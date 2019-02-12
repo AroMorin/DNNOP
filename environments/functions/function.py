@@ -17,9 +17,9 @@ class Function(Environment):
         self.range = []  # Matrix of function values
         self.score = True
 
-    def init_plot(self):
+    def init_plot(self, data_path):
         if self.plot:
-            self.plotter = Plotter(self)
+            self.plotter = Plotter(self, data_path)
 
     def set_observation(self):
         self.observation = [torch.tensor(
@@ -49,30 +49,28 @@ class Function(Environment):
         self.z = self.get_func()
         return self.z
 
-    def step(alg=None):
-        #
-        if alg is not None and self.plot:
-            elite = alg.optim.pool.elite.query_elite(self.observation[0])
-            elite_score = alg.optim.pool.elite.elite_score
-            anchors = alg.inferences[alg.optim.pool.anchors.anchors_idxs]
-            anchors_scores = alg.scores[alg.optim.pool.anchors.anchors_idxs]
-            probes = alg.inferences[alg.optim.pool.probes.probes_idxs]
-            probes_scores = alg.scores[alg.optim.pool.probes.probes_idxs]
-            blends = alg.inferences[alg.optim.pool.blends.blends_idxs]
-            blends_scores = alg.scores[alg.optim.pool.blends.blends_idxs]
-            positions = {
-                        "elite": elite,
-                        "anchors": anchors,
-                        "probes":probes,
-                        "blends":blends}
-            scores = {
-                        "elite": elite,
-                        "anchors": anchors,
-                        "probes":probes,
-                        "blends":blends}
-
-    def plot(self, positions, scores):
-        pass
+    def make_plot(self, alg):
+        elite = alg.inferences[alg.optim.pool.elite.elite_idx]
+        elite_score = alg.optim.pool.elite.elite_score
+        x = alg.scores[alg.optim.pool.elite.elite_idx]
+        assert x == elite_score
+        anchors = alg.inferences[alg.optim.pool.anchors.anchors_idxs]
+        anchors_scores = alg.scores[alg.optim.pool.anchors.anchors_idxs]
+        probes = alg.inferences[alg.optim.pool.probes.probes_idxs]
+        probes_scores = alg.scores[alg.optim.pool.probes.probes_idxs]
+        blends = alg.inferences[alg.optim.pool.blends.blends_idxs]
+        blends_scores = alg.scores[alg.optim.pool.blends.blends_idxs]
+        positions = {
+                    "elite": elite,
+                    "anchors": anchors,
+                    "probes":probes,
+                    "blends":blends}
+        scores = {
+                    "elite": elite_score,
+                    "anchors": anchors_scores,
+                    "probes":probes_scores,
+                    "blends":blends_scores}
+        self.plotter.plot_artists(positions, scores)
 
 
 #

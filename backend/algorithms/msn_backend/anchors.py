@@ -52,6 +52,7 @@ class Anchors:
         for i in self.anchors_idxs:
             anchor = pool[i]
             distance = self.canberra_distance(candidate, anchor)
+            print("Distance: %f" %distance.item())
             if distance.item() < self.hp.min_dist:
                 return False
             elif math.isnan(distance.item()):

@@ -6,7 +6,7 @@ from .function import Function
 import numpy as np
 
 class Rastrigin(Function):
-    def __init__(self, plot, precision):
+    def __init__(self, plot, precision, data_path):
         super().__init__(plot, precision)
         self.x = None  # NP array
         self.x_low = [-5.12, -5.12]
@@ -17,7 +17,7 @@ class Rastrigin(Function):
         self.set_observation()
         self.set_domain()
         self.set_range()
-        self.init_plot()
+        self.init_plot(data_path)
 
     def get_func(self):
         a = 10*2

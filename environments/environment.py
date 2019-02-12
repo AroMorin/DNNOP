@@ -22,7 +22,7 @@ class Environment:
         self.target = 0
         self.minimize = True  # Is the target a minimum or a maximum?
 
-    def step(self):
+    def step(self, alg=None):
         """Placeholder for step function. The step function is an essential
         component of any environment. It defines a "loading" of a batch of data
         in context of a dataset. It will have different meanings for different

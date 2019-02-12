@@ -25,8 +25,10 @@ class Solver():
         env = self.env
         alg = self.algorithm
         for _ in range(iterations):
-            env.step(alg)
+            env.step()
             alg.optimize(env)
+            if env.plot:
+                env.make_plot(alg)
             self.current_iteration +=1
 
     def batch_training(self, epochs):

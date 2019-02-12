@@ -14,7 +14,7 @@ class Elite:
             elite = pool[idx]
             self.clone_model(elite)
             self.elite_score = top_score
-            self.elite_idx = analyzer.top_idx
+            self.elite_idx = idx
         print ("Elite Score: %f" %self.elite_score)
 
     def replace(self, top_score):
@@ -30,7 +30,3 @@ class Elite:
         the elite into the pool.
         """
         self.model = elite.clone()
-
-    def query_elite(self, observation):
-        out_ = self.model(observation)
-        return out_

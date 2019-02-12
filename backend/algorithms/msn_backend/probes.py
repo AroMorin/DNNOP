@@ -6,6 +6,7 @@ class Probes:
     def __init__(self, hp):
         self.nb_probes = hp.nb_probes
         self.models = []
+        self.probes_idxs = []
         self.perturb = None
         self.anchors = None
 

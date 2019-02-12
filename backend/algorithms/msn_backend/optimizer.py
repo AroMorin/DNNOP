@@ -94,8 +94,6 @@ class Optimizer:
         selection and update process can occur.
         The pool thus updates itself.
         """
-        print(scores)
-        exit()
         self.pool.prep_new_pool(scores)
         self.pool.implement()
 

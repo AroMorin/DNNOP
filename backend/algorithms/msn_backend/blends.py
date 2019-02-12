@@ -11,6 +11,7 @@ class Blends:
         self.nb_blends = self.hp.pool_size-((self.hp.nb_anchors*self.hp.nb_probes))
         self.nb_anchors = 0  # State not hyperparameter
         self.models = []
+        self.blends_idxs = []
         self.blend_type = "crisscross"  # Or "random choice"
         self.anchors = None
         self.analyzer = None

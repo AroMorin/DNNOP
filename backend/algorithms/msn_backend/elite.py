@@ -29,3 +29,6 @@ class Elite:
         the elite into the pool.
         """
         self.model = elite.clone()
+
+    def query_elite(self, observation):
+        return self.model(observation)

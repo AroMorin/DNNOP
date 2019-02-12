@@ -49,7 +49,29 @@ class Function(Environment):
         self.z = self.get_func()
         return self.z
 
-    def plot(self, elite, anchors, probes, blends):
+    def step(alg=None):
+        #
+        if alg is not None and self.plot:
+            elite = alg.optim.pool.elite.query_elite(self.observation[0])
+            elite_score = alg.optim.pool.elite.elite_score
+            anchors = alg.inferences[alg.optim.pool.anchors.anchors_idxs]
+            anchors_scores = alg.scores[alg.optim.pool.anchors.anchors_idxs]
+            probes = alg.inferences[alg.optim.pool.probes.probes_idxs]
+            probes_scores = alg.scores[alg.optim.pool.probes.probes_idxs]
+            blends = alg.inferences[alg.optim.pool.blends.blends_idxs]
+            blends_scores = alg.scores[alg.optim.pool.blends.blends_idxs]
+            positions = {
+                        "elite": elite,
+                        "anchors": anchors,
+                        "probes":probes,
+                        "blends":blends}
+            scores = {
+                        "elite": elite,
+                        "anchors": anchors,
+                        "probes":probes,
+                        "blends":blends}
+
+    def plot(self, positions, scores):
         pass
 
 

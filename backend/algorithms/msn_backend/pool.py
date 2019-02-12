@@ -103,17 +103,20 @@ class Pool:
         """
         self.available_idxs = [x for x in self.available_idxs
                                 if x not in self.anchors.anchors_idxs]
-        self.update_models(self.probes.models)
-        self.update_models(self.blends.models)
+        self.probes.probes_idxs = self.update_models(self.probes.models)
+        self.blends.blends_idxs = self.update_models(self.blends.models)
         assert len(self.available_idxs) == 0  # Sanity
 
-    def update_models(self, vectors):
+    def update_models(self, vectors, idxs):
+        idxs = []
         for i, vector in enumerate(vectors):
             self.set_idx()
+            idxs.append(self.idx)
             param_list = self.vec_to_tensor(vector)  # Restore shape
             self.update_dict(param_list)
             # Update model's state dictionary
             self.models[self.idx].load_state_dict(self.state_dicts[self.idx])
+        return idxs
 
     def set_idx(self):
         """This method blindly takes the first available index and loads it into

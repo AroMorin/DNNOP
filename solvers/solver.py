@@ -25,7 +25,7 @@ class Solver():
         env = self.env
         alg = self.algorithm
         for _ in range(iterations):
-            env.step()
+            env.step(alg)
             alg.optimize(env)
             self.current_iteration +=1
 

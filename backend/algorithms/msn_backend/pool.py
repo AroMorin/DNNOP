@@ -46,7 +46,7 @@ class Pool:
         """This method takes in the list of models, i.e. pool, and produces
         a list of weight dictionaries.
         """
-        for model in self.models:  # Exclude Elite
+        for model in self.models:
             self.state_dicts.append(model.state_dict())
         self.nb_layers = len(model.state_dict())
 
@@ -80,7 +80,6 @@ class Pool:
 
     def prep_new_pool(self, scores):
         self.update_state()
-
         self.analyzer.analyze(scores, self.anchors.nb_anchors)
         self.elite.set_elite(self.models, self.analyzer)
         self.anchors.set_anchors(self.vectors, self.analyzer)
@@ -91,7 +90,9 @@ class Pool:
         self.blends.set_blends(self.anchors, self.vectors, self.analyzer, self.perturb)
 
     def update_state(self):
+        self.state_dicts = []
         self.vectors = []
+        self.set_state_dicts()
         self.set_vectors()
         self.available_idxs = range(self.hp.pool_size)
         self.idx = None
@@ -103,12 +104,8 @@ class Pool:
         self.available_idxs = [x for x in self.available_idxs
                                 if x not in self.anchors.anchors_idxs
                                 and x != 0]
-        print("available: ", self.available_idxs)
         self.probes.probes_idxs = self.update_models(self.probes.models)
-        print("Probes idxs: ", self.probes.probes_idxs)
         self.blends.blends_idxs = self.update_models(self.blends.models)
-        print("Blends idxs: ", self.blends.blends_idxs)
-        print(self.blends.models[-1][0:15])
 
         current_pool = self.models
         anchors = [current_pool[i] for i in self.anchors.anchors_idxs]

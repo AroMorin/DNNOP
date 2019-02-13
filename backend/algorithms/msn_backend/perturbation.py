@@ -35,7 +35,6 @@ class Perturbation:
         based on the search radius.
         Finally use the above to add to the vector of choice.
         """
-        np.random.seed()
         choices = np.random.choice(self.indices, self.size, replace = False)
         choices = torch.tensor(choices).cuda().long()
         #noise = temp.normal_(mean=0, std=analyzer.search_radius)
@@ -55,6 +54,7 @@ class Perturbation:
         based on the search radius.
         Finally use the above to add to the vector of choice.
         """
+        np.random.seed()
         choices = np.random.choice(self.indices, self.size, replace=False)
         choices = torch.tensor(choices).cuda().long()
         #noise = temp.normal_(mean=0, std=analyzer.search_radius)
@@ -63,7 +63,6 @@ class Perturbation:
         dist = self.distribution.sample(torch.Size([self.size])).cuda().half().squeeze()
         noise[choices] = dist
         vec.add_(noise)
-        print(vec[0:15])
 
 
 

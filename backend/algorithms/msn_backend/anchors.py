@@ -32,8 +32,6 @@ class Anchors:
         self.remove_elite(sorted_idxs)
         assert 0 not in sorted_idxs  # Sanity check
         for i in sorted_idxs:
-            print("anchors ", self.anchors_idxs)
-            print("checking %d" %i)
             candidate = pool[i]
             self.admit(candidate, i, pool)
             if self.nb_anchors == self.hp.nb_anchors:

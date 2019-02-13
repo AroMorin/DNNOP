@@ -24,14 +24,14 @@ def main():
                         help='maximum number of optimization steps (def: 500)')
     args = parser.parse_args()
 
-    data_path = "C:/Users/aaa2cn/Documents/function_data/rastrigin"
+    data_path = "C:/Users/aaa2cn/Documents/function_data/rastrigin/"
     precision = torch.half # Set precision
 
     # Make an MNIST Dataset environment
     env = environments.make_env("function",
                                 "rastrigin",
                                 data_path = data_path,
-                                plot = False,
+                                plot = True,
                                 precision = precision
                                 )
     # Make a pool

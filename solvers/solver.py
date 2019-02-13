@@ -24,8 +24,8 @@ class Solver():
         # Local variable definition
         env = self.env
         alg = self.algorithm
-        for _ in range(iterations):
-            print("\n")
+        for iteration in range(iterations):
+            print("Iteration: %d\n" %iteration)
             env.step()
             alg.optimize(env)
             if env.plot:

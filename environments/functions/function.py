@@ -16,6 +16,7 @@ class Function(Environment):
         self.domain = []  # Matrix of coordinate vectors
         self.range = []  # Matrix of function values
         self.score = True
+        self.iteration = -1  # State
 
     def init_plot(self, data_path):
         if self.plot:
@@ -50,16 +51,29 @@ class Function(Environment):
         return self.z
 
     def make_plot(self, alg):
-        elite = alg.inferences[alg.optim.pool.elite.elite_idx]
+        if self.iteration == 0:
+            return
+        positions, scores = self.get_artists(alg)
+        self.plotter.plot_artists(positions, scores, self.iteration)
+
+    def step(self):
+        self.iteration += 1
+
+    def get_artists(self, alg):
+        elite = alg.inferences[0]
         elite_score = alg.optim.pool.elite.elite_score
-        x = alg.scores[alg.optim.pool.elite.elite_idx]
-        assert x == elite_score
-        anchors = alg.inferences[alg.optim.pool.anchors.anchors_idxs]
-        anchors_scores = alg.scores[alg.optim.pool.anchors.anchors_idxs]
-        probes = alg.inferences[alg.optim.pool.probes.probes_idxs]
-        probes_scores = alg.scores[alg.optim.pool.probes.probes_idxs]
-        blends = alg.inferences[alg.optim.pool.blends.blends_idxs]
-        blends_scores = alg.scores[alg.optim.pool.blends.blends_idxs]
+        a = alg.optim.pool.anchors.nb_anchors
+        anchors = alg.inferences[1:a+1]
+        anchors_scores = alg.scores[1:a+1]
+        assert len(anchors) == a  # Sanity check
+        b = a+(alg.optim.pool.anchors.nb_anchors*alg.optim.hp.nb_probes)
+        probes = alg.inferences[a+1:b+1]
+        probes_scores = alg.scores[a+1:b+1]
+        assert len(probes) == len(alg.optim.pool.probes.probes_idxs)  # Sanity check
+        blends = alg.inferences[b+1:]
+        blends_scores = alg.scores[b+1:]
+        assert len(blends) == len(alg.optim.pool.blends.blends_idxs)  # Sanity check
+
         positions = {
                     "elite": elite,
                     "anchors": anchors,
@@ -70,7 +84,6 @@ class Function(Environment):
                     "anchors": anchors_scores,
                     "probes":probes_scores,
                     "blends":blends_scores}
-        self.plotter.plot_artists(positions, scores)
-
+        return positions, scores
 
 #

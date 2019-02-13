@@ -85,34 +85,55 @@ class Plotter:
         colorbar.set_label('z')
         #colorbar = self.fig.colorbar(self.CS, cax=self.cb)
 
-    def plot_artists(self, positions, scores):
+    def plot_artists(self, positions, scores, iteration):
         self.plot_elite(positions["elite"], scores["elite"])
         self.plot_anchors(positions["anchors"], scores["anchors"])
-        plt.show()
-        exit()
         self.plot_probes(positions["probes"], scores["probes"])
         self.plot_blends(positions["blends"], scores["blends"])
-        self.fig.save(self.data_path)
+        self.save_figure(iteration)
+        plt.show()
+        exit()
         self.remove_artists()
 
     def plot_elite(self, position, score):
-        self.top.scatter(position, marker='.')
-        self.front.scatter(position[0], score, marker='.')
-        self.iso.scatter(position, score, marker='.')
+        x = position[0].item()
+        y = position[1].item()
+        s = 100
+        marker = '*'
+        self.top.scatter(x, y, marker=marker, s=s)
+        self.front.scatter(x, score, marker=marker, s=s)
+        self.iso.scatter(x, y, score, marker=marker, s=s)
 
     def plot_anchors(self, positions, scores):
-        self.top.scatter(positions, marker='+')
-        self.front.scatter(positions[0], scores, marker='+')
-        self.iso.scatter(positions, scores, marker='+')
+        x = [i[0].item() for i in positions]
+        y = [i[1].item() for i in positions]
+        s = 100
+        marker = 'x'
+        self.top.scatter(x, y, marker=marker, s=s)
+        self.front.scatter(x, scores, marker=marker, s=s)
+        self.iso.scatter(x, y, scores, marker=marker, s=s)
 
     def plot_probes(self, positions, scores):
-        pass
+        x = [i[0].item() for i in positions]
+        y = [i[1].item() for i in positions]
+        s = 100
+        marker = '.'
+        self.top.scatter(x, y, marker=marker, s=s)
+        self.front.scatter(x, scores, marker=marker, s=s)
+        self.iso.scatter(x, y, scores, marker=marker, s=s)
 
     def plot_blends(self, positions, scores):
-        pass
+        x = [i[0].item() for i in positions]
+        y = [i[1].item() for i in positions]
+        s = 100
+        marker = '+'
+        self.top.scatter(x, y, marker=marker, s=s)
+        self.front.scatter(x, scores, marker=marker, s=s)
+        self.iso.scatter(x, y, scores, marker=marker, s=s)
 
-    def save_figure(self):
-        pass
+    def save_figure(self, iteration):
+        fn = self.data_path+str(iteration)+'.png'
+        self.fig.savefig(fn)
 
     def remove_artists(self):
         pass

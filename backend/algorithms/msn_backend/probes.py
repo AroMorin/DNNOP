@@ -1,7 +1,7 @@
 """Base class for probes, apply blends"""
 
 from .perturbation import Perturbation
-
+import torch
 class Probes:
     def __init__(self, hp):
         self.nb_probes = hp.nb_probes
@@ -27,9 +27,6 @@ class Probes:
             probe = anchor.clone()
             self.perturb.apply(probe)
             self.models.append(probe)
-
-
-
 
 
 #

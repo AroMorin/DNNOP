@@ -31,7 +31,7 @@ def main():
     env = environments.make_env("function",
                                 "rastrigin",
                                 data_path = data_path,
-                                plot = True,
+                                plot = False,
                                 precision = precision
                                 )
     # Make a pool
@@ -45,7 +45,7 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum entropy": -5,  # Percentage
-                    "minimum distance": 450
+                    "minimum distance": 300
                     }
     alg = algorithm_factory.make_alg("MSN", pool, hyper_params)
 

@@ -23,7 +23,6 @@ class Analysis:
 
     def analyze(self, scores, nb_anchors):
         self.clean_list(scores)
-        print("Cleaned scores: ", self.scores)
         self.sort_scores()
         print("Sorted scores: ", self.sorted_scores)
         self.sort_idxs()
@@ -44,7 +43,6 @@ class Analysis:
         else:
             print("Error in score variable type")
             exit()
-        print("Raw scores: ", mylist)
         # Remove NaNs and infinities
         #self.scores = [x for x in mylist if not math.isnan(x)]
         self.scores = [x for x in mylist if not math.isnan(x) and not math.isinf(x)]
@@ -155,7 +153,7 @@ class Analysis:
         It compares the actual number of anchors with the desired number of
         anchors
         """
-        if nb_anchors < self.hp.nb_anchors:
+        if nb_anchors < self.hp.nb_anchors and self.elapsed_steps>0:
             print("--Expanding Search Radius!--")
             self.radial_expansion = True
             self.lr += self.lr * self.hp.expansion_factor
@@ -172,6 +170,7 @@ class Analysis:
         numerator = self.hp.alpha
         denominator = 1+(self.hp.beta/p)
         self.num_selections = numerator/denominator
+        print("Num Selections: %f" %self.num_selections)
 
     def set_search_radius(self):
         p = 1-self.integrity

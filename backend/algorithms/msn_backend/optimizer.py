@@ -41,12 +41,13 @@ class Optimizer:
                 for model in self.pool.models:
                     inference = model(self.env.observation)
                     inferences.append(inference)
-        #self.print_inference(outputs)
+        self.print_inference(inferences)
         return inferences
 
     def print_inference(self, outputs):
-        print(outputs)
-        if outputs[0][0][0].item():
+        if len(outputs[0]) == 2:
+            x = [[a[0].item(), a[1].item()] for a in outputs]
+        elif outputs[0][0][0].item():
             x = [i.item() for i in outputs[0][0]]
         else:
             x = [i for i in outputs[0][0]]
@@ -89,8 +90,6 @@ class Optimizer:
     def calculate_scores(self, inferences):
         scores = []
         for idx, inference in enumerate(inferences):
-            if idx == self.pool.elite.elite_idx:
-                continue
             score = self.env.evaluate(inference)
             scores.append(score)
         return scores

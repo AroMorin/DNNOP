@@ -8,7 +8,7 @@ import numpy as np
 class Blends:
     def __init__(self, hp):
         self.hp = hp
-        self.nb_blends = self.hp.pool_size-((self.hp.nb_anchors*self.hp.nb_probes))
+        self.nb_blends = self.hp.pool_size-((self.hp.nb_anchors*self.hp.nb_probes)+1)
         self.nb_anchors = 0  # State not hyperparameter
         self.models = []
         self.blends_idxs = []
@@ -38,7 +38,7 @@ class Blends:
         self.vec_length = torch.numel(anchors.models[0])
         self.nb_anchors = len(anchors.models)
         self.nb_blends = self.hp.pool_size-(self.nb_anchors+(
-                                    self.nb_anchors * self.hp.nb_probes))
+                                    self.nb_anchors * self.hp.nb_probes)+1)
 
     def set_indices(self):
         # In case I wanted a variable blending method

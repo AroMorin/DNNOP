@@ -57,7 +57,7 @@ class Hyper_Parameters:
                                 "lambda":6,
                                 "minimum distance": 16500,
                                 "minimum entropy": 1,
-                                "step size": 0.03,
+                                "step size": 0.08,
                                 "patience": 15,
                                 "default integrity": 0.99,
                                 "initial integrity": 0.6,

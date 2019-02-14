@@ -23,8 +23,12 @@ class Function(Environment):
             self.plotter = Plotter(self, data_path)
 
     def set_observation(self):
+        origin_x1 = np.random.uniform(self.x_low[0], self.x_high[0], 1)
+        origin_x2 = np.random.uniform(self.x_low[1], self.x_high[1], 1)
+        origin = [origin_x1[0], origin_x2[0]]
+        print("Origin: ", origin)
         self.observation = [torch.tensor(
-                            np.random.uniform(self.x_low, self.x_high, 2),
+                            origin,
                             dtype=self.precision,
                             device = self.device),
                             self.x_low,
@@ -51,10 +55,13 @@ class Function(Environment):
         return self.z
 
     def make_plot(self, alg):
-        if self.iteration == 0:
-            return
-        positions, scores = self.get_artists(alg)
-        self.plotter.plot_artists(positions, scores, self.iteration)
+        if self.iteration != 0:
+            positions, scores = self.get_artists(alg)
+            self.plotter.plot_artists(positions, scores, self.iteration)
+        else:
+            positions = alg.inferences
+            scores = alg.scores
+            self.plotter.plot_net(positions, scores)
 
     def step(self):
         self.iteration += 1

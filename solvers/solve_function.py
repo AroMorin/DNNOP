@@ -29,7 +29,7 @@ def main():
 
     # Make an MNIST Dataset environment
     env = environments.make_env("function",
-                                "rastrigin",
+                                "bukin6",
                                 data_path = data_path,
                                 plot = True,
                                 precision = precision
@@ -45,7 +45,7 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum entropy": -5,  # Percentage
-                    "minimum distance": 300,
+                    "minimum distance": 450,
                     "patience": 30,
                     "tolerance": 0.05
                     }

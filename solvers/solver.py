@@ -32,6 +32,9 @@ class Solver():
                 env.make_plot(alg)
             self.current_iteration +=1
             print("\n")
+            if alg.achieved_target():
+                print ("Achieved/exceeded target")
+                break # Terminate optimization
 
     def batch_training(self, epochs):
         """In cases where batch training is needed."""

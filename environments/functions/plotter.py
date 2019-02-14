@@ -46,10 +46,13 @@ class Plotter:
         self.plot_iso()
         self.plot_colorbar()
         plt.tight_layout()
-        #plt.show()
+        plt.show()
+        exit()
 
     def init_fig(self):
         self.fig = plt.figure(figsize=(30, 10))
+        self.score = self.fig.text(0.85, 0.03, 'Iteration: ')
+        self.txt = self.fig.text(0.85, 0.005, 'Elite Score: ')
         self.gs = gridspec.GridSpec(1, 3, width_ratios=[1, 1, 1.3],
                                     figure=self.fig)
         self.cmap = cm.get_cmap('Spectral', len(self.z_levels))
@@ -62,6 +65,8 @@ class Plotter:
         self.top.set_title('Top View')
         self.top.set_xlabel('x1')
         self.top.set_ylabel('x2')
+        self.top.set_xlim([self.x1_low, self.x1_high])
+        self.top.set_ylim([self.x2_low, self.x2_high])
 
     def plot_front(self):
         self.front = plt.subplot(self.gs[1])
@@ -70,12 +75,20 @@ class Plotter:
         self.front.set_title('Front View')
         self.front.set_xlabel('x1')
         self.front.set_ylabel('z')
+        self.front.set_xlim([self.x1_low, self.x1_high])
+        self.front.set_ylim([self.z_low, self.z_high])
 
     def plot_iso(self):
         self.iso = plt.subplot(self.gs[2], projection='3d')
         self.iso.plot_surface(self.x1, self.x2, self.z,
                             cmap=self.cmap)
         self.iso.set_title("3D view")
+        self.iso.set_xlim([self.x1_low, self.x1_high])
+        self.iso.set_ylim([self.x2_low, self.x2_high])
+        self.iso.set_zlim([self.z_low, self.z_high])
+        self.iso.set_xlabel('x1')
+        self.iso.set_ylabel('x2')
+        self.iso.set_zlabel('z')
 
     def plot_colorbar(self):
         norm = colors.Normalize(vmin=self.z_low, vmax=self.z_high)
@@ -86,13 +99,11 @@ class Plotter:
         #colorbar = self.fig.colorbar(self.CS, cax=self.cb)
 
     def plot_artists(self, positions, scores, iteration):
-        self.plot_elite(positions["elite"], scores["elite"])
         self.plot_anchors(positions["anchors"], scores["anchors"])
         self.plot_probes(positions["probes"], scores["probes"])
         self.plot_blends(positions["blends"], scores["blends"])
+        self.plot_elite(positions["elite"], scores["elite"])
         self.save_figure(iteration)
-        plt.show()
-        exit()
         self.remove_artists()
 
     def plot_elite(self, position, score):
@@ -100,40 +111,47 @@ class Plotter:
         y = position[1].item()
         s = 100
         marker = '*'
-        self.top.scatter(x, y, marker=marker, s=s)
-        self.front.scatter(x, score, marker=marker, s=s)
-        self.iso.scatter(x, y, score, marker=marker, s=s)
+        a = self.top.scatter(x, y, marker=marker, s=s)
+        b = self.front.scatter(x, score, marker=marker, s=s)
+        c = self.iso.scatter(x, y, score, marker=marker, s=s)
+        self.artists.extend([a, b, c])
 
     def plot_anchors(self, positions, scores):
         x = [i[0].item() for i in positions]
         y = [i[1].item() for i in positions]
         s = 100
         marker = 'x'
-        self.top.scatter(x, y, marker=marker, s=s)
-        self.front.scatter(x, scores, marker=marker, s=s)
-        self.iso.scatter(x, y, scores, marker=marker, s=s)
+        a = self.top.scatter(x, y, marker=marker, s=s)
+        b = self.front.scatter(x, scores, marker=marker, s=s)
+        c = self.iso.scatter(x, y, scores, marker=marker, s=s)
+        self.artists.extend([a, b, c])
 
     def plot_probes(self, positions, scores):
         x = [i[0].item() for i in positions]
         y = [i[1].item() for i in positions]
         s = 100
         marker = '.'
-        self.top.scatter(x, y, marker=marker, s=s)
-        self.front.scatter(x, scores, marker=marker, s=s)
-        self.iso.scatter(x, y, scores, marker=marker, s=s)
+        a = self.top.scatter(x, y, marker=marker, s=s)
+        b = self.front.scatter(x, scores, marker=marker, s=s)
+        c = self.iso.scatter(x, y, scores, marker=marker, s=s)
+        self.artists.extend([a, b, c])
 
     def plot_blends(self, positions, scores):
         x = [i[0].item() for i in positions]
         y = [i[1].item() for i in positions]
         s = 100
         marker = '+'
-        self.top.scatter(x, y, marker=marker, s=s)
-        self.front.scatter(x, scores, marker=marker, s=s)
-        self.iso.scatter(x, y, scores, marker=marker, s=s)
+        a = self.top.scatter(x, y, marker=marker, s=s)
+        b = self.front.scatter(x, scores, marker=marker, s=s)
+        c = self.iso.scatter(x, y, scores, marker=marker, s=s)
+        self.artists.extend([a, b, c])
 
     def save_figure(self, iteration):
         fn = self.data_path+str(iteration)+'.png'
         self.fig.savefig(fn)
 
     def remove_artists(self):
-        pass
+        assert len(self.artists == 12)
+        for artist in self.artists:
+            artist.remove()
+        self.artists = []  # Reset state

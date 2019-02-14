@@ -79,12 +79,11 @@ class MSN:
                                     correct, test_size, self.test_acc))
 
     def achieved_target(self):
+        best = self.optim.pool.elite.elite_score
         if self.optim.hp.minimizing:
-            best = min(self.scores)
-            return best <= self.optim.hp.target
+            return best <= (self.optim.hp.target + self.optim.hp.tolerance)
         else:
-            best = max(self.scores)
-            return best >= self.optim.hp.target
+            return best >= (self.optim.hp.target - self.optim.hp.tolerance)
 
 
 

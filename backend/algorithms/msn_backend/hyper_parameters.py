@@ -31,6 +31,7 @@ class Hyper_Parameters:
         self.max_integrity = 0
         self.initial_integrity = 0
         self.target = 0
+        self.tolerance = 0
         self.minimizing = True
         self.initial_score = math.inf
         self.epsilon = 0.00000001  # Prevents division by zero
@@ -64,7 +65,8 @@ class Hyper_Parameters:
                                 "maximum integrity": 0.99,
                                 "minimization mode": True,
                                 "target": 0,
-                                "expansion factor": 0.01
+                                "expansion factor": 0.01,
+                                "tolerance": 0
                             }
         # Update dictionary if appropriate
         if isinstance(hyper_params, dict):
@@ -93,6 +95,7 @@ class Hyper_Parameters:
             self.minimizing = self.hyper_params["minimization mode"]
             self.target = self.hyper_params["target"]
             self.expansion_factor = self.hyper_params["expansion factor"]
+            self.tolerance = self.hyper_params["tolerance"]
             self.set_initial_score()
 
     def set_initial_score(self):

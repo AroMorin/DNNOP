@@ -1,17 +1,17 @@
-"""Implementation of the Schwefel function as in the link below. The number of
+"""Implementation of the Bukin N. 6 function as in the link below. The number of
 problem dimensions is arbitrary, as well as the bounds.
-https://www.sfu.ca/~ssurjano/schwef.html
+https://www.sfu.ca/~ssurjano/bukin6.html
 """
 from .function import Function
 import numpy as np
 
-class Schwefel(Function):
+class Bukin6(Function):
     def __init__(self, plot, precision, data_path):
         super().__init__(plot, precision)
         self.x = None  # NP array
-        self.x_low = [-500, -500]
-        self.x_high = [500, 500]
-        self.optimal_x = [420.9687, 420.9687]  # Location
+        self.x_low = [-15, -5]
+        self.x_high = [-3, 3]
+        self.optimal_x = [-10, 1]  # Location
         self.resolution = 250
         self.z = None  # Function evaluation
         self.set_observation()
@@ -20,11 +20,11 @@ class Schwefel(Function):
         self.init_plot(data_path)
 
     def get_func(self):
-        a = 2*418.9829
-        b = np.sin(np.sqrt(np.abs(self.x)))
-        c = np.sum(np.multiply(self.x, b))
-        d = a-c
-        return d
+        a = 100
+        b = self.x[1]-(0.01*np.square(self.x[0]))
+        c = np.sqrt(np.abs(b))
+        d = 0.01*np.abs(self.x[0]+10)
+        return (a*c)+d
 
 
 

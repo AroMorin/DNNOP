@@ -47,10 +47,10 @@ def init_weights(model, scheme):
 
 def init_uniform(m):
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        limit = 0.5
+        limit = 0.1
         nn.init.uniform_(m.weight, a=-limit, b=limit)
 
 def init_normal(m):
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        limit = 2
+        limit = 0.1
         nn.init.normal_(m.weight, mean=0, std=limit)

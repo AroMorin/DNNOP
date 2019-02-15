@@ -7,9 +7,9 @@ class Net(nn.Module):
         print("Creating basic Fully-Connected model for Function Solving")
         super(Net, self).__init__()
         self.fc1 = nn.Linear(2, 128)
-        #self.act1 = nn.PReLU()
+        self.act1 = nn.PReLU()
         #self.act1 = nn.ReLU6()
-        self.act1 = nn.Tanh()
+        #self.act1 = nn.Tanh()
         self.fc2 = nn.Linear(128, 2)
 
     def forward(self, observation):

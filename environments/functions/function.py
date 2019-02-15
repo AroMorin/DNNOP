@@ -67,7 +67,7 @@ class Function(Environment):
         self.iteration += 1
 
     def get_artists(self, alg):
-        elite = alg.inferences[0]
+        elite = alg.inferences[alg.optim.pool.elite.elite_idx]
         elite_score = alg.optim.pool.elite.elite_score
         a = alg.optim.pool.anchors.nb_anchors
         anchors = alg.inferences[1:a+1]

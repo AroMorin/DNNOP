@@ -45,7 +45,7 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum entropy": -5,  # Percentage
-                    "minimum distance": 470,
+                    "minimum distance": 420,
                     "patience": 25,
                     "tolerance": 0.05
                     }

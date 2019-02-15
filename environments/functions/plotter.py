@@ -130,7 +130,7 @@ class Plotter:
         self.backtracking = alg.optim.pool.analyzer.backtracking
         self.integrity = alg.optim.pool.analyzer.integrity
         self.iteration = iteration
-        self.elite_position = alg.inferences[0]
+        self.elite_position = alg.inferences[alg.optim.pool.elite.elite_idx]
         self.elite_score = alg.optim.pool.elite.elite_score
         self.artists = []  # Reset state
         self.net = []  # Reset state
@@ -167,7 +167,7 @@ class Plotter:
         s = 100
         marker = 'x'
         color = 'blue'
-        a = self.top.scatter(x, y, marker=marker, s=s)
+        a = self.top.scatter(x, y, marker=marker, s=s, c=color)
         b = self.front.scatter(x, scores, marker=marker, s=s, c=color)
         c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color, label = 'anchors')
         self.artists.extend([a, b, c])

@@ -14,7 +14,7 @@ def make_model(name, precision=torch.float, init_scheme='Default'):
     init_weights(model, init_scheme)
     return model
 
-def make_pool(name, pool_size, precision=torch.float, init_scheme='Uniform'):
+def make_pool(name, pool_size, precision=torch.float, init_scheme='Normal'):
     pool = []
     for _ in range(pool_size):
         with torch.no_grad():
@@ -52,5 +52,5 @@ def init_uniform(m):
 
 def init_normal(m):
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        limit = 0.5
+        limit = 2
         nn.init.normal_(m.weight, mean=0, std=limit)

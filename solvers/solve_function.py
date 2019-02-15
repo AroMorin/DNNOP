@@ -29,7 +29,7 @@ def main():
 
     # Make an MNIST Dataset environment
     env = environments.make_env("function",
-                                "bukin6",
+                                "eggholder",
                                 data_path = data_path,
                                 plot = True,
                                 precision = precision
@@ -45,8 +45,8 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum entropy": -5,  # Percentage
-                    "minimum distance": 450,
-                    "patience": 30,
+                    "minimum distance": 470,
+                    "patience": 25,
                     "tolerance": 0.05
                     }
     alg = algorithm_factory.make_alg("MSN", pool, hyper_params)

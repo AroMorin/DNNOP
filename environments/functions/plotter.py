@@ -8,6 +8,11 @@ from matplotlib import cm, colors
 
 class Plotter:
     def __init__(self, func, data_path):
+        self.elite_score = 0
+        self.elite_position = []
+        self.integrity = 0
+        self.iteration = 0
+        self.backtracking = False
         self.data_path = data_path
         self.top = None
         self.front = None
@@ -100,29 +105,50 @@ class Plotter:
         y = [i[1].item() for i in positions]
         marker = '^'
         s = 100
-        color = 'white'
+        color = 'black'
         a = self.top.scatter(x, y, marker=marker, s=s, c=color)
         b = self.front.scatter(x, scores, marker=marker, s=s, c=color)
-        c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color)
-        d = self.iteration_txt = self.fig.text(0.85, 0.03, 'Iteration: 0')
+        c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color, label='initials')
+        d = self.fig.text(0.85, 0.12, 'Iteration: 0')
         self.net = [a, b, c, d]
-        self.save_figure(0)
+        self.iso.legend(loc='best')
+        self.save_figure()
         self.remove_artists()
 
-
-    def plot_artists(self, positions, scores, iteration):
+    def plot_artists(self, positions, scores, alg, iteration):
+        self.update_state(alg, iteration)
         self.plot_anchors(positions["anchors"], scores["anchors"])
         self.plot_probes(positions["probes"], scores["probes"])
         self.plot_blends(positions["blends"], scores["blends"])
         self.plot_elite(positions["elite"], scores["elite"])
-        self.plot_text(scores["elite"], iteration)
-        self.save_figure(iteration)
+        self.iso.legend(loc='best')
+        self.plot_text()
+        self.save_figure()
         self.remove_artists()
 
-    def plot_text(self, score, iteration):
-        a = self.iteration_txt = self.fig.text(0.85, 0.03, 'Iteration: '+str(iteration))
-        b = self.score_txt = self.fig.text(0.85, 0.005, 'Elite Score: '+str(score))
-        self.artists.extend([a, b])
+    def update_state(self, alg, iteration):
+        self.backtracking = alg.optim.pool.analyzer.backtracking
+        self.integrity = alg.optim.pool.analyzer.integrity
+        self.iteration = iteration
+        self.elite_position = alg.inferences[0]
+        self.elite_score = alg.optim.pool.elite.elite_score
+        self.artists = []  # Reset state
+        self.net = []  # Reset state
+
+    def plot_text(self):
+        a = self.fig.text(0.85, 0.12, 'Iteration: '+str(self.iteration))
+        score_str = 'Elite Score: '+str("{0:.4g}".format(self.elite_score))
+        b = self.fig.text(0.85, 0.1, score_str)
+        pos_str = 'Elite Position: ('+str(
+                    "{0:.4g}".format(self.elite_position[0]))+', '+str(
+                    "{0:.4g}".format(self.elite_position[1]))+')'
+        c = self.fig.text(0.85, 0.08, pos_str)
+        integrity_str = 'Integrity: '+str("{0:.4g}".format(self.integrity))
+        d = self.fig.text(0.85, 0.06, integrity_str)
+        e = self.fig.text(0.85, 0.04, '')
+        if self.backtracking:
+            e = self.fig.text(0.85, 0.04, 'Backtracking activated!')
+        self.artists.extend([a, b, c, d, e])
 
     def plot_elite(self, position, score):
         x = position[0].item()
@@ -132,7 +158,7 @@ class Plotter:
         color = 'red'
         a = self.top.scatter(x, y, marker=marker, s=s, c=color)
         b = self.front.scatter(x, score, marker=marker, s=s, c=color)
-        c = self.iso.scatter(x, y, score, marker=marker, s=s, c=color)
+        c = self.iso.scatter(x, y, score, marker=marker, s=s, c=color, label = 'elite')
         self.artists.extend([a, b, c])
 
     def plot_anchors(self, positions, scores):
@@ -143,7 +169,7 @@ class Plotter:
         color = 'blue'
         a = self.top.scatter(x, y, marker=marker, s=s)
         b = self.front.scatter(x, scores, marker=marker, s=s, c=color)
-        c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color)
+        c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color, label = 'anchors')
         self.artists.extend([a, b, c])
 
     def plot_probes(self, positions, scores):
@@ -154,7 +180,7 @@ class Plotter:
         color = 'green'
         a = self.top.scatter(x, y, marker=marker, s=s, c=color)
         b = self.front.scatter(x, scores, marker=marker, s=s, c=color)
-        c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color)
+        c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color, label = 'probes')
         self.artists.extend([a, b, c])
 
     def plot_blends(self, positions, scores):
@@ -165,20 +191,18 @@ class Plotter:
         color = 'yellow'
         a = self.top.scatter(x, y, marker=marker, s=s, c=color)
         b = self.front.scatter(x, scores, marker=marker, s=s, c=color)
-        c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color)
+        c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color, label = 'blends')
         self.artists.extend([a, b, c])
 
-    def save_figure(self, iteration):
-        fn = self.data_path+str(iteration)+'.png'
+    def save_figure(self):
+        fn = self.data_path+str(self.iteration)+'.png'
         self.fig.savefig(fn)
 
     def remove_artists(self):
         if len(self.net)==0:
-            assert len(self.artists) == 14
+            assert len(self.artists) == 17
             for artist in self.artists:
                 artist.remove()
-            self.artists = []  # Reset state
         else:
             for plot in self.net:
                 plot.remove()
-            self.net = []  # Reset state

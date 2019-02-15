@@ -9,6 +9,7 @@ class Anchors:
         self.models = []
         self.anchors_idxs = []
         self.nb_anchors = 0  # State not hyperparameter
+        self.print_distance = False
 
     def set_anchors(self, pool, analyzer):
         """The func is structured as below in order for the conditional to
@@ -57,6 +58,8 @@ class Anchors:
         for i in self.anchors_idxs:
             anchor = pool[i]
             distance = self.canberra_distance(candidate, anchor)
+            if self.print_distance:
+                print(distance.item())
             if distance.item() < self.hp.min_dist:
                 return False
             elif math.isnan(distance.item()):
@@ -74,9 +77,9 @@ class Anchors:
         y = torch.abs(a)
         z = torch.abs(b)
         deno = torch.add(y, z)
-        epsilon = 0.00000001
-        denominator = torch.clamp(deno, min=epsilon)
-        f = torch.div(numerator, denominator)
+        f = torch.div(numerator, deno)
+        e = torch.isfinite(f)
+        j = torch.masked_select(f, e)
         result = f.sum()
         return result
 

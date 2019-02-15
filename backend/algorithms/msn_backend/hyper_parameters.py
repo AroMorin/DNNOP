@@ -51,9 +51,9 @@ class Hyper_Parameters:
                                 "number of anchors": 5,
                                 "number of probes per anchor": 8,
                                 "pool size": 50,
-                                "alpha":0.3,
-                                "beta": 0.2,
-                                "learning rate": 0.05,
+                                "alpha":0.9,
+                                "beta": 0.8,
+                                "learning rate": 0.3,
                                 "lambda":6,
                                 "minimum distance": 16500,
                                 "minimum entropy": 1,
@@ -65,7 +65,7 @@ class Hyper_Parameters:
                                 "maximum integrity": 0.99,
                                 "minimization mode": True,
                                 "target": 0,
-                                "expansion factor": 0.01,
+                                "expansion factor": 0.04,
                                 "tolerance": 0
                             }
         # Update dictionary if appropriate

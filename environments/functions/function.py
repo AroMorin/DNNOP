@@ -57,7 +57,7 @@ class Function(Environment):
     def make_plot(self, alg):
         if self.iteration != 0:
             positions, scores = self.get_artists(alg)
-            self.plotter.plot_artists(positions, scores, self.iteration)
+            self.plotter.plot_artists(positions, scores, alg, self.iteration)
         else:
             positions = alg.inferences
             scores = alg.scores

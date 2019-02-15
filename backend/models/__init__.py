@@ -7,6 +7,7 @@ from .mnist_cnn_msn import Net as MNIST_CNN_MSN
 from .basic_fc import Net as BASIC_FC
 import torch
 import torch.nn as nn
+import numpy as np
 
 def make_model(name, precision=torch.float, init_scheme='Default'):
     model = pick_model(name)
@@ -14,7 +15,7 @@ def make_model(name, precision=torch.float, init_scheme='Default'):
     init_weights(model, init_scheme)
     return model
 
-def make_pool(name, pool_size, precision=torch.float, init_scheme='Normal'):
+def make_pool(name, pool_size, precision=torch.float, init_scheme='Identical'):
     pool = []
     for _ in range(pool_size):
         with torch.no_grad():
@@ -42,6 +43,8 @@ def init_weights(model, scheme):
         model.apply(init_uniform)
     elif scheme == 'Normal':
         model.apply(init_normal)
+    elif scheme == 'Identical':
+        model.apply(init_eye)
     else:
         return  # Default initialization scheme
 
@@ -53,4 +56,9 @@ def init_uniform(m):
 def init_normal(m):
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         limit = 0.1
-        nn.init.normal_(m.weight, mean=0, std=limit)
+        origin = 0
+        nn.init.normal_(m.weight, mean=origin, std=limit)
+
+def init_eye(m):
+    if type(m) == nn.Linear or type(m) == nn.Conv2d:
+        nn.init.eye_(m.weight)

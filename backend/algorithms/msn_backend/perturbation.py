@@ -15,8 +15,10 @@ class Perturbation:
         self.indices = []
         self.size = 0
         self.distribution = None
+        self.precision = None
 
     def set_perturbation(self, vec, analyzer):
+        self.precision = vec.dtype
         self.vec_length = torch.numel(vec)
         self.indices = range(self.vec_length)
         self.size = int(analyzer.num_selections*self.vec_length)
@@ -39,8 +41,9 @@ class Perturbation:
         choices = torch.tensor(choices).cuda().long()
         #noise = temp.normal_(mean=0, std=analyzer.search_radius)
         #vec = vec.put_(choices, noise, accumulate=True)
-        noise = torch.zeros((self.vec_length)).cuda().half()
-        dist = self.distribution.sample(torch.Size([self.size])).cuda().half().squeeze()
+        noise = torch.zeros((self.vec_length), dtype=self.precision).cuda()
+        dist = self.distribution.sample(torch.Size([self.size]), dtype=self.precision)
+        dist.cuda().squeeze()
         noise[choices] = dist
         vec.add_(noise)
         #vec[choices] = noise
@@ -59,8 +62,15 @@ class Perturbation:
         choices = torch.tensor(choices).cuda().long()
         #noise = temp.normal_(mean=0, std=analyzer.search_radius)
         #vec = vec.put_(choices, noise, accumulate=True)
-        noise = torch.zeros((self.vec_length)).cuda().half()
-        dist = self.distribution.sample(torch.Size([self.size])).cuda().half().squeeze()
+        noise = torch.zeros((self.vec_length), dtype=self.precision).cuda()
+        if self.precision == torch.float:
+            dist = self.distribution.sample(torch.Size([self.size])).float()
+        elif self.precision == torch.half:
+            dist = self.distribution.sample(torch.Size([self.size])).half()
+        else:
+            print("Unknown precision type")
+            exit()
+        dist = dist.cuda().squeeze()
         noise[choices] = dist
         vec.add_(noise)
 

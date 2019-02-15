@@ -38,7 +38,7 @@ class Blends:
         self.vec_length = torch.numel(anchors.models[0])
         self.nb_anchors = len(anchors.models)
         self.nb_blends = self.hp.pool_size-(self.nb_anchors+(
-                                    self.nb_anchors * self.hp.nb_probes)+1)
+                                    self.nb_anchors*self.hp.nb_probes)+1)
 
     def set_indices(self):
         # In case I wanted a variable blending method
@@ -55,14 +55,16 @@ class Blends:
 
     def set_compounds2(self):
         # From pool, i.e. vectors
-        idxs = choices(range(self.hp.pool_size), k=self.nb_blends)
+        lower = self.anchors.nb_anchors+1
+        upper = self.anchors.nb_anchors*self.hp.nb_probes
+        idxs = choices(range(lower, upper+1), k=self.nb_blends)
         self.compounds2 = [self.vectors[i] for i in idxs]
 
     def blend(self):
         for i in range(self.nb_blends):
-            c1 = self.compounds1[i]
+            c1 = self.compounds1[i].clone()
             c2 = self.compounds2[i]
-            c1[self.indices] = c2[self.indices]
+            c1.put_(self.indices, c2[self.indices])
             blend = c1
             #p2 = torch.take(p2, self.indices)
             #p1.put_(self.indices, p2)  # Accumulate false

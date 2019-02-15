@@ -20,6 +20,8 @@ class Analysis:
         self.alpha = self.hp.alpha
         self.lambda_ = self.hp.lambda_
         self.search_start = True
+        self.nb_anchors = self.hp.nb_anchors  # State
+        self.radial_expansion = False
 
     def analyze(self, scores, nb_anchors):
         self.clean_list(scores)
@@ -69,8 +71,7 @@ class Analysis:
         for i in range(len(self.sorted_scores)):
             score = self.sorted_scores[i]
             idxs = [idx for idx, value in enumerate(self.scores) if value == score]
-            for idx in idxs:
-                self.sorted_idxs.append(idx)
+            self.sorted_idxs.extend(idxs)
         # Sanity checks
         assert len(self.sorted_idxs) == len(self.scores)  # No missing elements
         assert len(set(self.sorted_idxs)) == len(self.sorted_idxs)  # No duplicates
@@ -153,7 +154,7 @@ class Analysis:
         It compares the actual number of anchors with the desired number of
         anchors
         """
-        if nb_anchors < self.hp.nb_anchors and self.elapsed_steps>0:
+        if nb_anchors<self.hp.nb_anchors and self.elapsed_steps>0 and nb_anchors<=self.nb_anchors:
             print("--Expanding Search Radius!--")
             self.radial_expansion = True
             self.lr += self.lr * self.hp.expansion_factor
@@ -164,6 +165,7 @@ class Analysis:
             self.lr = self.hp.lr
             self.alpha = self.hp.alpha
             self.lambda_ = self.hp.lambda_
+        self.nb_anchors = nb_anchors  # State update
 
     def set_num_selections(self):
         p = 1-self.integrity

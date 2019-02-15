@@ -25,7 +25,7 @@ def main():
     args = parser.parse_args()
 
     data_path = "C:/Users/aaa2cn/Documents/function_data/rastrigin/"
-    precision = torch.half # Set precision
+    precision = torch.float # Set precision
 
     # Make an MNIST Dataset environment
     env = environments.make_env("function",
@@ -44,10 +44,10 @@ def main():
                     "number of probes per anchor": args.nb_probes,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -5,  # Percentage
-                    "minimum distance": 420,
-                    "patience": 25,
-                    "tolerance": 0.05
+                    "minimum entropy": -3,  # Percentage
+                    "minimum distance": 400,
+                    "patience": 27,
+                    "tolerance": 0.12
                     }
     alg = algorithm_factory.make_alg("MSN", pool, hyper_params)
 

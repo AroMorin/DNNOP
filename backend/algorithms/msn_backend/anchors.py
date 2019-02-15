@@ -9,15 +9,16 @@ class Anchors:
         self.models = []
         self.anchors_idxs = []
         self.nb_anchors = 0  # State not hyperparameter
-        self.print_distance = False
+        self.print_distance = True
 
-    def set_anchors(self, pool, analyzer):
+    def set_anchors(self, vectors, analyzer):
         """The func is structured as below in order for the conditional to
         evaluate to True most of the time.
         """
         self.reset_state()
-        anchors_idxs = self.set_anchors_idxs(analyzer.sorted_idxs, pool)
-        self.assign_models(pool)
+        #idxs = list(range(self.hp.pool_size))
+        anchors_idxs = self.set_anchors_idxs(analyzer.sorted_idxs, vectors)
+        self.assign_models(vectors)
         print("Anchors: ", len(self.anchors_idxs))
         print("Anchors idxs: ", self.anchors_idxs)
 
@@ -29,23 +30,23 @@ class Anchors:
         self.anchors_idxs = []
         self.nb_anchors = 0
 
-    def set_anchors_idxs(self, sorted_idxs, pool):
+    def set_anchors_idxs(self, sorted_idxs, vectors):
         self.remove_elite(sorted_idxs)
-        assert 0 not in sorted_idxs  # Sanity check
+        assert 0 not in sorted_idxs  # Removed elite
+        assert len(sorted_idxs) == (self.hp.pool_size-1)  # Sanity check
         for i in sorted_idxs:
-            candidate = pool[i]
-            self.admit(candidate, i, pool)
+            candidate = vectors[i]
+            self.admit(candidate, i, vectors)
             if self.nb_anchors == self.hp.nb_anchors:
                 break  # Terminate
 
     def remove_elite(self, idxs):
-        if 0 in idxs:
-            idxs.remove(0)
+        idxs.remove(0)
 
-    def admit(self, candidate, candidate_idx, pool):
+    def admit(self, candidate, candidate_idx, vectors):
         """Determines whether to admit a sample into the anchors list."""
         if self.anchors_idxs:
-            if self.accept_candidate(candidate, pool):
+            if self.accept_candidate(candidate, vectors):
                 self.anchors_idxs.append(candidate_idx)
                 self.nb_anchors += 1
         else:
@@ -53,10 +54,10 @@ class Anchors:
             self.anchors_idxs.append(candidate_idx)
             self.nb_anchors += 1
 
-    def accept_candidate(self, candidate, pool):
+    def accept_candidate(self, candidate, vectors):
         """Make sure the candidate is far enough from every anchor."""
         for i in self.anchors_idxs:
-            anchor = pool[i]
+            anchor = vectors[i]
             distance = self.canberra_distance(candidate, anchor)
             if self.print_distance:
                 print(distance.item())
@@ -72,6 +73,8 @@ class Anchors:
         is going too fast, perhaps.
         """
         #numerator = torch.abs(torch.add(a, -1, b))
+        #print(a[0:19])
+        #print(b[0:19])
         x = torch.add(a, -b)
         numerator = torch.abs(x)
         y = torch.abs(a)
@@ -80,7 +83,7 @@ class Anchors:
         f = torch.div(numerator, deno)
         e = torch.isfinite(f)
         j = torch.masked_select(f, e)
-        result = f.sum()
+        result = j.sum()
         return result
 
     def assign_models(self, pool):

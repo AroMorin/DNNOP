@@ -20,6 +20,7 @@ class Rastrigin(Function):
         self.init_plot(data_path)
 
     def get_func(self):
+        """Evaluate the function based on the position attribute."""
         a = 10*2
         b = np.square(self.x[0]) - 10*np.cos(2*np.pi*self.x[0])
         c = np.square(self.x[1]) - 10*np.cos(2*np.pi*self.x[1])

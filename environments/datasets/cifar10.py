@@ -1,4 +1,4 @@
-"""Class of CIFAR10 dataset"""
+"""Class of CIFAR10 dataset."""
 
 from .dataset import Dataset
 

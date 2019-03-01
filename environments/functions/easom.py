@@ -21,6 +21,7 @@ class Easom(Function):
         self.init_plot(data_path)
 
     def get_func(self):
+        """Evaluate the function based on the position attribute."""
         a = np.cos(self.x[0])*np.cos(self.x[1])
         b = np.square(self.x[0]-np.pi)
         c = np.square(self.x[1]-np.pi)

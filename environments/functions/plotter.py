@@ -1,4 +1,4 @@
-"""Class for plotting functions"""
+"""Class for plotting functions."""
 
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
@@ -34,6 +34,7 @@ class Plotter:
         self.plot_base()
 
     def set_limits(self, func):
+        """Sets the limits of the plot in X1, X2 and Z axes."""
         self.x1_low = func.x_low[0]
         self.x2_low = func.x_low[1]
         self.x1_high = func.x_high[0]
@@ -46,6 +47,12 @@ class Plotter:
             self.z_high = func.target
 
     def plot_base(self):
+        """Plots the function over the entire evaluation domain. This is what
+        we call the "base". This base remains constant. We only add predictions
+        (ie. artists) to it later.
+        This method speeds up the plotting process, because we don't need to
+        re-construct the base every iteration/generation.
+        """
         self.init_fig()
         self.plot_top()
         self.plot_front()
@@ -54,12 +61,14 @@ class Plotter:
         plt.tight_layout()
 
     def init_fig(self):
+        """Initializes the plot figure to be of certain properties, e.g. size."""
         self.fig = plt.figure(figsize=(30, 10))
         self.gs = gridspec.GridSpec(1, 3, width_ratios=[1, 1, 1.3],
                                     figure=self.fig)
         self.cmap = cm.get_cmap('Spectral', len(self.z_levels))
 
     def plot_top(self):
+        """Plots top view of the base."""
         self.top = plt.subplot(self.gs[0])
         self.CS = self.top.contourf(self.x1, self.x2, self.z,
                                 self.z_levels,
@@ -71,6 +80,7 @@ class Plotter:
         self.top.set_ylim([self.x2_low, self.x2_high])
 
     def plot_front(self):
+        """Plots front view of the base."""
         self.front = plt.subplot(self.gs[1])
         self.front.pcolormesh(self.x1, self.z, self.z,
                             cmap=self.cmap)
@@ -81,6 +91,7 @@ class Plotter:
         self.front.set_ylim([self.z_low, self.z_high])
 
     def plot_iso(self):
+        """Plots isometric/3D view of the base."""
         self.iso = plt.subplot(self.gs[2], projection='3d')
         self.iso.plot_surface(self.x1, self.x2, self.z,
                             cmap=self.cmap)
@@ -93,6 +104,7 @@ class Plotter:
         self.iso.set_zlabel('z')
 
     def plot_colorbar(self):
+        """Adds a color bar to the base figure."""
         norm = colors.Normalize(vmin=self.z_low, vmax=self.z_high)
         mtop = cm.ScalarMappable(cmap=self.cmap, norm=norm)
         mtop.set_array([])
@@ -101,6 +113,7 @@ class Plotter:
         #colorbar = self.fig.colorbar(self.CS, cax=self.cb)
 
     def plot_net(self, positions, scores):
+        """Plots the initial guesses of the networks."""
         x = [i[0].item() for i in positions]
         y = [i[1].item() for i in positions]
         marker = '^'
@@ -116,6 +129,9 @@ class Plotter:
         self.remove_artists()
 
     def plot_artists(self, positions, scores, alg, iteration):
+        """Adds the guesses from the networks, saves the plot figure, then
+        removes the artists.
+        """
         self.update_state(alg, iteration)
         self.plot_anchors(positions["anchors"], scores["anchors"])
         self.plot_probes(positions["probes"], scores["probes"])
@@ -127,6 +143,7 @@ class Plotter:
         self.remove_artists()
 
     def update_state(self, alg, iteration):
+        """Update plotter state."""
         self.backtracking = alg.optim.pool.analyzer.backtracking
         self.integrity = alg.optim.pool.analyzer.integrity
         self.iteration = iteration
@@ -136,6 +153,9 @@ class Plotter:
         self.net = []  # Reset state
 
     def plot_text(self):
+        """Adds text to the plot figure. Text conveys important information
+        such as current elte, value of integrity, etc...
+        """
         a = self.fig.text(0.85, 0.12, 'Iteration: '+str(self.iteration))
         score_str = 'Elite Score: '+str("{0:.4g}".format(self.elite_score))
         b = self.fig.text(0.85, 0.1, score_str)
@@ -151,6 +171,7 @@ class Plotter:
         self.artists.extend([a, b, c, d, e])
 
     def plot_elite(self, position, score):
+        """Plots the elite."""
         x = position[0].item()
         y = position[1].item()
         s = 100
@@ -162,6 +183,7 @@ class Plotter:
         self.artists.extend([a, b, c])
 
     def plot_anchors(self, positions, scores):
+        """Plots the anchors."""
         x = [i[0].item() for i in positions]
         y = [i[1].item() for i in positions]
         s = 100
@@ -173,6 +195,7 @@ class Plotter:
         self.artists.extend([a, b, c])
 
     def plot_probes(self, positions, scores):
+        """Plots probes."""
         x = [i[0].item() for i in positions]
         y = [i[1].item() for i in positions]
         s = 100
@@ -184,6 +207,7 @@ class Plotter:
         self.artists.extend([a, b, c])
 
     def plot_blends(self, positions, scores):
+        """Plots blends."""
         x = [i[0].item() for i in positions]
         y = [i[1].item() for i in positions]
         s = 100
@@ -195,10 +219,12 @@ class Plotter:
         self.artists.extend([a, b, c])
 
     def save_figure(self):
+        """Saves the plot as a figue on disk/storage."""
         fn = self.data_path+str(self.iteration)+'.png'
         self.fig.savefig(fn)
 
     def remove_artists(self):
+        """Removes the plot artists from the figure."""
         if len(self.net)==0:
             assert len(self.artists) == 17
             for artist in self.artists:

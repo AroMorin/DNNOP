@@ -25,6 +25,7 @@ class Dataset(Environment):
         self.set_optimization_mode(loss)
 
     def set_batch_size(self, batch_size):
+        """Sets the batch size based on user input."""
         if batch_size != 0:
             assert isinstance(batch_size, int)  # Sanity check
             self.batch_size = batch_size
@@ -32,6 +33,9 @@ class Dataset(Environment):
             self.batch_size = self.train_size
 
     def set_optimization_mode(self, loss):
+        """Sets the optimization mode based on whether loss flag is ON/OFF (set
+        by user).
+        """
         if loss:
             self.loss = True
             self.loss_type = 'NLL loss'

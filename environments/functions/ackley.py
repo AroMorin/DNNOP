@@ -20,6 +20,7 @@ class Ackley(Function):
         self.init_plot(data_path)
 
     def get_func(self):
+        """Evaluate the function based on the position attribute."""
         a = 20
         b = 0.2
         c = 2*np.pi

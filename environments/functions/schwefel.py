@@ -20,9 +20,10 @@ class Schwefel(Function):
         self.init_plot(data_path)
 
     def get_func(self):
+        """Evaluate the function based on the position attribute."""
         a = 2*418.9829
         b = np.sin(np.sqrt(np.abs(self.x)))
-        c = np.sum(np.multiply(self.x, b))
+        c = np.add(np.multiply(self.x, b))
         d = a-c
         return d
 

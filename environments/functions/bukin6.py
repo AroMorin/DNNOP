@@ -20,6 +20,7 @@ class Bukin6(Function):
         self.init_plot(data_path)
 
     def get_func(self):
+        """Evaluate the function based on the position attribute."""
         a = 100
         b = self.x[1]-(0.01*np.square(self.x[0]))
         c = np.sqrt(np.abs(b))

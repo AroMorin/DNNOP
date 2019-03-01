@@ -1,4 +1,4 @@
-"""Base class for functions"""
+"""Base class for functions."""
 
 import numpy as np
 import torch
@@ -19,10 +19,14 @@ class Function(Environment):
         self.iteration = -1  # State
 
     def init_plot(self, data_path):
+        """Instantiates the plotter class if a plot is requested by the user."""
         if self.plot:
             self.plotter = Plotter(self, data_path)
 
     def set_observation(self):
+        """Randomly picks a point within the function domain as an origin for
+        the search process.
+        """
         origin_x1 = np.random.uniform(self.x_low[0], self.x_high[0], 1)
         origin_x2 = np.random.uniform(self.x_low[1], self.x_high[1], 1)
         origin = [origin_x1[0], origin_x2[0]]
@@ -35,19 +39,23 @@ class Function(Environment):
                             self.x_high]
 
     def set_domain(self):
+        """Sets the meshgrid domain for the function."""
         x1 = np.linspace(self.x_low[0], self.x_high[0], self.resolution)
         x2 = np.linspace(self.x_low[1], self.x_high[1], self.resolution)
         m1, m2 = np.meshgrid(x1, x2)
         self.domain = [m1, m2]
 
     def set_range(self):
+        """Sets the function range, given the domain."""
         self.x = self.domain
         self.range = self.get_func()
 
     def construct_base(self):
+        """Not sure what this does, remove?"""
         pass
 
     def evaluate(self, position):
+        """Evaluates the function given an (x1, x2) coordinate."""
         x1 = position[0].cpu().numpy()
         x2 = position[1].cpu().numpy()
         self.x = [x1, x2]
@@ -55,6 +63,9 @@ class Function(Environment):
         return self.z
 
     def make_plot(self, alg):
+        """Plots the algorithm's predictions on canvas, and saves the plot as
+        a figure on disk/storage.
+        """
         if self.iteration != 0:
             positions, scores = self.get_artists(alg)
             self.plotter.plot_artists(positions, scores, alg, self.iteration)
@@ -64,9 +75,13 @@ class Function(Environment):
             self.plotter.plot_net(positions, scores)
 
     def step(self):
+        """Steps the environment."""
         self.iteration += 1
 
     def get_artists(self, alg):
+        """Acquires the predictions and corresponding scores/evaluations from
+        the algorithm object. Every category needs to be distinguished.
+        """
         elite = alg.inferences[alg.optim.pool.elite.elite_idx]
         elite_score = alg.optim.pool.elite.elite_score
         a = alg.optim.pool.anchors.nb_anchors

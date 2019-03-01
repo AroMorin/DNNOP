@@ -1,4 +1,4 @@
-"""Class of MNIST dataset"""
+"""Class of MNIST dataset."""
 import torch
 from torchvision import datasets, transforms
 from .dataset import Dataset
@@ -82,11 +82,13 @@ class MNIST(Dataset):
             self.reset()
 
     def check_reset(self):
+        """Checks whether we've reached reset condition or not."""
         # If reached end of batches, reset
         return self.current_batch_idx>=self.nb_batches
 
     def reset(self):
-            self.current_batch_idx = 0
+        """Reset class state."""
+        self.current_batch_idx = 0
 
     def show_image(self):
         """Method to show the user an image from the dataset."""

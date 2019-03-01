@@ -21,6 +21,7 @@ class Eggholder(Function):
         self.init_plot(data_path)
 
     def get_func(self):
+        """Evaluate the function based on the position attribute."""
         a = self.x[1]+47
         b = a+(0.5*self.x[0])
         c = np.sin(np.sqrt(np.abs(b)))

@@ -1,4 +1,4 @@
-"""This script allows making objects of different dataset classes"""
+"""This script allows making objects of different dataset classes."""
 
 from .mnist import MNIST
 from .cifar10 import CIFAR10

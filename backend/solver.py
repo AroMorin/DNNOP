@@ -1,10 +1,15 @@
-"""Base Class for a Solver. I'm not really sure why I put this class
-in here instead of in the backend folder.
+"""Base Class for a Solver. This class contains the different methods that
+can be used to solve an environment/problem. There are methods for
+mini-batch training, control, etc...
+The idea is that this class will contain all the methods that the different
+algorithms would need. Then we can simply call this class in the solver scripts
+and use its methods.
+I'm still torn between using a class or just using a script.
 """
 
 import torch
 
-class Solver():
+class Solver(object):
     """This class makes absolute sense because there are many types of training
     depending on the task. For this reason, in the future, this class can easily
     include all instances of such training routines. Of course, transparent to
@@ -21,33 +26,26 @@ class Solver():
     def solve(self, iterations):
         """In cases where training is needed."""
         print("Training regular function solver \n")
-        # Local variable definition
-        env = self.env
-        alg = self.algorithm
         for iteration in range(iterations):
             print("Iteration: %d\n" %iteration)
-            env.step()
-            alg.optimize(env)
-            if env.plot:
-                env.make_plot(alg)
+            self.env.step()
+            self.alg.optimize(self.env)
+            if self.env.plot:
+                self.env.make_plot(self.alg)
             self.current_iteration +=1
             print("\n")
-            if alg.achieved_target():
+            if self.alg.achieved_target():
                 print ("Achieved/exceeded target")
                 break # Terminate optimization
 
     def batch_training(self, epochs):
         """In cases where batch training is needed."""
-        # Local variable definition
-        env = self.env
-        alg = self.algorithm
         batches = self.env.nb_batches
         self.reset_state()
-
         for _ in range(epochs):
             for __ in range(batches):
-                env.step()
-                alg.optimize(env)
+                self.env.step()
+                self.alg.optimize(env)
                 self.current_iteration +=1
 
     def train_dataset_with_validation(self, steps):
@@ -57,18 +55,14 @@ class Solver():
         algorithms. This ensures the desired "plug n play" functionality.
         """
         print("Training model(s) on a dataset w/ validation")
-        # Local variable definition
-        env = self.env
-        alg = self.algorithm
-        # Process
-        env.step()
+        self.env.step()
         for _ in range(steps):
             self.current_iteration += 1
             print ("Iteration %d" %self.current_iteration)
-            alg.optimize(env)
-            alg.test(env)
-            alg.print_test_accuracy(env)
-            if alg.achieved_target():
+            self.alg.optimize(self.env)
+            self.alg.test(self.env)
+            self.alg.print_test_accuracy(self.env)
+            if self.alg.achieved_target():
                 print ("Achieved/exceeded target")
                 break # Terminate optimization
 
@@ -78,8 +72,6 @@ class Solver():
         """
         print("Mini-batch training model(s) on a dataset w/ validation")
         # Local variable definition
-        env = self.env
-        alg = self.algorithm
         batches = self.env.nb_batches
 
         # Process
@@ -87,11 +79,11 @@ class Solver():
             print ("Iteration %d" %self.current_iteration)
             for __ in range(batches):
                 print("Batch %d" %self.current_batch)
-                env.step()
-                alg.optimize(env)
+                self.env.step()
+                self.alg.optimize(self.env)
                 self.current_batch +=1
-            alg.test(env)
-            alg.print_test_accuracy(env)
+            self.alg.test(self.env)
+            self.alg.print_test_accuracy(self.env)
             self.current_iteration += 1
 
     def repeated_batch_train_dataset_with_validation(self, steps):
@@ -100,10 +92,8 @@ class Solver():
         """
         print("Mini-batch training model(s) on a dataset w/ validation")
         # Local variable definition
-        env = self.env
-        alg = self.algorithm
         batches = self.env.nb_batches
-        patience = 16
+        reps = 16  # repititions
         self.reset_state()
 
         # Process
@@ -111,15 +101,15 @@ class Solver():
             print ("Iteration %d" %self.current_iteration)
             for __ in range(batches):
                 print("Batch %d" %self.current_batch)
-                env.step()
+                self.env.step()
                 self.current_step = 0  # Reset step count
-                for ___ in range(patience):
+                for ___ in range(reps):
                     print("Step %d" %self.current_step)
-                    alg.optimize(env)
+                    self.alg.optimize(self.env)
                     self.current_step += 1
                 self.current_batch +=1
-            alg.test(env)
-            alg.print_test_accuracy(env)
+            self.alg.test(self.env)
+            self.alg.print_test_accuracy(self.env)
             self.current_iteration += 1
 
     def reset_state(self):

@@ -1,9 +1,12 @@
-"""solve a function"""
+"""This script solves a global optimization function by finding the location
+of its global optimum.
+Currently, only MSN algorithm is avaiable to solve this problem.
+"""
 from __future__ import print_function
 import sys, os
 # Append SYSPATH in order to access different modules of the library
 sys.path.insert(0, os.path.abspath('..'))
-import environments
+import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory
 from solver import Solver
@@ -12,7 +15,6 @@ import argparse
 import torch
 
 def main():
-    # Assumes CUDA is available
     parser = argparse.ArgumentParser(description='Func Solver')
     parser.add_argument('--pool_size', type=int, default=50, metavar='N',
                         help='number of samples in the pool (def: 50)')
@@ -28,7 +30,7 @@ def main():
     precision = torch.float # Set precision
 
     # Make an MNIST Dataset environment
-    env = environments.make_env("function",
+    env = env_factory.make_env("function",
                                 "eggholder",
                                 data_path = data_path,
                                 plot = True,

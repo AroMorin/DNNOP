@@ -1,12 +1,13 @@
 """This script attempts to solve the classification problem of the MNIST
-dataset. Comet ML is used to automatically upload and document the results.
+dataset. This specific script uses the MSN algorithm to solve the problem.
+Comet ML is used to automatically upload and document the results.
 """
 from __future__ import print_function
 import sys, os
 # Append SYSPATH in order to access different modules of the library
 sys.path.insert(0, os.path.abspath('..'))
 
-import environments
+import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory
 from solver import Solver
@@ -32,7 +33,7 @@ def main():
     # Make an MNIST Dataset environment
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
     #env = environments.make_env("dataset", "mnist", data_path=data_path, precision=precision)
-    env = environments.make_env("dataset",
+    env = env_factory.make_env("dataset",
                                 "mnist",
                                 data_path=data_path,
                                 batch_size=32,

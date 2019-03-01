@@ -1,10 +1,11 @@
 """This script attempts to solve the classification problem of the MNIST
-dataset. Comet ML is used to automatically upload and document the results.
+dataset. This script uses SGD algorithm to solve the problem.
+Comet ML is used to automatically upload and document the results.
 """
 from __future__ import print_function
 import sys, os
 sys.path.insert(0, os.path.abspath('..'))
-import environments
+import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithms_factory
 from solver import Solver
@@ -26,13 +27,12 @@ def main():
 
     # Make an MNIST Dataset environment
     data_path = "C:/Users/aaa2cn/Documents/mnist_data"
-    env = environments.make_env("dataset", "mnist", batch_size=args.batch_size,
+    env = env_factory.make_env("dataset", "mnist", batch_size=args.batch_size,
                                     data_path=data_path, precision=precision)
 
     # Make a model
     model = model_factory.make_model("MNIST CNN", precision)
 
-    # Make an algorithm --algorithm takes control of the model--
     hyper_params = {
                     "learning rate": 0.01,
                     }

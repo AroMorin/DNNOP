@@ -23,6 +23,7 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(50, 10)
 
     def forward(self, x):
+        """Forward pass over the model."""
         x = F.max_pool2d(self.conv1(x), 2)
         x = self.act1(x)
         x = F.max_pool2d(self.conv2(x), 2)

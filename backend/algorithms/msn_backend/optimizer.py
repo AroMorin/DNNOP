@@ -13,7 +13,7 @@ from .pool import Pool
 import torch
 import torch.nn.functional as F
 
-class Optimizer:
+class Optimizer(object):
     def __init__(self, models, hyper_params):
         self.hp = Hyper_Parameters(hyper_params) # Create a hyper parameters object
         self.pool = Pool(models, self.hp) # Create a pool object
@@ -21,6 +21,7 @@ class Optimizer:
         self.env = None
 
     def set_environment(self, env):
+        """Sets the class environment."""
         self.env = env
 
     def inference(self, test=False):
@@ -45,6 +46,9 @@ class Optimizer:
         return inferences
 
     def print_inference(self, outputs):
+        """Prints the inference of the neural networks. Attempts to extract
+        the output items from the tensors.
+        """
         if len(outputs[0]) == 2:
             x = [[a[0].item(), a[1].item()] for a in outputs]
         elif outputs[0][0][0].item():
@@ -72,6 +76,9 @@ class Optimizer:
             exit()
 
     def calculate_correct_predictions(self, inferences, test=False):
+        """Calculates the number of correct predictions/inferences made by the
+        neural network.
+        """
         correct_preds = []
         for idx, inference in enumerate(inferences):
             if idx == self.pool.elite.elite_idx:
@@ -88,6 +95,7 @@ class Optimizer:
         return correct_preds
 
     def calculate_scores(self, inferences):
+        """Calculates the scores given the network inferences."""
         scores = []
         for idx, inference in enumerate(inferences):
             score = self.env.evaluate(inference)

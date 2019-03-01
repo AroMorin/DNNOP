@@ -18,7 +18,7 @@ from .perturbation import Perturbation
 import time
 import torch
 
-class Pool:
+class Pool(object):
     def __init__(self, models, hyper_params):
         self.models = models # List of Models
         self.hp = hyper_params
@@ -72,6 +72,7 @@ class Pool:
             self.vectors.append(vec)
 
     def dict_to_vec(self, dict):
+        """Changes the dictionary of weights into a vector."""
         mylist = []
         for i, key in enumerate(dict):
             x = dict[key]  # Get tensor of parameters
@@ -80,6 +81,9 @@ class Pool:
         return vec
 
     def prep_new_pool(self, scores):
+        """Prepares the new pool based on the scores of the current generation
+        and the results of the analysis (such as value of intergrity).
+        """
         self.update_state()
         self.analyzer.analyze(scores, self.anchors.nb_anchors)
         self.elite.set_elite(self.models, self.analyzer)
@@ -87,10 +91,13 @@ class Pool:
 
         # Define noise magnitude and scale
         self.perturb.set_perturbation(self.vectors[0], self.analyzer)
+
+        # Implement probes and blends
         self.probes.set_probes(self.anchors, self.perturb)
         self.blends.set_blends(self.anchors, self.vectors, self.analyzer, self.perturb)
 
     def update_state(self):
+        """Updates the state of the class."""
         self.state_dicts = []
         self.vectors = []
         self.set_state_dicts()
@@ -100,7 +107,9 @@ class Pool:
 
     def implement(self):
         """This function updates the ".parameters" of the models using the
-        newly-constructed weight dictionaries.
+        newly-constructed weight dictionaries. That is, it actualizes the
+        changes/updates to the weights of the models in the GPU. After that
+        it assembles the new pool. --candidate for splitting into 2 methods--
         """
         self.available_idxs = [x for x in self.available_idxs
                                 if x not in self.anchors.anchors_idxs
@@ -124,6 +133,7 @@ class Pool:
         assert len(self.models) == self.hp.pool_size  # Same pool size
 
     def update_models(self, vectors):
+        """Updates the weight dictionaries of the models."""
         idxs = []
         for i, vector in enumerate(vectors):
             self.set_idx()
@@ -143,6 +153,7 @@ class Pool:
         del self.available_idxs[0]
 
     def vec_to_tensor(self, vec):
+        """Changes a vector into a tensor using the original network shapes."""
         a = vec.split(self.num_elems)  # Split parameter tensors
         b = [None]*self.nb_layers
         for i in range(self.nb_layers):
@@ -150,6 +161,7 @@ class Pool:
         return b
 
     def update_dict(self, param_list):
+        """Updates the state dictionary class attribute."""
         state_dict = self.state_dicts[self.idx]
         for i, key in enumerate(self.keys):
             state_dict[key] = param_list[i]

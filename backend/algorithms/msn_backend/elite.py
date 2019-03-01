@@ -1,8 +1,8 @@
-"""base class for elite"""
+"""Base class for elite."""
 
 import copy
 
-class Elite:
+class Elite(object):
     def __init__(self, hp):
         self.model = []
         self.elite_score = hp.initial_score
@@ -10,6 +10,9 @@ class Elite:
         self.elite_idx = 0
 
     def set_elite(self, pool, analyzer):
+        """Checks current top score and determines if there's a new elite. The
+        elite is then either updated or set as is.
+        """
         idx = analyzer.top_idx
         pool_top_score = analyzer.new_top
         self.elite_idx = 0  # Reset state
@@ -22,6 +25,7 @@ class Elite:
         print ("Elite Score: %f" %self.elite_score)
 
     def replace(self, pool_top_score):
+        """Assesses whether a new elite will replace the current one or not."""
         if self.minimizing:
             return pool_top_score < self.elite_score
         else:

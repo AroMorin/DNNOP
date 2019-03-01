@@ -21,6 +21,7 @@ class Environment(object):
         self.set_precision(precision)
 
     def set_precision(self, precision):
+        """Sets the precision of the environment."""
         if precision == None:
             return  # Do nothing
         else:

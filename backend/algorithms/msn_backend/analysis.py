@@ -3,7 +3,7 @@
 from __future__ import division
 import math
 
-class Analysis:
+class Analysis(object):
     def __init__(self, hyper_params):
         self.hp = hyper_params
         self.current_top = self.hp.initial_score
@@ -24,6 +24,7 @@ class Analysis:
         self.radial_expansion = False
 
     def analyze(self, scores, nb_anchors):
+        """The main function."""
         self.clean_list(scores)
         self.sort_scores()
         print("Sorted scores: ", self.sorted_scores)
@@ -35,6 +36,7 @@ class Analysis:
         print("Integrity: %f" %self.integrity)
 
     def clean_list(self, mylist):
+        """Removes deformities in the score list such as NaNs."""
         # Check for type
         if int(mylist[0]) != mylist[0]:
             # Tensor
@@ -132,6 +134,7 @@ class Analysis:
         print("Entropy: %f" %self.entropy)
 
     def review(self, nb_anchors):
+        """Implements the backtracking and radial expansion functionalities."""
         self.set_backtracking()
         self.set_radial_expansion(nb_anchors)
 
@@ -168,6 +171,8 @@ class Analysis:
         self.nb_anchors = nb_anchors  # State update
 
     def set_num_selections(self):
+        """Sets the number of selected neurons based on the integrity and
+        hyperparameters."""
         p = 1-self.integrity
         numerator = self.hp.alpha
         denominator = 1+(self.hp.beta/p)
@@ -175,6 +180,8 @@ class Analysis:
         print("Num Selections: %f" %self.num_selections)
 
     def set_search_radius(self):
+        """Sets the search radius (noise magnitude) based on the integrity and
+        hyperparameters."""
         p = 1-self.integrity
         argument = (self.lambda_*p)-2.5
         exp1 = math.tanh(argument)+1

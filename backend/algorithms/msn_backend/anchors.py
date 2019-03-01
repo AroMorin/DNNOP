@@ -1,9 +1,9 @@
-"""Base class for anchors"""
+"""Base class for anchors."""
 
 import torch
 import math
 
-class Anchors:
+class Anchors(object):
     def __init__(self, hp):
         self.hp = hp
         self.models = []
@@ -18,7 +18,7 @@ class Anchors:
         self.reset_state()
         #idxs = list(range(self.hp.pool_size))
         anchors_idxs = self.set_anchors_idxs(analyzer.sorted_idxs, vectors)
-        self.assign_models(vectors)
+        self.set_models(vectors)
         print("Anchors: ", len(self.anchors_idxs))
         print("Anchors idxs: ", self.anchors_idxs)
 
@@ -26,11 +26,13 @@ class Anchors:
         #print("Anchors scores: ", as_)
 
     def reset_state(self):
+        """Resets the class' states."""
         self.models = []
         self.anchors_idxs = []
         self.nb_anchors = 0
 
     def set_anchors_idxs(self, sorted_idxs, vectors):
+        """Determines the indices for anchors."""
         self.remove_elite(sorted_idxs)
         assert 0 not in sorted_idxs  # Removed elite
         assert len(sorted_idxs) == (self.hp.pool_size-1)  # Sanity check
@@ -41,6 +43,7 @@ class Anchors:
                 break  # Terminate
 
     def remove_elite(self, idxs):
+        """Removes the elite index."""
         idxs.remove(0)
 
     def admit(self, candidate, candidate_idx, vectors):
@@ -86,7 +89,8 @@ class Anchors:
         result = j.sum()
         return result
 
-    def assign_models(self, pool):
+    def set_models(self, pool):
+        """Sets the models of the anchors."""
         for i in self.anchors_idxs:
             self.models.append(pool[i])
 

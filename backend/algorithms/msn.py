@@ -12,7 +12,7 @@ import torch
 import numpy as np
 from .msn_backend.optimizer import Optimizer
 
-class MSN:
+class MSN(object):
     def __init__(self, pool, hyper_params, optimizer):
         print ("Using MSN algorithm")
         self.pool = pool
@@ -66,6 +66,7 @@ class MSN:
             exit()
 
     def print_test_accuracy(self, env):
+        """Prints the accuracy figure for the test/validation case/set."""
         test_size = len(env.test_data)
         correct = self.correct_test_preds
         self.test_acc = 100.*correct/test_size
@@ -79,6 +80,7 @@ class MSN:
                                     correct, test_size, self.test_acc))
 
     def achieved_target(self):
+        """Determines whether the algorithm achieved its target or not."""
         best = self.optim.pool.elite.elite_score
         if self.optim.hp.minimizing:
             return best <= (self.optim.hp.target + self.optim.hp.tolerance)

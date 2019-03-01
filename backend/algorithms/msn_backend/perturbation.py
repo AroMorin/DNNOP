@@ -1,11 +1,11 @@
-"""Apply Perturbation"""
+"""Class for applying perturbation."""
 
 from __future__ import division
 import numpy as np
 import torch
 from torch.distributions import uniform, normal
 
-class Perturbation:
+class Perturbation(object):
     def __init__(self, hp):
         self.hp = hp
         self.integrity = self.hp.initial_integrity
@@ -18,6 +18,7 @@ class Perturbation:
         self.precision = None
 
     def set_perturbation(self, vec, analyzer):
+        """Determines the shape and magnitude of the noise."""
         self.precision = vec.dtype
         self.vec_length = torch.numel(vec)
         self.indices = range(self.vec_length)

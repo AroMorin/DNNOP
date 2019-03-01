@@ -8,7 +8,7 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-class SGD:
+class SGD(object):
     def __init__(self, model, hyper_params, optimizer):
         """Model is owned by the class, so it is set as a class attribute."""
         print("Using SGD algorithm")
@@ -52,12 +52,14 @@ class SGD:
             self.optimizer = optimizer
 
     def achieved_target(self):
+        """Determines whether the algorithm achieved its target or not."""
         if self.hyper_params["minimization mode"]:
             return self.test_loss <= self.hyper_params["target loss"]
         else:
             return self.test_loss >= self.hyper_params["target loss"]
 
     def optimize(self, env):
+        """Implements the main optimization function of the algorithm."""
         self.model.train() #Sets behavior to "training" mode
         self.optimizer.zero_grad()
         predictions = self.model(env.x)
@@ -78,6 +80,7 @@ class SGD:
             self.correct_test_preds = pred.eq(env.y_t.view_as(pred)).sum().item()
 
     def print_test_accuracy(self, env):
+        """Prints the accuracy figure for the test/validation case/set."""
         test_size = len(env.x_t)
         self.test_acc = 100.*self.correct_test_preds/test_size
         loss = self.test_loss

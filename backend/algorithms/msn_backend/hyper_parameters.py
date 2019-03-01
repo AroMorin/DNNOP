@@ -5,7 +5,7 @@ of hyper parameters for the MSN algorithm, and facilitates their updates.
 
 import math
 
-class Hyper_Parameters:
+class Hyper_Parameters(object):
     def __init__(self, hyper_params=None):
         """In here, I set minimization mode only and no maximization mode in order
         to reduce the chance of conflict. The user may remember to turn on
@@ -76,27 +76,29 @@ class Hyper_Parameters:
                 self.hyper_params[key] = hyper_params[key]
 
     def set_hyperparams(self):
-            # Instantiate hyper parameters for MSN algorithm
-            self.nb_anchors = self.hyper_params["number of anchors"]
-            self.nb_probes = self.hyper_params["number of probes per anchor"]
-            self.pool_size = self.hyper_params["pool size"]
-            self.alpha = self.hyper_params["alpha"]
-            self.beta = self.hyper_params["beta"]
-            self.lr = self.hyper_params["learning rate"]
-            self.lambda_ = self.hyper_params["lambda"]
-            self.min_dist = self.hyper_params["minimum distance"]
-            self.min_entropy = self.hyper_params["minimum entropy"]
-            self.step_size = self.hyper_params["step size"]
-            self.patience = self.hyper_params["patience"]
-            self.def_integrity = self.hyper_params["default integrity"]
-            self.initial_integrity = self.hyper_params["initial integrity"]
-            self.min_integrity = self.hyper_params["minimum integrity"]
-            self.max_integrity = self.hyper_params["maximum integrity"]
-            self.minimizing = self.hyper_params["minimization mode"]
-            self.target = self.hyper_params["target"]
-            self.expansion_factor = self.hyper_params["expansion factor"]
-            self.tolerance = self.hyper_params["tolerance"]
-            self.set_initial_score()
+        """Updates the hyperparameters of the MSN algorithm based on user input.
+        """
+        # Instantiate hyper parameters for MSN algorithm
+        self.nb_anchors = self.hyper_params["number of anchors"]
+        self.nb_probes = self.hyper_params["number of probes per anchor"]
+        self.pool_size = self.hyper_params["pool size"]
+        self.alpha = self.hyper_params["alpha"]
+        self.beta = self.hyper_params["beta"]
+        self.lr = self.hyper_params["learning rate"]
+        self.lambda_ = self.hyper_params["lambda"]
+        self.min_dist = self.hyper_params["minimum distance"]
+        self.min_entropy = self.hyper_params["minimum entropy"]
+        self.step_size = self.hyper_params["step size"]
+        self.patience = self.hyper_params["patience"]
+        self.def_integrity = self.hyper_params["default integrity"]
+        self.initial_integrity = self.hyper_params["initial integrity"]
+        self.min_integrity = self.hyper_params["minimum integrity"]
+        self.max_integrity = self.hyper_params["maximum integrity"]
+        self.minimizing = self.hyper_params["minimization mode"]
+        self.target = self.hyper_params["target"]
+        self.expansion_factor = self.hyper_params["expansion factor"]
+        self.tolerance = self.hyper_params["tolerance"]
+        self.set_initial_score()
 
     def set_initial_score(self):
         """By default we assume minimization, if not, then we switch the
@@ -106,12 +108,16 @@ class Hyper_Parameters:
             self.initial_score = -math.inf
 
     def sanity_checks(self):
+        """Some checks to make sure the used hyperparameters make sense."""
         assert self.pool_size >= 7  # Minimum pool size
         assert self.nb_anchors >= 2  # Minimum anchor count
         assert self.nb_probes >= 2  # Minimum probes count
         self.check_min_entropy()
 
     def check_min_entropy(self):
+        """Makes sure the minimum entropy hyperparameter is consistent with the
+        chosen mode of optimization.
+        """
         if self.hyper_params['minimization mode']:
             assert self.hyper_params['minimum entropy'] < 0
         else:

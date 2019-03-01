@@ -13,6 +13,7 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(128, 2)
 
     def forward(self, observation):
+        """Forward pass over the model."""
         origin = observation[0]
         x1_low = observation[1][0]
         x2_low = observation[1][1]

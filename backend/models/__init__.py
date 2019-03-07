@@ -4,32 +4,47 @@ is chosen.
 
 from .cnn_mnist import Net as MNIST_CNN
 from .mnist_cnn_msn import Net as MNIST_CNN_MSN
-from .basic_fc import Net as BASIC_FC
+from .func_fc import Net as FUNC_FC
+from .nao_fc import Net as NAO_FC
+
 import torch
 import torch.nn as nn
 import numpy as np
 
-def make_model(name, precision=torch.float, init_scheme='Default'):
+def make_model(name, model_params={}):
     """Makes a single model."""
+    params = ingest_params(model_params)
     model = pick_model(name)
-    model.cuda().to(precision)
-    init_weights(model, init_scheme)
+    model.cuda().to(params["precision"])
+    init_weights(model, params["weight initialization scheme"])
     return model
 
-def make_pool(name, pool_size, precision=torch.float, init_scheme='Identical'):
+def make_pool(name, pool_size, model_params={}):
     """Makes a pool of models, without the "grad" parameters since no gradient
     is calculated when a pool is used (ie. evolutionary algorithms don't need
     to calculate gradients).
     """
+    params = ingest_params(model_params)
     pool = []
     for _ in range(pool_size):
         with torch.no_grad():
             model = pick_model(name)
-            model.cuda().to(precision)
-            init_weights(model, init_scheme)
+            model.cuda().to(params["precision"])
+            init_weights(model, params["weight initialization scheme"])
             pool.append(model)
     assert len(pool) == pool_size
     return pool
+
+def ingest_params(model_params):
+    """Creates a default parameters dictionary, overrides it if necessary
+    with user selections and then returns the result.
+    """
+    params = {
+                "precision": torch.float,
+                "weight initialization scheme": "Default"
+    }
+    params.update(model_params)  # Override with user choices
+    return params
 
 def pick_model(name):
     """Defines which class of models to pick, based on user input."""
@@ -38,7 +53,9 @@ def pick_model(name):
     elif name == "MNIST CNN MSN":
         model = MNIST_CNN_MSN()
     elif name == "Function FC model":
-        model = BASIC_FC()
+        model = FUNC_FC()
+    elif name == "NAO FC model":
+        model = NAO_FC()
     else:
         print("Unknown model selected")
         exit()

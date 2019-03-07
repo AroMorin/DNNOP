@@ -4,7 +4,6 @@ import torch
 
 class Net(nn.Module):
     def __init__(self):
-        print("Creating basic Fully-Connected model for Function Solving")
         super(Net, self).__init__()
         self.fc1 = nn.Linear(2, 128)
         self.act1 = nn.PReLU()

@@ -5,19 +5,21 @@ import naoqi
 from naoqi import ALProxy
 
 class Robot(Environment):
-    def __init__(self, precision, vars):
-        super().__init__(precision)
+    def __init__(self, env_params):
+        self.ingest_params(env_params)
+        super().__init__(env_params["precision"])
         self.robot = True
-        self.ip = "localhost"
-        self.port = 58463
-        self.set_vars(vars)
+        self.ip = env_params["ip"]
+        self.port = env_params["port"]
 
-    def set_vars(self, vars):
-        assert type(vars) is dict
-        if "ip" in vars:
-            self.ip = vars["ip"]
-        if "port" in vars:
-            self.port = vars["port"]
+    def ingest_params(self, env_params):
+        assert type(env_params) is dict
+        if "ip" not in env_params:
+            env_params["ip"] = "localhost"
+        if "port" not in env_params:
+            env_params["port"] = 58463
+        if "precision" not in env_params:
+            env_params["precision"] = None
 
     def say(self, message):
         if not hasattr(self, 'tts'):
@@ -36,3 +38,21 @@ class Robot(Environment):
         if not hasattr(self, 'motion'):
             self.motion = ALProxy("ALMotion", self.ip, self.port)
         self.motion.rest()
+
+    def getJoints(self, joints=[]):
+        if not hasattr(self, 'motion'):
+            self.motion = ALProxy("ALMotion", self.ip, self.port)
+        if len(joints)==0:
+            joints = "Body"
+        useSensors = False
+        angles = self.motion.getAngles(joints, useSensors)
+        return angles
+
+    def setJoints(self, joints=[]):
+        if not hasattr(self, 'motion'):
+            self.motion = ALProxy("ALMotion", self.ip, self.port)
+        if len(joints)==0:
+            joints = "Body"
+        useSensors = False
+        angles = self.motion.getAngles(joints, useSensors)
+        return angles

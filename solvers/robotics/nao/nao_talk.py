@@ -5,11 +5,11 @@ Currently, only MSN algorithm is avaiable to solve this problem.
 from __future__ import print_function
 import sys, os
 # Append SYSPATH in order to access different modules of the library
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../../..'))
 import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory
-from solver import Solver
+from backend.solver import Solver
 
 import argparse
 import torch
@@ -22,16 +22,25 @@ def main():
                         help='maximum number of optimization steps (def: 500)')
     args = parser.parse_args()
 
-    # Define object parameters in dictionaries
+    # Make an environment object
     env_params = {
                 "data_path": "C:/Users/aaa2cn/Documents/nao_data/",
                 "ip": "localhost",
                 "port": 58463
                 }
+    env = env_factory.make_env("nao", "pose assumption", env_params)
+    print(env.robot)
+    env.say("Hi, this is me, Angel's phantom!")
+    exit()
+
+    # Make a pool object
     model_params = {
                     "precision": torch.float,
                     "weight initialization scheme": "Normal"
                     }
+    pool = model_factory.make_pool("NAO FC model", args.pool_size, model_params)
+
+    # Make an algorithm object
     alg_params = {
                     "pool size": 50,
                     "number of anchors": 5,
@@ -43,14 +52,6 @@ def main():
                     "patience": 27,
                     "tolerance": 0.12
                     }
-
-    # Make an environment object
-    env = env_factory.make_env("robot", "nao", env_params)
-
-    # Make a pool object
-    pool = model_factory.make_pool("NAO FC model", args.pool_size, model_params)
-
-    # Make an algorithm object
     alg = algorithm_factory.make_alg("MSN", pool, alg_params)
 
     # Make a solver object

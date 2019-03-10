@@ -26,7 +26,7 @@ def main():
     env_params = {
                 "data_path": "C:/Users/aaa2cn/Documents/nao_data/",
                 "ip": "localhost",
-                "port": 58463
+                "port": 40025
                 }
     env = env_factory.make_env("nao", "pose assumption", env_params)
     print(env.robot)

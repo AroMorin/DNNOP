@@ -1,7 +1,7 @@
 """Class that defines all blend operations."""
 
 from __future__ import division
-from random import choices
+#from random import choices  # Unavailable in python 2
 import torch
 import numpy as np
 
@@ -58,7 +58,8 @@ class Blends(object):
         blend components.
         """
         # From anchors
-        idxs = choices(range(self.nb_anchors), k=self.nb_blends)
+        #idxs = choices(range(self.nb_anchors), k=self.nb_blends)
+        idxs = np.choice(range(self.nb_anchors), k=self.nb_blends)
         self.compounds1 = [self.anchors.models[i] for i in idxs]
 
     def set_compounds2(self):
@@ -68,7 +69,8 @@ class Blends(object):
         # From pool, i.e. vectors
         lower = self.anchors.nb_anchors+1
         upper = self.anchors.nb_anchors*self.hp.nb_probes
-        idxs = choices(range(lower, upper+1), k=self.nb_blends)
+        #idxs = choices(range(lower, upper+1), k=self.nb_blends)
+        idxs = np.choice(range(lower, upper+1), k=self.nb_blends)
         self.compounds2 = [self.vectors[i] for i in idxs]
 
     def blend(self):

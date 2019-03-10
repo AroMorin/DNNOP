@@ -10,7 +10,7 @@ The optimizer object will own the pool.?
 from __future__ import division
 import torch
 import numpy as np
-from .msn_backend.optimizer import Optimizer
+from msn_backend.optimizer import Optimizer
 
 class MSN(object):
     def __init__(self, pool, hyper_params, optimizer):

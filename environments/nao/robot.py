@@ -6,8 +6,8 @@ from naoqi import ALProxy
 
 class Robot(Environment):
     def __init__(self, env_params):
-        self.ingest_params(env_params)
-        super().__init__(env_params["precision"])
+        env_params = self.ingest_params(env_params)
+        super(Robot, self).__init__(env_params["precision"])
         self.robot = True
         self.ip = env_params["ip"]
         self.port = env_params["port"]
@@ -16,15 +16,16 @@ class Robot(Environment):
         assert type(env_params) is dict
         if "ip" not in env_params:
             env_params["ip"] = "localhost"
-        if "port" not in env_params:
-            env_params["port"] = 58463
         if "precision" not in env_params:
             env_params["precision"] = None
+        if "port" not in env_params:
+            env_params["port"] = 58463
+        return env_params
 
     def say(self, message):
         if not hasattr(self, 'tts'):
             self.tts = ALProxy("ALTextToSpeech", self.ip, self.port)
-        tts.say(message)
+        self.tts.say(message)
 
     def assume_pose(self, pose):
         if not hasattr(self, 'motion'):

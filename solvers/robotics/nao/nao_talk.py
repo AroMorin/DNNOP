@@ -26,12 +26,13 @@ def main():
     env_params = {
                 "data_path": "C:/Users/aaa2cn/Documents/nao_data/",
                 "ip": "localhost",
-                "port": 40025
+                "port": 46251
                 }
     env = env_factory.make_env("nao", "pose assumption", env_params)
-    print(env.robot)
-    env.say("Hi, this is me, Angel's phantom!")
+    env.say("Sup my man!")
     exit()
+    sensors = env.get_joints()
+    print(sensors)
 
     # Make a pool object
     model_params = {

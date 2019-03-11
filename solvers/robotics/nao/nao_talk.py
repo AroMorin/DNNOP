@@ -30,9 +30,9 @@ def main():
                 }
     env = env_factory.make_env("nao", "pose assumption", env_params)
     env.say("Sup my man!")
+    env.step()
+
     exit()
-    sensors = env.get_joints()
-    print(sensors)
 
     # Make a pool object
     model_params = {

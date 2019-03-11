@@ -66,12 +66,10 @@ class Robot(Environment):
             state.extend(angles)
         return state
 
-    def set_joints(self, names=[]):
-        if len(names)==0:
-            names = ["Body"]
-        useSensors = False
-        angles = self.motion.getAngles(joints, useSensors)
-        return angles
+    def set_joints(self, values):
+        assert len(self.joints) == len(values)  # Sanity check
+        time = 0.7  # seconds
+        angles = self.motion.angleInterpolationBezier(self.joints, time, values)
 
     def get_sensors(self, names):
         names = self.set_sensor_names(names)
@@ -127,10 +125,6 @@ class Robot(Environment):
         im.save(name, "PNG")
         if show:
             im.show()
-
-
-
-
 
 
 

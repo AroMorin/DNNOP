@@ -5,11 +5,11 @@ import torch
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
-        self.fc1 = nn.Linear(2, 128)
+        self.fc1 = nn.Linear(1, 128)
         self.act1 = nn.PReLU()
         #self.act1 = nn.ReLU6()
         #self.act1 = nn.Tanh()
-        self.fc2 = nn.Linear(128, 2)
+        self.fc2 = nn.Linear(128, 1)
 
     def forward(self, x):
         """Forward pass over the model."""

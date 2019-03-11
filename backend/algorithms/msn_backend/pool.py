@@ -68,7 +68,6 @@ class Pool(object):
         """
         for state_dict in self.state_dicts:
             vec = self.dict_to_vec(state_dict)
-            print(vec[0:15])
             self.vectors.append(vec)
 
     def dict_to_vec(self, dict):

@@ -7,8 +7,8 @@ from naoqi import ALProxy
 
 class Robot(Environment):
     def __init__(self, env_params):
-        env_params = self.ingest_params(env_params)
-        super(Robot, self).__init__(env_params["precision"])
+        env_params = self.ingest_params1(env_params)
+        super(Robot, self).__init__(env_params)
         self.robot = True
         self.ip = env_params["ip"]
         self.port = env_params["port"]
@@ -18,7 +18,7 @@ class Robot(Environment):
         self.sensors = None
         self.init_robot()
 
-    def ingest_params(self, env_params):
+    def ingest_params1(self, env_params):
         assert type(env_params) is dict
         if "ip" not in env_params:
             env_params["ip"] = "localhost"
@@ -26,6 +26,8 @@ class Robot(Environment):
             env_params["precision"] = None
         if "port" not in env_params:
             env_params["port"] = 58463
+        if "score type" not in env_params:
+            env_params["score type"] = "Score"
         return env_params
 
     def init_robot(self):
@@ -56,20 +58,20 @@ class Robot(Environment):
     def rest(self):
         self.motion.rest()
 
-    def get_joints(self, names=[]):
-        if len(names)==0:
-            names = ["Body"]
+    def get_joints(self):
         useSensors = False
         state = []
-        for joint in names:
-            angles = self.motion.getAngles(joint, useSensors)
-            state.extend(angles)
+        for joint in self.joints:
+            angle = self.motion.getAngles(joint, useSensors)
+            state.extend(angle)
         return state
 
     def set_joints(self, values):
-        assert len(self.joints) == len(values)  # Sanity check
-        time = 0.7  # seconds
-        angles = self.motion.angleInterpolationBezier(self.joints, time, values)
+        print("Setting NAO to", values)
+        x = len(self.joints)
+        assert x == len(values)  # Sanity check
+        times = [[0.7]*x]  # seconds
+        self.motion.angleInterpolationBezier(self.joints, times, values)
 
     def get_sensors(self, names):
         names = self.set_sensor_names(names)

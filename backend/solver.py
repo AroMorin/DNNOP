@@ -18,14 +18,14 @@ class Solver(object):
     def __init__(self, env, algorithm):
         print("Creating Solver")
         self.env = env
-        self.algorithm = algorithm
+        self.alg = algorithm
         self.current_iteration = 0
         self.current_batch = 0
         self.current_step = 0
 
     def solve(self, iterations):
         """In cases where training is needed."""
-        print("Training regular function solver \n")
+        print("Training regular solver \n")
         for iteration in range(iterations):
             print("Iteration: %d\n" %iteration)
             self.env.step()

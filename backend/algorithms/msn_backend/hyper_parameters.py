@@ -3,7 +3,7 @@ hyper parameters. The object of this class thus encapsulates the entirety
 of hyper parameters for the MSN algorithm, and facilitates their updates.
 """
 
-import math
+import numpy
 
 class Hyper_Parameters(object):
     def __init__(self, hyper_params=None):
@@ -33,7 +33,7 @@ class Hyper_Parameters(object):
         self.target = 0
         self.tolerance = 0
         self.minimizing = True
-        self.initial_score = math.inf
+        self.initial_score = numpy.inf
         self.epsilon = 0.00000001  # Prevents division by zero
         self.set_hyperparams_dict(hyper_params)
         self.set_hyperparams()
@@ -105,7 +105,7 @@ class Hyper_Parameters(object):
         default score to negative infinity.
         """
         if not self.hyper_params['minimization mode']:
-            self.initial_score = -math.inf
+            self.initial_score = -numpy.inf
 
     def sanity_checks(self):
         """Some checks to make sure the used hyperparameters make sense."""

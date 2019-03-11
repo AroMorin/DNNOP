@@ -25,14 +25,10 @@ def main():
     # Make an environment object
     env_params = {
                 "data_path": "C:/Users/aaa2cn/Documents/nao_data/",
-                "ip": "localhost",
-                "port": 46251
+                "ip": "nao.local",
+                "port": 9559
                 }
     env = env_factory.make_env("nao", "pose assumption", env_params)
-    env.say("Sup my man!")
-    env.step()
-
-    exit()
 
     # Make a pool object
     model_params = {
@@ -48,8 +44,8 @@ def main():
                     "number of probes per anchor": 8,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -3,  # Percentage
-                    "minimum distance": 400,
+                    "minimum entropy": -1,  # Percentage
+                    "minimum distance": 150,
                     "patience": 27,
                     "tolerance": 0.12
                     }
@@ -60,6 +56,13 @@ def main():
 
     # Use solver to solve the problem
     slv.solve(args.iterations)
+
+    # Recreate the target pose
+    best_out = alg.optim.pool.elite.get_elite(env.observation)
+    best_out = [a.item() for a in best_out]
+    print (best_out)
+    env.set_joints([best_out])
+    env.say("Is this the pose you set for me?")
 
 if __name__ == '__main__':
     main()

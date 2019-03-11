@@ -49,7 +49,9 @@ class Optimizer(object):
         """Prints the inference of the neural networks. Attempts to extract
         the output items from the tensors.
         """
-        if len(outputs[0]) == 2:
+        if len(outputs[0]) == 1:
+            x = [a.item() for a in outputs]
+        elif len(outputs[0]) == 2:
             x = [[a[0].item(), a[1].item()] for a in outputs]
         elif outputs[0][0][0].item():
             x = [i.item() for i in outputs[0][0]]

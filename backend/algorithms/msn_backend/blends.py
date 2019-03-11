@@ -59,7 +59,7 @@ class Blends(object):
         """
         # From anchors
         #idxs = choices(range(self.nb_anchors), k=self.nb_blends)
-        idxs = np.choice(range(self.nb_anchors), k=self.nb_blends)
+        idxs = np.random.choice(range(self.nb_anchors), size=self.nb_blends, replace=False)
         self.compounds1 = [self.anchors.models[i] for i in idxs]
 
     def set_compounds2(self):
@@ -70,7 +70,7 @@ class Blends(object):
         lower = self.anchors.nb_anchors+1
         upper = self.anchors.nb_anchors*self.hp.nb_probes
         #idxs = choices(range(lower, upper+1), k=self.nb_blends)
-        idxs = np.choice(range(lower, upper+1), k=self.nb_blends)
+        idxs = np.random.choice(range(lower, upper+1), size=self.nb_blends, replace=False)
         self.compounds2 = [self.vectors[i] for i in idxs]
 
     def blend(self):

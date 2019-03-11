@@ -39,3 +39,7 @@ class Elite(object):
         """
         print("Cloning elite model")
         self.model = copy.deepcopy(elite)
+
+    def get_elite(self, observation):
+        inference = self.model(observation)
+        return inference

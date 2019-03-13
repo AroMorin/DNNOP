@@ -21,10 +21,24 @@ class Pose_Assumption(Robot):
         if "target error" not in env_params:
             env_params["target error"] = 0
         if "joints to move" not in env_params:
-            env_params["joints to move"] = ["HeadYaw"]
+            env_params["joints to move"] = ["HeadYaw", "HeadPitch",
+                                            "RShoulderPitch","RShoulderRoll",
+                                            "RElbowYaw", "RElbowRoll",
+                                            "RWristYaw",
+                                            "LShoulderPitch","LShoulderRoll",
+                                            "LElbowYaw", "LElbowRoll",
+                                            "LWristYaw"
+                                            ]
             # NOTE: joints must be named individually
         if "target angles" not in env_params:
-            env_params["target angles"] = [-1.5]
+            env_params["target angles"] = [-1.3, -0.06,
+                                            0.69, -0.17,
+                                            1.54, 1.07,
+                                            -0.145,
+                                            0.065, 0.164,
+                                            -0.918, -0.52,
+                                            0.1466
+                                            ]
         return env_params
 
     def set_stiffness(self):

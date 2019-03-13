@@ -19,6 +19,7 @@ class Optimizer(object):
         self.pool = Pool(models, self.hp) # Create a pool object
         self.integrity = self.hp.initial_integrity
         self.env = None
+        self.print_inferences = False  # Print inferences
 
     def set_environment(self, env):
         """Sets the class environment."""
@@ -49,15 +50,14 @@ class Optimizer(object):
         """Prints the inference of the neural networks. Attempts to extract
         the output items from the tensors.
         """
-        if len(outputs[0]) == 1:
-            x = [a.item() for a in outputs]
-        elif len(outputs[0]) == 2:
-            x = [[a[0].item(), a[1].item()] for a in outputs]
-        elif outputs[0][0][0].item():
-            x = [i.item() for i in outputs[0][0]]
-        else:
-            x = [i for i in outputs[0][0]]
-        print("Inference: ", x)
+        if self.print_inferences:
+            if len(outputs[0]) == 1:
+                x = [a.item() for a in outputs]
+            elif len(outputs[0]) == 2:
+                x = [[a[0].item(), a[1].item()] for a in outputs]
+            else:
+                x = [[tensor_.item() for tensor_ in output_] for output_ in outputs]
+            print("Inference: ", x)
 
 
     def calculate_losses(self, inferences, test=False):

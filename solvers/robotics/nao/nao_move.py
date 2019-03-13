@@ -25,8 +25,8 @@ def main():
     # Make an environment object
     env_params = {
                 "data_path": "C:/Users/aaa2cn/Documents/nao_data/",
-                "ip": "nao.local",
-                "port": 9559
+                "ip": "localhost",
+                "port": 46455
                 }
     env = env_factory.make_env("nao", "pose assumption", env_params)
 
@@ -63,6 +63,7 @@ def main():
     print (best_out)
     env.set_joints([best_out])
     env.say("Is this the pose you set for me?")
+    env.rest()
 
 if __name__ == '__main__':
     main()

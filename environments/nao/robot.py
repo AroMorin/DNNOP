@@ -70,7 +70,7 @@ class Robot(Environment):
         print("Setting NAO to", values)
         x = len(self.joints)
         assert x == len(values)  # Sanity check
-        times = [[0.7]*x]  # seconds
+        times = [[0.7]]*x  # seconds
         self.motion.angleInterpolationBezier(self.joints, times, values)
 
     def get_sensors(self, names):

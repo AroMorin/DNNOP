@@ -9,7 +9,7 @@ class Net(nn.Module):
         self.act1 = nn.PReLU()
         #self.act1 = nn.ReLU6()
         #self.act1 = nn.Tanh()
-        self.fc2 = nn.Linear(128, 12)
+        self.fc2 = nn.Linear(128, 24)
 
     def forward(self, x):
         """Forward pass over the model."""

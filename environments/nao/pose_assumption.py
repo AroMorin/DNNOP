@@ -11,7 +11,7 @@ class Pose_Assumption(Robot):
         self.target = env_params["target error"]
         self.joints = env_params["joints to move"]
         self.target_angles = env_params["target angles"]
-        self.default_pose = "Crouch"
+        self.default_pose = "LyingBack"
         self.penalty = 0  # State
         self.error = float('inf')  # State
         self.assume_pose(self.default_pose)
@@ -25,19 +25,27 @@ class Pose_Assumption(Robot):
                                             "RShoulderPitch","RShoulderRoll",
                                             "RElbowYaw", "RElbowRoll",
                                             "RWristYaw",
+                                            "RHipYawPitch",
+                                            "RHipRoll", "RHipPitch", "RKneePitch",
+                                            "RAnklePitch", "RAnkleRoll",
                                             "LShoulderPitch","LShoulderRoll",
                                             "LElbowYaw", "LElbowRoll",
-                                            "LWristYaw"
+                                            "LWristYaw",
+                                            "LHipYawPitch",
+                                            "LHipRoll", "LHipPitch", "LKneePitch",
+                                            "LAnklePitch", "LAnkleRoll"
                                             ]
             # NOTE: joints must be named individually
         if "target angles" not in env_params:
-            env_params["target angles"] = [-1.3, -0.06,
-                                            0.69, -0.17,
-                                            1.54, 1.07,
-                                            -0.145,
-                                            0.065, 0.164,
-                                            -0.918, -0.52,
-                                            0.1466
+            env_params["target angles"] = [0.0, 0.153,
+                                            0.66, 0.914,
+                                            0.994, 0.721,
+                                            0.08432,
+                                            -0.512, -0.04,
+                                            -0.8299, 0.317,
+                                            0.288, -0.268, 0.99, 0.175, -1.234,
+                                            -0.819, -1.286, -0.58287, 0.118,
+                                            0.2899, -0.09, 0.6, -0.046
                                             ]
         return env_params
 

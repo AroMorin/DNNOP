@@ -25,8 +25,8 @@ def main():
     # Make an environment object
     env_params = {
                 "data_path": "C:/Users/aaa2cn/Documents/nao_data/",
-                "ip": "localhost",
-                "port": 46455
+                "ip": "nao.local",
+                "port": 9559
                 }
     env = env_factory.make_env("nao", "pose assumption", env_params)
 
@@ -44,8 +44,8 @@ def main():
                     "number of probes per anchor": 8,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -1,  # Percentage
-                    "minimum distance": 150,
+                    "minimum entropy": -3,  # Percentage
+                    "minimum distance": 300,
                     "patience": 27,
                     "tolerance": 0.12
                     }

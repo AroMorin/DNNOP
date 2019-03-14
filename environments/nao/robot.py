@@ -3,6 +3,7 @@
 from ..environment import Environment
 import qi
 from PIL import Image
+import time
 from naoqi import ALProxy
 
 class Robot(Environment):
@@ -70,8 +71,16 @@ class Robot(Environment):
         print("Setting NAO to", values)
         x = len(self.joints)
         assert x == len(values)  # Sanity check
-        times = [[0.7]]*x  # seconds
+        times = [[3.7]]*x  # seconds
         self.motion.angleInterpolationBezier(self.joints, times, values)
+
+    def set_joints_(self, values):
+        print("Setting NAO to", values)
+        x = len(self.joints)
+        assert x == len(values)  # Sanity check
+        speed_fraction = 0.05
+        self.motion.setAngles(self.joints, values, speed_fraction)
+        time.sleep(1.5)
 
     def get_sensors(self, names):
         names = self.set_sensor_names(names)

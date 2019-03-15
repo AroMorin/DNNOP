@@ -3,7 +3,7 @@
 from .sgd import SGD
 from .msn import MSN
 
-def make_alg(name, params, hyper_params=None, optimizer=None):
+def make_alg(name, m, alg_params):
     """Class factory method. This method takes the name of the desired
     algorithm and returns an object of the corresponding class.
 
@@ -17,6 +17,6 @@ def make_alg(name, params, hyper_params=None, optimizer=None):
     model.
     """
     if name == 'sgd':
-        return SGD(params, hyper_params, optimizer)
+        return SGD(m, alg_params)
     elif name == 'MSN':
-        return MSN(params, hyper_params, optimizer)
+        return MSN(m, alg_params)

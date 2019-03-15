@@ -1,7 +1,6 @@
 """NAO robot class"""
 
 from .robot import Robot
-import naoqi
 import torch
 
 class Pose_Assumption(Robot):

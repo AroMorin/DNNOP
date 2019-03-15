@@ -30,6 +30,19 @@ class Solver(object):
             print("Iteration: %d\n" %iteration)
             self.env.step()
             self.alg.optimize(self.env)
+            self.current_iteration +=1
+            print("\n")
+            if self.alg.achieved_target():
+                print ("Achieved/exceeded target")
+                break # Terminate optimization
+
+    def solve_and_plot(self, iterations):
+        """In cases where training is needed."""
+        print("Training regular solver \n")
+        for iteration in range(iterations):
+            print("Iteration: %d\n" %iteration)
+            self.env.step()
+            self.alg.optimize(self.env)
             if self.env.plot:
                 self.env.make_plot(self.alg)
             self.current_iteration +=1

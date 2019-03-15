@@ -1,15 +1,15 @@
 """NAO robot class"""
 
 from ..environment import Environment
-import qi
 from PIL import Image
 import time
-from naoqi import ALProxy
+#import qi
+#from naoqi import ALProxy
 
 class Robot(Environment):
     def __init__(self, env_params):
-        env_params = self.ingest_params1(env_params)
         super(Robot, self).__init__(env_params)
+        env_params = self.ingest_params_lvl1(env_params)
         self.robot = True
         self.ip = env_params["ip"]
         self.port = env_params["port"]
@@ -19,12 +19,10 @@ class Robot(Environment):
         self.sensors = None
         self.init_robot()
 
-    def ingest_params1(self, env_params):
+    def ingest_params_lvl1(self, env_params):
         assert type(env_params) is dict
         if "ip" not in env_params:
             env_params["ip"] = "localhost"
-        if "precision" not in env_params:
-            env_params["precision"] = None
         if "port" not in env_params:
             env_params["port"] = 58463
         if "score type" not in env_params:

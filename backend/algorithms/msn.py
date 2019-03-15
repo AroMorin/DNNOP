@@ -10,21 +10,20 @@ The optimizer object will own the pool.?
 from __future__ import division
 import torch
 import numpy as np
-from msn_backend.optimizer import Optimizer
+from .msn_backend.optimizer import Optimizer
 
 class MSN(object):
-    def __init__(self, pool, hyper_params, optimizer):
+    def __init__(self, pool, hyper_params):
         print ("Using MSN algorithm")
+        self.hyper_params = hyper_params
         self.pool = pool
         self.pool_size = len(pool)
-        self.optim = optimizer
         self.train_losses = []
         self.test_loss = []
         self.train_accs = []
         self.test_acc = []
         self.correct_test_preds = []
         self.inferences = []
-        self.hyper_params = hyper_params
         self.scores = []
         self.set_optimizer()
 
@@ -34,10 +33,10 @@ class MSN(object):
         The given optimizer has to contain the required methods for the MSN
         algorithm to function, for example inference().
         """
-        if self.optim == None:
+        if "optimizer" not in self.hyper_params:
             self.optim = Optimizer(self.pool, self.hyper_params)
         else:
-            self.optim = self.optim
+            self.optim = self.hyper_params["optimizer"]
 
     def optimize(self, env):
         """This method takes in the environment, runs the models against it,
@@ -73,10 +72,10 @@ class MSN(object):
         if env.loss:
             loss = self.test_loss[0]  # Assuming minizming loss
             loss /= test_size  # Not really sure what this does
-            print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+            print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
                                     loss, correct, test_size, self.test_acc))
         else:
-            print('\nTest set: Accuracy: {}/{} ({:.0f}%)\n'.format(
+            print('\nTest set: Accuracy: {}/{} ({:.0f}%)'.format(
                                     correct, test_size, self.test_acc))
 
     def achieved_target(self):

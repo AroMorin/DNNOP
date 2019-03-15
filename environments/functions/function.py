@@ -6,9 +6,9 @@ from .plotter import Plotter
 from ..environment import Environment
 
 class Function(Environment):
-    def __init__(self, plot, precision):
-        super().__init__(precision)
-        self.plot = plot
+    def __init__(self, env_params):
+        super(Function, self).__init__(env_params)
+        env_params = self.ingest_params_lvl1(env_params)
         self.optimal_x = 0  # Location
         self.resolution = 50
         self.x_low = [0, 0]
@@ -17,6 +17,18 @@ class Function(Environment):
         self.range = []  # Matrix of function values
         self.score = True
         self.iteration = -1  # State
+        self.plot = env_params["plot"]
+        self.init_plot(env_params["data path"])
+
+    def ingest_params_lvl1(self, env_params):
+        assert type(env_params) is dict
+        if "data path" not in env_params:
+            env_params["data path"] = "C:/"
+        if "plot" not in env_params:
+            env_params["plot"] = False
+        if "precision" not in env_params:
+            env_params["precision"] = torch.float
+        return env_params
 
     def init_plot(self, data_path):
         """Instantiates the plotter class if a plot is requested by the user."""
@@ -31,10 +43,9 @@ class Function(Environment):
         origin_x2 = np.random.uniform(self.x_low[1], self.x_high[1], 1)
         origin = [origin_x1[0], origin_x2[0]]
         print("Origin: ", origin)
-        self.observation = [torch.tensor(
-                            origin,
-                            dtype=self.precision,
-                            device = self.device),
+        self.observation = [torch.tensor(origin,
+                                        dtype=self.precision,
+                                        device=self.device),
                             self.x_low,
                             self.x_high]
 

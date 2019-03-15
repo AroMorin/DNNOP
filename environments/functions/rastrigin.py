@@ -6,8 +6,8 @@ from .function import Function
 import numpy as np
 
 class Rastrigin(Function):
-    def __init__(self, plot, precision, data_path):
-        super().__init__(plot, precision)
+    def __init__(self, env_params):
+        super(Rastrigin, self).__init__(env_params)
         self.x = None  # NP array
         self.x_low = [-5.12, -5.12]
         self.x_high = [5.12, 5.12]
@@ -17,7 +17,6 @@ class Rastrigin(Function):
         self.set_observation()
         self.set_domain()
         self.set_range()
-        self.init_plot(data_path)
 
     def get_func(self):
         """Evaluate the function based on the position attribute."""

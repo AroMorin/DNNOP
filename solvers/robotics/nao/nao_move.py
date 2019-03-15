@@ -24,9 +24,10 @@ def main():
 
     # Make an environment object
     env_params = {
-                "data_path": "C:/Users/aaa2cn/Documents/nao_data/",
+                "data path": "C:/Users/aaa2cn/Documents/nao_data/",
                 "ip": "nao.local",
-                "port": 9559
+                "port": 9559,
+                "score type": "Score"  # Aggregate error in pose
                 }
     env = env_factory.make_env("nao", "pose assumption", env_params)
 

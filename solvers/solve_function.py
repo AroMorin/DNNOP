@@ -9,41 +9,34 @@ sys.path.insert(0, os.path.abspath('..'))
 import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory
-from solver import Solver
+from backend.solver import Solver
 
 import argparse
 import torch
 
 def main():
-    parser = argparse.ArgumentParser(description='Func Solver')
-    parser.add_argument('--pool_size', type=int, default=50, metavar='N',
-                        help='number of samples in the pool (def: 50)')
-    parser.add_argument('--nb_anchors', type=int, default=5, metavar='N',
-                        help='number of anchors (def: 5)')
-    parser.add_argument('--nb_probes', type=int, default=8, metavar='N',
-                        help='number of probes per anchor (def: 8)')
-    parser.add_argument('--iterations', type=int, default=500, metavar='N',
-                        help='maximum number of optimization steps (def: 500)')
-    args = parser.parse_args()
+    # Make a function environment
+    env_params = {
+                    "data path": "C:/Users/aaa2cn/Documents/function_data/rastrigin/",
+                    "precision": torch.float,
+                    "plot": False,
+                    "score type": "Score"  # Function evaluation
+                    }
+    env = env_factory.make_env("function", "rastrigin", env_params)
 
-    data_path = "C:/Users/aaa2cn/Documents/function_data/rastrigin/"
-    precision = torch.float # Set precision
-
-    # Make an MNIST Dataset environment
-    env = env_factory.make_env("function",
-                                "eggholder",
-                                data_path = data_path,
-                                plot = True,
-                                precision = precision
-                                )
     # Make a pool
-    pool = model_factory.make_pool("Function FC model", args.pool_size, precision)
+    model_params = {
+                    "pool size": 50,
+                    "precision": torch.float,
+                    "weight initialization scheme": "Identical"
+                    }
+    pool = model_factory.make_pool("Function FC model", model_params)
 
-    # Make an algorithm --algorithm takes control of the pool--
-    hyper_params = {
-                    "pool size": args.pool_size,
-                    "number of anchors": args.nb_anchors,
-                    "number of probes per anchor": args.nb_probes,
+    # Make an algorithm --algorithm needs to take charge of the pool--
+    alg_params = {
+                    "pool size": 50,
+                    "number of anchors": 5,
+                    "number of probes per anchor": 8,
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum entropy": -3,  # Percentage
@@ -51,29 +44,16 @@ def main():
                     "patience": 27,
                     "tolerance": 0.12
                     }
-    alg = algorithm_factory.make_alg("MSN", pool, hyper_params)
+    alg = algorithm_factory.make_alg("MSN", pool, alg_params)
 
-    # Make a solver
+    # Make a solver using the environment and algorithm objects
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    #slv.train_dataset_with_validation(args.iterations)
-    slv.solve(args.iterations)
+    slv.solve_and_plot(iterations=500)
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

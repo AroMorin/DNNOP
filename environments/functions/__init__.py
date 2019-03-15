@@ -8,24 +8,25 @@ from .schwefel import Schwefel
 from .rosenbrock import Rosenbrock
 from .eggholder import Eggholder
 
-def make_function(name, plot, precision, data_path):
+def make_function(name, env_params):
     """Class factory method. This method takes the name of the desired
     function and returns an object of the corresponding class.
     """
     if name == 'rastrigin':
-        return Rastrigin(plot, precision, data_path)
+        return Rastrigin(env_params)
     elif name == 'ackley':
-        return Ackley(plot, precision, data_path)
+        return Ackley(env_params)
     elif name == 'bukin6':
-        return Bukin6(plot, precision, data_path)
+        return Bukin6(env_params)
     elif name == 'easom':
-        return Easom(plot, precision, data_path)
+        return Easom(env_params)
     elif name == 'eggholder':
-        return Eggholder(plot, precision, data_path)
+        return Eggholder(env_params)
     elif name == 'schwefel':
-        return Schwefel(plot, precision, data_path)
+        return Schwefel(env_params)
     elif name == 'rosenbrock':
-        return Rosenbrock(plot, precision, data_path)
+        return Rosenbrock(env_params)
     else:
         print("Unknown function requested")
         exit()
+    

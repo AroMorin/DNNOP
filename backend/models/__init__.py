@@ -19,32 +19,33 @@ def make_model(name, model_params={}):
     init_weights(model, params["weight initialization scheme"])
     return model
 
-def make_pool(name, pool_size, model_params={}):
+def make_pool(name, model_params={}):
     """Makes a pool of models, without the "grad" parameters since no gradient
     is calculated when a pool is used (ie. evolutionary algorithms don't need
     to calculate gradients).
     """
-    params = ingest_params(model_params)
+    model_params = ingest_params(model_params)
     pool = []
-    for _ in range(pool_size):
+    for _ in range(model_params["pool size"]):
         with torch.no_grad():
             model = pick_model(name)
-            model.cuda().to(params["precision"])
-            init_weights(model, params["weight initialization scheme"])
+            model.cuda().to(model_params["precision"])
+            init_weights(model, model_params["weight initialization scheme"])
             pool.append(model)
-    assert len(pool) == pool_size
+    assert len(pool) == model_params["pool size"]  # Sanity check
     return pool
 
-def ingest_params(model_params):
+def ingest_params(user_params):
     """Creates a default parameters dictionary, overrides it if necessary
     with user selections and then returns the result.
     """
-    params = {
-                "precision": torch.float,
-                "weight initialization scheme": "Default"
-    }
-    params.update(model_params)  # Override with user choices
-    return params
+    default_params = {
+                    "pool size": 50,
+                    "precision": torch.float,
+                    "weight initialization scheme": "Default"
+                    }
+    default_params.update(user_params)  # Override with user choices
+    return default_params
 
 def pick_model(name):
     """Defines which class of models to pick, based on user input."""

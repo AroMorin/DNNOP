@@ -11,46 +11,43 @@ class Environment(object):
         print("Initializing environment")
         self.precision = torch.float  # Default precision
         self.device = torch.device("cuda") # Always assume GPU training/testing
-        self.score_type = "Loss"  # assume environment will use loss as score
-        self.loss = True  # assume environments require loss
-        self.loss_type = ''  # environments that require loss define a loss type
+        self.score_type = "Loss"  # Assume environment will use loss as score
+        self.loss = True  # Assume environments require loss
+        self.loss_type = ''  # Environments that require loss define a loss type
         self.acc = False  # Use when the environment has an accuracy measure
         self.score = False  # Activate when the environment has an evaluation
         self.observation = None
         self.target = 0
         self.plot = False  # Maybe needed in some environments such as Functions
         self.minimize = True  # Is the target a minimum or a maximum?
-        self.ingest_params0(env_params)
+        self.ingest_params_lvl0(env_params)
 
-    def ingest_params0(self, env_params):
+    def ingest_params_lvl0(self, env_params):
         if "precision" in env_params:
             self.precision = env_params["precision"]
-        if "score type" in env_params:
-            self.score_type = env_params["score type"]
-            if "loss type" in env_params:
-                self.set_scoring(env_params['loss type'])
-            else:
-                self.set_scoring()
+        assert "score type" in env_params
+        self.score_type = env_params["score type"]
+        if "loss type" in env_params:
+            self.set_scoring(env_params['loss type'])
+        else:
+            self.set_scoring()
 
     def set_scoring(self, loss_type=''):
+        self.loss_type = loss_type
         if self.score_type == "Loss":
             self.loss = True
-            self.loss_type = loss_type
             self.acc = False
             self.score = False
         elif self.score_type == "Accuracy":
             self.loss = False
-            self.loss_type = loss_type
             self.acc = True
             self.score = False
         elif self.score_type == "Score":
             self.loss = False
-            self.loss_type = loss_type
             self.acc = False
             self.score = True
         elif self.score_type == "None":
             self.loss = False
-            self.loss_type = loss_type
             self.acc = False
             self.score = False
         else:

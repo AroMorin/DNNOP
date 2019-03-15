@@ -1,6 +1,5 @@
 """A script that defines a simple FC model for nao robot applications"""
 import torch.nn as nn
-import torch
 
 class Net(nn.Module):
     def __init__(self):

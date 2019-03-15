@@ -22,13 +22,13 @@ class Function(Environment):
 
     def ingest_params_lvl1(self, env_params):
         assert type(env_params) is dict
-        if "data path" not in env_params:
-            env_params["data path"] = "C:/"
-        if "plot" not in env_params:
-            env_params["plot"] = False
-        if "precision" not in env_params:
-            env_params["precision"] = torch.float
-        return env_params
+        default_params = {
+                            "data path": "C:/",
+                            "plot": False,
+                            "precision": torch.float
+                            }
+        default_params.update(env_params)  # Update with user selections
+        return default_params
 
     def init_plot(self, data_path):
         """Instantiates the plotter class if a plot is requested by the user."""

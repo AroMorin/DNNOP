@@ -8,41 +8,43 @@ import torch
 
 class Environment(object):
     def __init__(self, env_params):
-        print("Initializing environment")
-        self.precision = torch.float  # Default precision
+        print("Initializing environment!")
+        env_params = self.ingest_params_lvl0(env_params)
+        self.precision = env_params["precision"]
         self.device = torch.device("cuda") # Always assume GPU training/testing
-        self.score_type = "Loss"  # Assume environment will use loss as score
-        self.loss = True  # Assume environments require loss
-        self.loss_type = ''  # Environments that require loss define a loss type
-        self.acc = False  # Use when the environment has an accuracy measure
-        self.score = False  # Activate when the environment has an evaluation
+        self.score_type = env_params["score type"]
+        # Environments that require loss define a loss type
+        self.loss_type = env_params["loss type"]
+        self.loss = False
+        self.acc = False
+        self.score = False
         self.observation = None
         self.target = 0
-        self.plot = False  # Maybe needed in some environments such as Functions
-        self.minimize = True  # Is the target a minimum or a maximum?
-        self.ingest_params_lvl0(env_params)
+        self.minimize = True  # Are we trying to minimize a value, e.g. error?
+        self.set_scoring()
 
     def ingest_params_lvl0(self, env_params):
-        if "precision" in env_params:
-            self.precision = env_params["precision"]
         assert "score type" in env_params
-        self.score_type = env_params["score type"]
-        if "loss type" in env_params:
-            self.set_scoring(env_params['loss type'])
-        else:
-            self.set_scoring()
+        default_params = {
+                            "precision": torch.float,
+                            "loss type": ''
+                            }
+        default_params.update(env_params)
+        return default_params
 
-    def set_scoring(self, loss_type=''):
-        self.loss_type = loss_type
+    def set_scoring(self):
         if self.score_type == "Loss":
+            # Use when environment has a loss (differentiable) function
             self.loss = True
             self.acc = False
             self.score = False
         elif self.score_type == "Accuracy":
+            # Use when the environment has an accuracy measure
             self.loss = False
             self.acc = True
             self.score = False
         elif self.score_type == "Score":
+            # Activate when the environment has an evaluation function
             self.loss = False
             self.acc = False
             self.score = True

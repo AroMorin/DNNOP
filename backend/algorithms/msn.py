@@ -13,9 +13,10 @@ import numpy as np
 from .msn_backend.optimizer import Optimizer
 
 class MSN(object):
-    def __init__(self, pool, hyper_params):
+    def __init__(self, pool, alg_params):
         print ("Using MSN algorithm")
-        self.hyper_params = hyper_params
+        alg_params = elf.ingest_params(alg_params)
+        self.hyper_params = alg_params
         self.pool = pool
         self.pool_size = len(pool)
         self.train_losses = []
@@ -25,18 +26,29 @@ class MSN(object):
         self.correct_test_preds = []
         self.inferences = []
         self.scores = []
-        self.set_optimizer()
+        self.optimizer = alg_params["optimizer"]  # Name of optimizer
+        self.optim = None  # Optimizer object
+        self.set_optim()
 
-    def set_optimizer(self):
+    def ingest_params(self, alg_params):
+        default_params = {
+                            "optimizer": "default"
+        }
+        default_params.update(alg_params)
+        return default_params
+
+    def set_optim(self):
         """If the user gives an optimizer, then use it. Otherwise, use the
         default MSN optimizer.
         The given optimizer has to contain the required methods for the MSN
         algorithm to function, for example inference().
         """
-        if "optimizer" not in self.hyper_params:
+        assert "optimizer" in self.hyper_params
+        if self.optimizer == "default":
             self.optim = Optimizer(self.pool, self.hyper_params)
         else:
-            self.optim = self.hyper_params["optimizer"]
+            print("Unknown optimizer, exiting!")
+            exit()
 
     def optimize(self, env):
         """This method takes in the environment, runs the models against it,

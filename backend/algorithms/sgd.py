@@ -9,9 +9,13 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 class SGD(object):
-    def __init__(self, model, hyper_params, optimizer):
-        """Model is owned by the class, so it is set as a class attribute."""
+    def __init__(self, model, alg_params):
+        """Model is owned by the class, so it is set as a class attribute.
+        Think of the optimizer as the "engine" behind the algorithm.
+        """
         print("Using SGD algorithm")
+        alg_params = elf.ingest_params(alg_params)
+        self.hyper_params = alg_params
         self.model = model # Model is set as a class attribute
         self.train_loss = 0.
         self.test_loss = 0.
@@ -19,53 +23,53 @@ class SGD(object):
         self.test_acc = 0.
         # Number of instances where the model's prediction was correct
         self.correct_test_preds = 0
-        self.hyper_params = {}
-        self.optimizer = None
-        self.set_hyperparams(hyper_params)
-        self.set_optimizer(optimizer)
+        self.optimizer = alg_params["optimizer"]  # Name of the optimizer
+        self.optim = None  # The optimizer object
+        self.set_optim()
 
-    def set_hyperparams(self, hyper_params):
+    def ingest_params(self, alg_params):
         """Method to loop over the hyper parameter dictionary and update the
         default values.
         """
-        self.hyper_params = {
+        default_params = {
                             "learning rate": 0.01,
                             "momentum": 0.5,
-                            "target loss": 0,
-                            "minimization mode": True
+                            "optimizer": "SGD"
                             }
-        for key in hyper_params:
-            assert key in self.hyper_params
-            self.hyper_params[key] = hyper_params[key]
+        default_params.update(alg_params)
+        return alg_params
 
-    def set_optimizer(self, optimizer):
+    def set_optim(self, optimizer):
         """Method to set the desired optimizer, using the desired hyper
         parameters.
         """
-        if optimizer == None:
-            self.optimizer = optim.SGD(
-                            self.model.parameters(),
-                            lr = self.hyper_params['learning rate'],
-                            momentum = self.hyper_params['momentum']
-                            )
+        if self.optimizer == "SGD":
+            self.optim = optim.SGD(self.model.parameters(),
+                                        lr = self.hyper_params["learning rate"],
+                                        momentum = self.hyper_params["momentum"])
         else:
-            self.optimizer = optimizer
+            print("Unkown optimizer, exiting!")
+            exit()
 
-    def achieved_target(self):
-        """Determines whether the algorithm achieved its target or not."""
-        if self.hyper_params["minimization mode"]:
-            return self.test_loss <= self.hyper_params["target loss"]
-        else:
-            return self.test_loss >= self.hyper_params["target loss"]
+    def set_environment(self, env):
+        self.env = env
 
     def optimize(self, env):
         """Implements the main optimization function of the algorithm."""
+        self.set_environment(env)
         self.model.train() #Sets behavior to "training" mode
         self.optimizer.zero_grad()
         predictions = self.model(env.x)
         self.train_loss = F.nll_loss(predictions, env.y)
         self.train_loss.backward()
         self.optimizer.step()
+
+    def achieved_target(self):
+        """Determines whether the algorithm achieved its target or not."""
+        if self.env.minimize:
+            return self.test_loss <= self.hyper_params["target loss"]
+        else:
+            return self.test_loss >= self.hyper_params["target loss"]
 
     def test(self, env):
         """Local variables are chosen not to feature here.

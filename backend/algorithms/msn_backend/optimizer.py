@@ -22,7 +22,7 @@ class Optimizer(object):
         self.print_inferences = False  # Print inferences
 
     def set_environment(self, env):
-        """Sets the class environment."""
+        """Sets the environment attribute."""
         self.env = env
 
     def inference(self, test=False):

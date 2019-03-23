@@ -20,7 +20,7 @@ def main():
                     "data path": "C:/Users/aaa2cn/Documents/function_data/rastrigin/",
                     "precision": torch.float,
                     "plot": False,
-                    "score type": "Score"  # Function evaluation
+                    "score type": "score"  # Function evaluation
                     }
     env = env_factory.make_env("function", "rastrigin", env_params)
 

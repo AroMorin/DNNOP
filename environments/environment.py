@@ -33,22 +33,22 @@ class Environment(object):
         return default_params
 
     def set_scoring(self):
-        if self.score_type == "Loss":
+        if self.score_type == "loss":
             # Use when environment has a loss (differentiable) function
             self.loss = True
             self.acc = False
             self.score = False
-        elif self.score_type == "Accuracy":
+        elif self.score_type == "accuracy":
             # Use when the environment has an accuracy measure
             self.loss = False
             self.acc = True
             self.score = False
-        elif self.score_type == "Score":
+        elif self.score_type == "score":
             # Activate when the environment has an evaluation function
             self.loss = False
             self.acc = False
             self.score = True
-        elif self.score_type == "None":
+        elif self.score_type == "none":
             self.loss = False
             self.acc = False
             self.score = False

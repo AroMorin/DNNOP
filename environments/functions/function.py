@@ -25,7 +25,7 @@ class Function(Environment):
         default_params = {
                             "data path": "C:/",
                             "plot": False,
-                            "precision": torch.float
+                            "precision": torch.float,
                             }
         default_params.update(env_params)  # Update with user selections
         return default_params

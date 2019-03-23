@@ -33,7 +33,7 @@ class MSN(object):
     def ingest_params(self, alg_params):
         default_params = {
                             "optimizer": "default"
-        }
+                            }
         default_params.update(alg_params)
         return default_params
 

@@ -38,16 +38,15 @@ def main():
     pool = model_factory.make_pool("OD CNN MSN", model_params)
 
     alg_params = {
-                    "pool size": 50,
                     "number of anchors": 3,
-                    "number of probes per anchor": 10,
+                    "number of probes per anchor": 12,
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimization mode": env.minimize,
                     "minimum entropy": -3,  # Percentage
-                    "minimum distance": 400,
+                    "minimum distance": 1000,
                     "patience": 27,
-                    "tolerance": 0.12
+                    "tolerance": 0.0001
                     }
     alg = algorithm_factory.make_alg("MSN", pool, alg_params)
 

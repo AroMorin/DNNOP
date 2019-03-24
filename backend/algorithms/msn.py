@@ -15,7 +15,7 @@ from .msn_backend.optimizer import Optimizer
 class MSN(object):
     def __init__(self, pool, alg_params):
         print ("Using MSN algorithm")
-        alg_params = elf.ingest_params(alg_params)
+        alg_params = self.ingest_params(alg_params)
         self.hyper_params = alg_params
         self.pool = pool
         self.pool_size = len(pool)

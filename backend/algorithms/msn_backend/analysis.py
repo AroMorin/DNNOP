@@ -38,10 +38,10 @@ class Analysis(object):
     def clean_list(self, mylist):
         """Removes deformities in the score list such as NaNs."""
         # Check for type
-        if int(mylist[0]) != mylist[0]:
+        if float(mylist[0]) != mylist[0]:
             # Tensor
             mylist = [i.item() for i in mylist]
-        elif int(mylist[0]) == mylist[0]:
+        elif float(mylist[0]) == mylist[0]:
             # Integer
             mylist = [i for i in mylist]
         else:

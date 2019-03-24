@@ -6,6 +6,7 @@ from .cnn_mnist import Net as MNIST_CNN
 from .mnist_cnn_msn import Net as MNIST_CNN_MSN
 from .func_fc import Net as FUNC_FC
 from .nao_fc import Net as NAO_FC
+from .object_detection_msn import Net as OD_CNN_MSN
 
 import torch
 import torch.nn as nn
@@ -57,6 +58,8 @@ def pick_model(name):
         model = FUNC_FC()
     elif name == "NAO FC model":
         model = NAO_FC()
+    elif name == "OD CNN MSN":
+        model = OD_CNN_MSN()
     else:
         print("Unknown model selected")
         exit()

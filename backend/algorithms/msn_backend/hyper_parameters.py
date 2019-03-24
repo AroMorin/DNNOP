@@ -70,10 +70,7 @@ class Hyper_Parameters(object):
                             }
         # Update dictionary if appropriate
         if isinstance(hyper_params, dict):
-            # Loop over incoming hyper parameters dictionary
-            for key in hyper_params:
-                assert key in self.hyper_params
-                self.hyper_params[key] = hyper_params[key]
+            self.hyper_params.update(hyper_params)
 
     def set_hyperparams(self):
         """Updates the hyperparameters of the MSN algorithm based on user input.

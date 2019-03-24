@@ -98,6 +98,10 @@ class MSN(object):
         else:
             return best >= (self.optim.hp.target - self.optim.hp.tolerance)
 
+    def save_weights(path):
+        for i, sample in enumerate(self.pool):
+            fn = path+"model_"+str(i)+".pth"
+            torch.save(sample.state_dict(), fn)
 
 
 

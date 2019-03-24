@@ -53,6 +53,5 @@ class Net(nn.Module):
         x = self.act5(x)
         x = self.fc3(x)
         # Normalized coordinates
-        x1 = torch.clamp(x[0], 0, 1)
-        x2 = torch.clamp(x[1], 0, 1)
-        return [x1, x2]
+        x = torch.clamp(x[:], 0, 1)
+        return x

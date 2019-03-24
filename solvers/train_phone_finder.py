@@ -46,13 +46,15 @@ def main():
                     "minimum entropy": -3,  # Percentage
                     "minimum distance": 1000,
                     "patience": 27,
-                    "tolerance": 0.0001
+                    "tolerance": 0.0001,
                     }
     alg = algorithm_factory.make_alg("MSN", pool, alg_params)
 
     slv = Solver(env, alg)
     # Use solver to solve the environment using the given algorithm
-    slv.solve(iterations=1000)
+    slv.solve(iterations=100)
+    save_path = "C:/Users/aaa2cn/Documents/phone_data/find_phone/"
+    alg.save_weights(save_path)
 
 if __name__ == '__main__':
     main()

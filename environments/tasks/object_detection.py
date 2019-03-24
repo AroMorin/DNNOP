@@ -117,7 +117,7 @@ class Object_Detection(Environment):
         total_err = 0
         correct = 0
         for i, center in enumerate(centers):
-            total_err += self.compute_error(center, self.labels[i])
+            total_err = total_err + self.compute_error(center, self.labels[i])
             correct += self.compute_acc(center, self.labels[i])
         acc = (correct/len(self.images))*100
         print ("Accuracy: %f" %acc)

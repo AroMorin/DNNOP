@@ -55,7 +55,7 @@ class Hyper_Parameters(object):
                                 "beta": 0.19,
                                 "learning rate": 0.04,
                                 "lambda":5,
-                                "minimum distance": 16500,
+                                "minimum distance": 500,
                                 "minimum entropy": 1,
                                 "step size": 0.03,
                                 "patience": 25,

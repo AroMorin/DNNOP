@@ -39,20 +39,22 @@ def main():
 
     alg_params = {
                     "number of anchors": 3,
-                    "number of probes per anchor": 12,
+                    "number of probes per anchor": 13,
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -3,  # Percentage
-                    "minimum distance": 1000,
+                    "minimum entropy": -2,  # Percentage
+                    "minimum distance": 2000,
                     "patience": 27,
                     "tolerance": 0.0001,
+                    "learning rate": 0.015,
+                    "lambda": 5
                     }
     alg = algorithm_factory.make_alg("MSN", pool, alg_params)
 
     slv = Solver(env, alg)
     # Use solver to solve the environment using the given algorithm
-    slv.solve(iterations=100)
+    slv.solve(iterations=3000)
     save_path = "C:/Users/aaa2cn/Documents/phone_data/find_phone/"
     alg.save_weights(save_path)
 

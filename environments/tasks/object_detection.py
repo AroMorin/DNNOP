@@ -28,7 +28,8 @@ class Object_Detection(Environment):
         self.labels = []
         #self.scaled_centers = []
         self.validation_size = env_params["holdout size"]
-        self.load_data()
+        if not env_params["inference"]:
+            self.load_data()
 
     def ingest_params_lvl1(self, env_params):
         """Ingests parameters and provides defaults in case user did not provide
@@ -44,7 +45,8 @@ class Object_Detection(Environment):
                             "data path": "C:/Users/aaa2cn/Documents/phone_data/find_phone/",
                             "holdout size": 5,
                             "number of images": 100,
-                            "score type": "score"
+                            "score type": "score",
+                            "inference": False
                             }
         default_params.update(env_params)
         return default_params
@@ -124,16 +126,16 @@ class Object_Detection(Environment):
         return total_err
 
     def compute_error(self, center, label):
-        x = center[0].item()
-        y = center[1].item()
+        x = round(center[0].item(), 4)
+        y = round(center[1].item(), 4)
         x_t = float(label[0])
         y_t = float(label[1])
         error = abs(x-x_t)+abs(y-y_t)
         return error
 
     def compute_acc(self, center, label):
-        x = center[0].item()
-        y = center[1].item()
+        x = round(center[0].item(), 4)
+        y = round(center[1].item(), 4)
         x_t = float(label[0])
         y_t = float(label[1])
         d_x = abs(x-x_t)
@@ -144,7 +146,14 @@ class Object_Detection(Environment):
         else:
             return 0
 
-
+    def get_image(self, path):
+        img = Image.open(path)
+        img = img.convert(mode=self.img_mode)
+        img_data = list(img.getdata())
+        im_arr = torch.tensor(img_data, dtype=self.precision)
+        im_arr = im_arr.reshape(shape=(1, self.channels, self.img_h, self.img_w))
+        im_arr = im_arr.to(self.device)
+        return im_arr
 
 
 

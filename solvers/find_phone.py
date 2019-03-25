@@ -15,25 +15,33 @@ from backend.solver import Solver
 import argparse
 import torch
 
+def blockPrint():
+    sys.stdout = open(os.devnull, 'w')
+def enablePrint():
+    sys.stdout = sys.__stdout__
+
 def main():
     # Assumes CUDA is available
-    #def_path = "C:/Users/aaa2cn/Documents/phone_data/find_phone/"
+    blockPrint()
     path = str(sys.argv[1])
+
 
     # Define parameters
     env_params = {
                     "path": path,
                     "precision": torch.float,
-                    "score type": "score"
+                    "score type": "score",
+                    "inference": True
                     }
     env = env_factory.make_env("task", "object detection", env_params)
 
     model_params = {
-                    "pool size": 50,
                     "precision": torch.float,
-                    "weight initialization scheme": "Default"  # Xavier Normal
+                    "weight initialization scheme": "Default",  # Xavier Normal,
+                    "pre-trained": True,
+                    "path": "C:/Users/aaa2cn/Documents/phone_data/find_phone/model_elite.pth"
                     }
-    pool = model_factory.make_pool("OD CNN MSN", model_params)
+    model = model_factory.make_model("OD CNN MSN", model_params)
 
     alg_params = {
                     "number of anchors": 3,
@@ -42,18 +50,21 @@ def main():
                     "minimization mode": env.minimize,
                     "minimization mode": env.minimize,
                     "minimum entropy": -1,  # Percentage
-                    "minimum distance": 150,
-                    "patience": 27,
+                    "minimum distance": 200,
+                    "patience": 20,
                     "tolerance": 0.01,
                     "learning rate": 0.01,
                     "lambda": 5
                     }
-    alg = algorithm_factory.make_alg("MSN", pool, alg_params)
 
-    slv = Solver(env, alg)
-    # Use solver to solve the environment using the given algorithm
-    slv.solve(iterations=5000)
-    alg.save_weights(path)
+    image = env.get_image(path)
+    inference = model(image)
+
+    x = round(inference[0][0].item(), 4)
+    y = round(inference[0][1].item(), 4)
+
+    enablePrint()
+    print(str(x)+" "+str(y))
 
 if __name__ == '__main__':
     main()

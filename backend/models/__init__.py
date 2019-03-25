@@ -14,10 +14,12 @@ import numpy as np
 
 def make_model(name, model_params={}):
     """Makes a single model."""
-    params = ingest_params(model_params)
+    model_params = ingest_params(model_params)
     model = pick_model(name)
-    model.cuda().to(params["precision"])
-    init_weights(model, params["weight initialization scheme"])
+    model.cuda().to(model_params["precision"])
+    init_weights(model, model_params["weight initialization scheme"])
+    if model_params["pre-trained"]:
+        load_weights(model, model_params["path"])
     return model
 
 def make_pool(name, model_params={}):
@@ -43,7 +45,9 @@ def ingest_params(user_params):
     default_params = {
                     "pool size": 50,
                     "precision": torch.float,
-                    "weight initialization scheme": "Default"
+                    "weight initialization scheme": "Default",
+                    "pre-trained": False,
+                    "path": 'C:/model_elite.pth'
                     }
     default_params.update(user_params)  # Override with user choices
     return default_params
@@ -95,3 +99,6 @@ def init_eye(m):
     """
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.eye_(m.weight)
+
+def load_weights(model, path):
+    model.load_state_dict(torch.load(path))

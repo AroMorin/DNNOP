@@ -22,14 +22,15 @@ class Solver(object):
         self.current_iteration = 0
         self.current_batch = 0
         self.current_step = 0
+        self.alg.set_environment(self.env)
 
     def solve(self, iterations):
         """In cases where training is needed."""
         print("Training regular solver \n")
         for iteration in range(iterations):
             print("Iteration: %d\n" %iteration)
-            self.env.step()
-            self.alg.optimize(self.env)
+            self.alg.env.step()
+            self.alg.optimize()
             self.current_iteration +=1
             print("\n")
             if self.alg.achieved_target():

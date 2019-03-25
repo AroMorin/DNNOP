@@ -23,14 +23,14 @@ def main():
     # Define parameters
     env_params = {
                     "path": path,
-                    "precision": torch.float,
+                    "precision": torch.half,
                     "score type": "score"
                     }
     env = env_factory.make_env("task", "object detection", env_params)
 
     model_params = {
                     "pool size": 50,
-                    "precision": torch.float,
+                    "precision": torch.half,
                     "weight initialization scheme": "Default"  # Xavier Normal
                     }
     pool = model_factory.make_pool("OD CNN MSN", model_params)
@@ -42,11 +42,12 @@ def main():
                     "minimization mode": env.minimize,
                     "minimization mode": env.minimize,
                     "minimum entropy": -1,  # Percentage
-                    "minimum distance": 150,
+                    "minimum distance": 250,
                     "patience": 27,
                     "tolerance": 0.01,
-                    "learning rate": 0.01,
-                    "lambda": 5
+                    "learning rate": 0.05,
+                    "lambda": 5,
+                    "step size": 0.05
                     }
     alg = algorithm_factory.make_alg("MSN", pool, alg_params)
 

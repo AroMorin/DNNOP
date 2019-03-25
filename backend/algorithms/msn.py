@@ -11,6 +11,7 @@ from __future__ import division
 import torch
 import numpy as np
 from .msn_backend.optimizer import Optimizer
+import time
 
 class MSN(object):
     def __init__(self, pool, alg_params):
@@ -50,21 +51,31 @@ class MSN(object):
             print("Unknown optimizer, exiting!")
             exit()
 
-    def optimize(self, env):
+    def set_environment(self, env):
+        """Sets the environment attribute."""
+        self.env = env
+        assert self.env is not None  # Sanity check
+        if self.env.loss:
+            self.scoring = "loss"
+        if self.env.acc:
+            self.scoring = "acc"
+        if self.env.score:
+            self.scoring = "score"
+
+    def optimize(self):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        self.optim.set_environment(env)  # Candidate for repositioning
-        self.inferences = self.optim.inference()
-        if env.loss:
-            self.scores = self.optim.calculate_losses(self.inferences)
-        elif env.acc:
-            self.scores = self.optim.calculate_correct_predictions(self.inferences)
-        elif env.score:
-            self.scores = self.optim.calculate_scores(self.inferences)
+        self.inferences = self.optim.inference(self.env)
+        if self.scoring == "loss":
+            self.optim.calculate_losses(self.inferences, self.env)
+        elif self.scoring == "acc":
+            self.optim.calculate_correct_predictions(self.inferences, self.env)
+        elif self.scoring == "score":
+            self.optim.calculate_scores(self.inferences, self.env)
         else:
-            self.scores = self.inferences
-        self.optim.update(self.scores)
+            self.optim.set_scores(self.inferences)
+        self.optim.step()
 
     def test(self, env):
         """This is a method for testing."""

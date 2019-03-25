@@ -5,6 +5,8 @@ import torch
 import os
 import csv
 from PIL import Image
+import time
+
 
 class Object_Detection(Environment):
     """Class contains methods relevant to the object detection envrionment."""
@@ -17,7 +19,7 @@ class Object_Detection(Environment):
         self.channels = env_params["channels"]
         self.img_mode = env_params["image mode"]
         self.path = env_params["path"]
-        self.nb_imgs = env_params["number of images"]
+        self.nb_imgs = 0
         # List of dictionaries, each entry has image name and data tensor
         self.data = []
         # List of images, as tensors
@@ -30,6 +32,12 @@ class Object_Detection(Environment):
         self.validation_size = env_params["holdout size"]
         if not env_params["inference"]:
             self.load_data()
+        self.diff = 0
+        self.correct=0
+        self.total_err = 0
+        self.tot_correct = 0
+        self.tolerance = torch.tensor(0.05, dtype=self.precision, device=self.device)
+
 
     def ingest_params_lvl1(self, env_params):
         """Ingests parameters and provides defaults in case user did not provide
@@ -44,18 +52,11 @@ class Object_Detection(Environment):
                             "channels": 1,
                             "data path": "C:/Users/aaa2cn/Documents/phone_data/find_phone/",
                             "holdout size": 5,
-                            "number of images": 100,
                             "score type": "score",
                             "inference": False
                             }
         default_params.update(env_params)
         return default_params
-
-    def step(self):
-        """This is the step function. It loads an image for the pool to operate
-        on.
-        """
-        pass
 
     def load_data(self):
         """Loads images from path folder and labels, and then links them
@@ -111,26 +112,32 @@ class Object_Detection(Environment):
         self.names = []
         for item in self.data:
             self.images.append(item["data"])
-            self.labels.append(item["center"])
+            label = [float(item["center"][0]), float(item["center"][1])]
+            self.labels.append(label)
             self.names.append(item["name"])
         self.observation = torch.cat(self.images)
+        self.labels = torch.tensor(self.labels, dtype=self.precision).cuda()
+        self.nb_imgs = len(self.images)
 
     def evaluate(self, centers):
-        total_err = 0
-        correct = 0
-        for i, center in enumerate(centers):
-            total_err = total_err + self.compute_error(center, self.labels[i])
-            correct += self.compute_acc(center, self.labels[i])
-        acc = (correct/len(self.images))*100
-        print ("Accuracy: %f" %acc)
-        return total_err
+        """ Implemented in CUDA and in state attributes to improve execution
+        speed. This way, CUDA doesn't need to re-allocate memory, which takes
+        ~1 sec.
+        """
+        t1 = time.time()
+        a = centers.sub_(self.labels)
+        self.diff = a.abs_()
+        self.total_err = torch.sum(self.diff)
+        print("time %s" %(time.time()-t1))
+
+        return self.total_err.item()
 
     def compute_error(self, center, label):
-        x = round(center[0].item(), 4)
-        y = round(center[1].item(), 4)
-        x_t = float(label[0])
-        y_t = float(label[1])
-        error = abs(x-x_t)+abs(y-y_t)
+        x = center[0]
+        y = center[1]
+        x_t = label[0]
+        y_t = label[1]
+        error = torch.abs(torch.sub(x,x_t))+torch.abs(torch.sub(y,y_t))
         return error
 
     def compute_acc(self, center, label):

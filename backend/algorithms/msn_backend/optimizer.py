@@ -12,36 +12,31 @@ from .hyper_parameters import Hyper_Parameters
 from .pool import Pool
 import torch
 import torch.nn.functional as F
+import time
 
 class Optimizer(object):
     def __init__(self, models, hyper_params):
         self.hp = Hyper_Parameters(hyper_params) # Create a hyper parameters object
         self.pool = Pool(models, self.hp) # Create a pool object
         self.integrity = self.hp.initial_integrity
-        self.env = None
         self.print_inferences = False  # Print inferences
 
-    def set_environment(self, env):
-        """Sets the environment attribute."""
-        self.env = env
-
-    def inference(self, test=False):
+    def inference(self, env, test=False):
         """This method runs inference on the given environment using the models.
         I'm not sure, but I think there could be many ways to run inference. For
         that reason, I designate this function, to be a single point of contact
         for running inference, in whatever way the user/problem requires.
         """
-        assert self.env is not None  # Sanity check
         inferences = []
         with torch.no_grad():
             if test:
                 model = self.pool.models[self.pool.anchors.anchors_idxs[0]]
                 model.eval()  # Turn on evaluation mode
-                inference = model(self.env.test_data)
+                inference = model(env.test_data)
                 inferences.append(inference)
             else:
                 for model in self.pool.models:
-                    inference = model(self.env.observation)
+                    inference = model(env.observation)
                     inferences.append(inference)
         self.print_inference(inferences)
         return inferences
@@ -60,24 +55,24 @@ class Optimizer(object):
             print("Inference: ", x)
 
 
-    def calculate_losses(self, inferences, test=False):
+    def calculate_losses(self, inferences, env, test=False):
         """This method calculates the loss."""
-        if self.env.loss_type == 'NLL loss':
+        if env.loss_type == 'NLL loss':
             losses = []
             for idx, inference in enumerate(inferences):
                 if idx == self.pool.elite.elite_idx:
                     continue
                 if not test:
-                    loss = F.nll_loss(inf, self.env.labels)
+                    loss = F.nll_loss(inf, env.labels)
                 else:
-                    loss = F.nll_loss(inf, self.env.test_labels, reduction='sum').item()
+                    loss = F.nll_loss(inf, env.test_labels, reduction='sum').item()
                 losses.append(loss)
-            return losses
+            self.scores = losses
         else:
             print("Unknown loss type")
             exit()
 
-    def calculate_correct_predictions(self, inferences, test=False):
+    def calculate_correct_predictions(self, inferences, env, test=False):
         """Calculates the number of correct predictions/inferences made by the
         neural network.
         """
@@ -88,28 +83,34 @@ class Optimizer(object):
             # Correct predictions on all test data for a single model
             pred = inference.max(1, keepdim=True)[1]
             if not test:
-                correct = pred.eq(self.env.labels.view_as(pred)).sum().item()
+                correct = pred.eq(env.labels.view_as(pred)).sum().item()
                 correct_preds.append(correct)
             else:
                 print(len(inferences))
-                correct = pred.eq(self.env.test_labels.view_as(pred)).sum().item()
-                return correct
-        return correct_preds
+                correct = pred.eq(env.test_labels.view_as(pred)).sum().item()
+                self.scores = correct
+                return
+        self.scores = correct_preds
 
-    def calculate_scores(self, inferences):
+    def calculate_scores(self, inferences, env):
         """Calculates the scores given the network inferences."""
         scores = []
-        for idx, inference in enumerate(inferences):
-            score = self.env.evaluate(inference)
+        for inference in inferences:
+            t1 = time.time()
+            score = env.evaluate(inference)
+            print("time %s" %(time.time()-t1))
             scores.append(score)
-        return scores
+        self.scores = scores
 
-    def update(self, scores):
+    def set_scores(self, scores):
+        self.scores = scores
+
+    def step(self):
         """This method takes in the scores, feeds it to the pool so that the
         selection and update process can occur.
         The pool thus updates itself.
         """
-        self.pool.prep_new_pool(scores)
+        self.pool.prep_new_pool(self.scores)
         self.pool.implement()
 
 

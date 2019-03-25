@@ -63,7 +63,7 @@ class Perturbation(object):
         choices = torch.tensor(choices).cuda().long()
         #noise = temp.normal_(mean=0, std=analyzer.search_radius)
         #vec = vec.put_(choices, noise, accumulate=True)
-        noise = torch.zeros((self.vec_length), dtype=self.precision).cuda()
+        noise = torch.zeros((self.vec_length), dtype=self.precision, device=torch.device('cuda'))
         if self.precision == torch.float:
             dist = self.distribution.sample(torch.Size([self.size])).float()
         elif self.precision == torch.half:

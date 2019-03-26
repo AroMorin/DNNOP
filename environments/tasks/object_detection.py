@@ -120,18 +120,24 @@ class Object_Detection(Environment):
         self.nb_imgs = len(self.images)
 
     def evaluate(self, centers):
-        """ Implemented in CUDA to improve execution speed
-        """
+        """ Implemented in CUDA to improve execution speed."""
+        self.get_accuracy(centers)
         labels = self.labels.expand_as(centers)
         _ =  centers.sub_(labels).abs_()
         x = _.sum(dim=2)
         y = x.sum(dim=1)
         return y
-        #comps = torch.le(diff, self.tolerance)
-        #truths = comps[:,0] & comps[:,1]
-        #correct = truths.sum()
-        #acc = torch.mul(torch.div(correct, self.nb_imgs), 100)
-        #return err
+
+    def get_accuracy(self, centers):
+        labels = self.labels.expand_as(centers)
+        diff =  centers.sub(labels).abs()
+        print(diff.shape)
+        comps = torch.le(diff, self.tolerance)
+        truths = comps[:,0] & comps[:,1]
+        print(truths.shape)
+        correct = truths.sum()
+        acc = torch.mul(torch.div(correct, self.nb_imgs), 100)
+        print("Accuracy: %f" %acc)
 
     def compute_error(self, center, label):
         x = center[0]

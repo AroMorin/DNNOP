@@ -105,6 +105,7 @@ class Analysis(object):
         # Make sure we are not in the very first iteration
         if self.step>0:
             self.set_entropy()
+            print("Entropy :%f" %self.entropy)
             if self.hp.minimizing:
                 return self.entropy <= self.hp.min_entropy
             else:
@@ -121,10 +122,11 @@ class Analysis(object):
         is just enough for now? I want to reset integrity once no improvement
         was detected (but only the first instance of such occasion).
         """
-        t1 = time.time()
-        eps = self.current_top.gt(0).cpu()
+        #t1 = time.time()
+        #torch.cuda.synchronize()
+        #print("-----------time %s-------------" %(time.time()-t1))
+        eps = self.current_top.gt(0)
         if eps:
-            print("-----------time %s-------------" %(time.time()-t1))
             # Percentage change
             _ = self.new_top.sub(self.current_top)
             _ = torch.div(_, self.current_top.abs())

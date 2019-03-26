@@ -23,14 +23,14 @@ def main():
     # Define parameters
     env_params = {
                     "path": path,
-                    "precision": torch.half,
+                    "precision": torch.float,
                     "score type": "score"
                     }
     env = env_factory.make_env("task", "object detection", env_params)
 
     model_params = {
                     "pool size": 50,
-                    "precision": torch.half,
+                    "precision": torch.float,
                     "weight initialization scheme": "Default"  # Xavier Normal
                     }
     pool = model_factory.make_pool("OD CNN MSN", model_params)
@@ -40,20 +40,19 @@ def main():
                     "number of probes per anchor": 13,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimization mode": env.minimize,
-                    "minimum entropy": -1,  # Percentage
-                    "minimum distance": 250,
-                    "patience": 27,
+                    "minimum entropy": -0.1,  # Percentage
+                    "minimum distance": 1000,
+                    "patience": 20,
                     "tolerance": 0.01,
-                    "learning rate": 0.05,
+                    "learning rate": 0.02,
                     "lambda": 5,
-                    "step size": 0.05
+                    "step size": 0.02
                     }
     alg = algorithm_factory.make_alg("MSN", pool, alg_params)
 
     slv = Solver(env, alg)
     # Use solver to solve the environment using the given algorithm
-    slv.solve(iterations=5000)
+    slv.solve(iterations=1000)
     alg.save_weights(path)
 
 if __name__ == '__main__':

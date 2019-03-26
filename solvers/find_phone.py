@@ -39,7 +39,7 @@ def main():
                     "precision": torch.float,
                     "weight initialization scheme": "Default",  # Xavier Normal,
                     "pre-trained": True,
-                    "path": "C:/Users/aaa2cn/Documents/phone_data/find_phone/model_elite.pth"
+                    "path": "~/find_phone/model_elite.pth"
                     }
     model = model_factory.make_model("OD CNN MSN", model_params)
 
@@ -47,7 +47,6 @@ def main():
                     "number of anchors": 3,
                     "number of probes per anchor": 13,
                     "target": env.target,
-                    "minimization mode": env.minimize,
                     "minimization mode": env.minimize,
                     "minimum entropy": -1,  # Percentage
                     "minimum distance": 200,

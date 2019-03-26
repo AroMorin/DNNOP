@@ -62,10 +62,10 @@ class Anchors(object):
             anchor = vectors[i]
             distance = self.canberra_distance(candidate, anchor)
             if self.print_distance:
-                print(distance.item())
-            if distance.item() < self.hp.min_dist:
+                print(distance)
+            if distance.lt(self.hp.min_dist):
                 return False
-            elif math.isnan(distance.item()):
+            if not torch.isfinite(distance):
                 return False
         return True
 
@@ -74,17 +74,10 @@ class Anchors(object):
         here because the operation is numerically unstable. I think the thing
         is going too fast, perhaps.
         """
-        #numerator = torch.abs(torch.add(a, -1, b))
-        #print(a[0:19])
-        #print(b[0:19])
-        x = torch.add(a, -b)
-        numerator = torch.abs(x)
-        y = torch.abs(a)
-        z = torch.abs(b)
-        deno = torch.add(y, z)
-        f = torch.div(numerator, deno)
-        e = torch.isfinite(f)
-        j = torch.masked_select(f, e)
+        x = a.sub(b).abs()
+        y = torch.add(a.abs(), b.abs())
+        f = torch.div(x, y)
+        j = torch.masked_select(f, torch.isfinite(f))
         result = j.sum()
         return result
 

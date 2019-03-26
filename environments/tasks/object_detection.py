@@ -120,17 +120,18 @@ class Object_Detection(Environment):
         self.nb_imgs = len(self.images)
 
     def evaluate(self, centers):
-        """ Implemented in CUDA and in state attributes to improve execution
-        speed. This way, CUDA doesn't need to re-allocate memory, which takes
-        ~1 sec.
+        """ Implemented in CUDA to improve execution speed
         """
-        t1 = time.time()
-        a = centers.sub_(self.labels)
-        self.diff = a.abs_()
-        self.total_err = torch.sum(self.diff)
-        print("time %s" %(time.time()-t1))
-
-        return self.total_err.item()
+        labels = self.labels.expand_as(centers)
+        _ =  centers.sub_(labels).abs_()
+        x = _.sum(dim=2)
+        y = x.sum(dim=1)
+        return y
+        #comps = torch.le(diff, self.tolerance)
+        #truths = comps[:,0] & comps[:,1]
+        #correct = truths.sum()
+        #acc = torch.mul(torch.div(correct, self.nb_imgs), 100)
+        #return err
 
     def compute_error(self, center, label):
         x = center[0]

@@ -94,12 +94,8 @@ class Optimizer(object):
 
     def calculate_scores(self, inferences, env):
         """Calculates the scores given the network inferences."""
-        scores = []
-        for inference in inferences:
-            t1 = time.time()
-            score = env.evaluate(inference)
-            print("time %s" %(time.time()-t1))
-            scores.append(score)
+        inferences = torch.stack(inferences)
+        scores = env.evaluate(inferences)
         self.scores = scores
 
     def set_scores(self, scores):
@@ -112,6 +108,7 @@ class Optimizer(object):
         """
         self.pool.prep_new_pool(self.scores)
         self.pool.implement()
+
 
 
 

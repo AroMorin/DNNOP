@@ -77,6 +77,7 @@ class MSN(object):
             self.optim.set_scores(self.inferences)
         self.optim.step()
 
+
     def test(self, env):
         """This is a method for testing."""
         self.inferences = self.optim.inference(test=True)

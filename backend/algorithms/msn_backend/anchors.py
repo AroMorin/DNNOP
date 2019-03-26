@@ -33,10 +33,9 @@ class Anchors(object):
 
     def set_anchors_idxs(self, sorted_idxs, vectors):
         """Determines the indices for anchors."""
-        self.remove_elite(sorted_idxs)
-        assert 0 not in sorted_idxs  # Removed elite
-        assert len(sorted_idxs) == (self.hp.pool_size-1)  # Sanity check
         for i in sorted_idxs:
+            if i == 0:
+                continue  # skip Elite
             candidate = vectors[i]
             self.admit(candidate, i, vectors)
             if self.nb_anchors == self.hp.nb_anchors:

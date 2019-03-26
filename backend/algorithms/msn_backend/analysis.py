@@ -1,13 +1,15 @@
 """Class for analysis operations on the scores."""
 
 from __future__ import division
+import torch
 import math
+import time
 
 class Analysis(object):
     def __init__(self, hyper_params):
         self.hp = hyper_params
-        self.current_top = self.hp.initial_score
-        self.new_top = self.hp.initial_score
+        self.current_top = torch.tensor(self.hp.initial_score, device='cuda')
+        self.new_top = torch.tensor(self.hp.initial_score, device='cuda')
         self.top_idx = 0
         self.scores = []
         self.sorted_scores = []
@@ -22,34 +24,25 @@ class Analysis(object):
         self.search_start = True
         self.nb_anchors = self.hp.nb_anchors  # State
         self.radial_expansion = False
+        self.step = 0  # State
 
     def analyze(self, scores, nb_anchors):
         """The main function."""
         self.clean_list(scores)
         self.sort_scores()
-        print("Sorted scores: ", self.sorted_scores)
-        self.sort_idxs()
+        #print("Sorted scores: ", self.sorted_scores)
         self.set_integrity()
         self.review(nb_anchors)
         self.set_num_selections()
         self.set_search_radius()
         print("Integrity: %f" %self.integrity)
 
-    def clean_list(self, mylist):
+
+    def clean_list(self, x):
         """Removes deformities in the score list such as NaNs."""
-        # Check for type
-        if float(mylist[0]) != mylist[0]:
-            # Tensor
-            mylist = [i.item() for i in mylist]
-        elif float(mylist[0]) == mylist[0]:
-            # Integer
-            mylist = [i for i in mylist]
-        else:
-            print("Error in score variable type")
-            exit()
-        # Remove NaNs and infinities
-        #self.scores = [x for x in mylist if not math.isnan(x)]
-        self.scores = [x for x in mylist if not math.isnan(x) and not math.isinf(x)]
+        temp = torch.zeros_like(x)
+        # Removes NaNs and infinities
+        self.scores = torch.where(torch.isfinite(x), x, temp)
 
     def sort_scores(self):
         """This function sorts the values in the list. Duplicates are removed
@@ -57,11 +50,13 @@ class Analysis(object):
         """
         self.current_top = self.new_top  # Inheritance
         if self.hp.minimizing:
-            self.sorted_scores = sorted(set(self.scores))
+            self.sorted = self.scores.sort()
         else:
-            self.sorted_scores = sorted(set(self.scores), reverse=True)
+            self.sorted = self.scores.sort(descending=True)
+        self.sorted_scores = self.sorted[0]
+        self.sorted_idxs = self.sorted[1]
         self.new_top = self.sorted_scores[0]
-        print("Pool top score: %f" %self.new_top)
+        #print("Pool top score: %f" %self.new_top)
 
     def sort_idxs(self):
         """This function checks each element in the sorted list to retrieve
@@ -108,7 +103,7 @@ class Analysis(object):
         on the pre-defined hyper parameters.
         """
         # Make sure we are not in the very first iteration
-        if self.current_top != self.hp.initial_score:
+        if self.step>0:
             self.set_entropy()
             if self.hp.minimizing:
                 return self.entropy <= self.hp.min_entropy
@@ -116,6 +111,7 @@ class Analysis(object):
                 return self.entropy >= self.hp.min_entropy
         else:
             # Improved over the initial score
+            self.step +=1
             return True
 
     def set_entropy(self):
@@ -125,19 +121,30 @@ class Analysis(object):
         is just enough for now? I want to reset integrity once no improvement
         was detected (but only the first instance of such occasion).
         """
-        if self.current_top != 0:
+        t1 = time.time()
+        eps = self.current_top.gt(0).cpu()
+        if eps:
+            print("-----------time %s-------------" %(time.time()-t1))
             # Percentage change
-            self.entropy = ((self.new_top-self.current_top)/abs(self.current_top))*100
+            _ = self.new_top.sub(self.current_top)
+            _ = torch.div(_, self.current_top.abs())
+            _ = torch.mul(_, 100)
+            self.entropy = _
+            #self.entropy = ((self.new_top-self.current_top)/abs(self.current_top))*100
         else:
             # Prevent division by zero
-            self.entropy = ((self.new_top-self.current_top)/abs(self.hp.epsilon))*100
-        print("Entropy: %f" %self.entropy)
+            _ = self.new_top.sub(self.current_top)
+            _ = torch.div(_, self.hp.epsilon)
+            _ = torch.mul(_, 100)
+            self.entropy = _
+            #self.entropy = ((self.new_top-self.current_top)/self.hp.epsilon)*100
+        #print("Entropy: %f" %self.entropy)
+
 
     def review(self, nb_anchors):
         """Implements the backtracking and radial expansion functionalities."""
         self.set_backtracking()
         self.set_radial_expansion(nb_anchors)
-
 
     def set_backtracking(self):
         """Only activate backtracking for the current iteration, if the conditions

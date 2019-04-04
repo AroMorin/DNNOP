@@ -1,0 +1,115 @@
+"""The optimizer class outlines the processes of optimization done by the algorithm.
+This is similar to the SGD optimizer in PyTorch, where learning rate and momentum
+are specified. In the optimizer class we perform the "update" action of the
+weights for the pool.
+
+This class reaches out to Anchors, Blends, Probes, etc..to communicate and
+prepare the pool. The pool is the object itself that is being prepared and
+updated.
+"""
+
+from .hyper_parameters import Hyper_Parameters
+from .pool import Pool
+import torch
+import torch.nn.functional as F
+import time
+
+class Optimizer(object):
+    def __init__(self, models, hyper_params):
+        self.hp = Hyper_Parameters(hyper_params) # Create a hyper parameters object
+        self.pool = Pool(models, self.hp) # Create a pool object
+        self.integrity = self.hp.initial_integrity
+        self.print_inferences = False  # Print inferences
+
+    def inference(self, env, test=False):
+        """This method runs inference on the given environment using the models.
+        I'm not sure, but I think there could be many ways to run inference. For
+        that reason, I designate this function, to be a single point of contact
+        for running inference, in whatever way the user/problem requires.
+        """
+        inferences = []
+        with torch.no_grad():
+            if test:
+                model = self.pool.models[self.pool.anchors.anchors_idxs[0]]
+                model.eval()  # Turn on evaluation mode
+                inference = model(env.test_data)
+                inferences.append(inference)
+            else:
+                for model in self.pool.models:
+                    inference = model(env.observation)
+                    inferences.append(inference)
+        self.print_inference(inferences)
+        return inferences
+
+    def print_inference(self, outputs):
+        """Prints the inference of the neural networks. Attempts to extract
+        the output items from the tensors.
+        """
+        if self.print_inferences:
+            if len(outputs[0]) == 1:
+                x = [a.item() for a in outputs]
+            elif len(outputs[0]) == 2:
+                x = [[a[0].item(), a[1].item()] for a in outputs]
+            else:
+                x = [[tensor_.item() for tensor_ in output_] for output_ in outputs]
+            print("Inference: ", x)
+
+
+    def calculate_losses(self, inferences, env, test=False):
+        """This method calculates the loss."""
+        if env.loss_type == 'NLL loss':
+            losses = []
+            for idx, inference in enumerate(inferences):
+                if idx == self.pool.elite.elite_idx:
+                    continue
+                if not test:
+                    loss = F.nll_loss(inf, env.labels)
+                else:
+                    loss = F.nll_loss(inf, env.test_labels, reduction='sum').item()
+                losses.append(loss)
+            self.scores = losses
+        else:
+            print("Unknown loss type")
+            exit()
+
+    def calculate_correct_predictions(self, inferences, env, test=False):
+        """Calculates the number of correct predictions/inferences made by the
+        neural network.
+        """
+        correct_preds = []
+        for idx, inference in enumerate(inferences):
+            if idx == self.pool.elite.elite_idx:
+                continue
+            # Correct predictions on all test data for a single model
+            pred = inference.max(1, keepdim=True)[1]
+            if not test:
+                correct = pred.eq(env.labels.view_as(pred)).sum().item()
+                correct_preds.append(correct)
+            else:
+                print(len(inferences))
+                correct = pred.eq(env.test_labels.view_as(pred)).sum().item()
+                self.scores = correct
+                return
+        self.scores = correct_preds
+
+    def calculate_scores(self, inferences, env):
+        """Calculates the scores given the network inferences."""
+        inferences = torch.stack(inferences)
+        scores = env.evaluate(inferences)
+        self.scores = scores
+
+    def set_scores(self, scores):
+        self.scores = scores
+
+    def step(self):
+        """This method takes in the scores, feeds it to the pool so that the
+        selection and update process can occur.
+        The pool thus updates itself.
+        """
+        self.pool.prep_new_pool(self.scores)
+        self.pool.implement()
+
+
+
+
+#

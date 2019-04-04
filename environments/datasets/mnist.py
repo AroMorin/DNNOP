@@ -8,13 +8,22 @@ class MNIST(Dataset):
     """This class fetches the MNIST dataset, sends it to CUDA and then
     makes available the PyTorch-supplied loaders for further processing.
     """
-    def __init__(self, data_path, batch_size, precision, loss):
+    def __init__(self, env_params):
         # Initialize base class
-        super().__init__(data_path, precision, loss)
+        super(MNIST, self).__init__(env_params)
+        env_params = self.ingest_params_lvl2(env_params)
         self.train_size = 60000 # Size of the training set
         self.test_size = 10000
-        self.set_batch_size(batch_size)
+        self.batch_size = (env_params["batch size"])
         self.load_dataset()
+
+    def ingest_params_lvl2(self, env_params):
+        assert type(env_params) is dict
+        default_params = {
+                            "batch size": 60000  # Entire dataset
+                            }
+        default_params.update(env_params)  # Update with user selections
+        return default_params
 
     def load_dataset(self):
         """This dataset is organized as such: it is a list of batches. Each

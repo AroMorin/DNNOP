@@ -4,11 +4,11 @@ the developer, to make the class extendable intuitively.
 from ..environment import Environment
 
 class Dataset(Environment):
-    def __init__(self, data_path, precision, loss):
+    def __init__(self, env_params):
         print("Creating Dataset")
-        super().__init__(precision)
-        assert isinstance(data_path, str)  # Sanity check
-        self.data_path = data_path
+        super(Dataset, self).__init__(env_params)
+        env_params = self.ingest_params_lvl1(env_params)
+        self.data_path = env_params["data path"]
         self.train_dataset = None
         self.test_dataset = None
         self.train_loader = None
@@ -22,31 +22,15 @@ class Dataset(Environment):
         self.batch_size = 0
         self.nb_batches = 0
         self.current_batch_idx = 0
-        self.set_optimization_mode(loss)
+        self.set_optimization_mode()
 
-    def set_batch_size(self, batch_size):
-        """Sets the batch size based on user input."""
-        if batch_size != 0:
-            assert isinstance(batch_size, int)  # Sanity check
-            self.batch_size = batch_size
-        else:
-            self.batch_size = self.train_size
-
-    def set_optimization_mode(self, loss):
-        """Sets the optimization mode based on whether loss flag is ON/OFF (set
-        by user).
-        """
-        if loss:
-            self.loss = True
-            self.loss_type = 'NLL loss'
-            self.acc = False
-            self.minimize = True
-            self.target = 0
-        else:
-            self.loss = False
-            self.acc = True
-            self.minimize = False
-            self.target = 100.  # 100% accuracy
+    def ingest_params_lvl1(self, env_params):
+        assert type(env_params) is dict
+        default_params = {
+                            "data path": "C:/Users/aaa2cn/Documents/mnist_data",
+                            }
+        default_params.update(env_params)  # Update with user selections
+        return default_params
 
     def load_dataset(self):
         """Placeholder method for initializing and loading the dataset."""

@@ -12,7 +12,7 @@ class Hyper_Parameters(object):
         min mode but forget to turn off max mode, and vice versa. Of course,
         there can be assert checks, but I'll just be inviting bugs for no reason.
         """
-        print("Iniitializing hyper parameters of MSN")
+        print("Iniitializing hyper parameters of LEARNER")
         self.hyper_params = {}
         self.nb_anchors = 0
         self.nb_probes = 0
@@ -33,7 +33,7 @@ class Hyper_Parameters(object):
         self.target = 0
         self.tolerance = 0
         self.minimizing = True
-        self.initial_score = numpy.inf
+        self.initial_score = 99999999  # Infinity results in overflow
         self.epsilon = 0.00000001  # Prevents division by zero
         self.set_hyperparams_dict(hyper_params)
         self.set_hyperparams()
@@ -102,7 +102,7 @@ class Hyper_Parameters(object):
         default score to negative infinity.
         """
         if not self.hyper_params['minimization mode']:
-            self.initial_score = -numpy.inf
+            self.initial_score = -99999999  # negative inf results in overflow
 
     def sanity_checks(self):
         """Some checks to make sure the used hyperparameters make sense."""

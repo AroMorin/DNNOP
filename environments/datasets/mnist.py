@@ -52,7 +52,6 @@ class MNIST(Dataset):
         # Format sets
         self.format_data()
 
-
     def set_transformations(self):
         """Set the desired transformations on the dataset."""
         print ("Applying dataset transformations")
@@ -67,8 +66,8 @@ class MNIST(Dataset):
         test_set = list(self.test_loader)
 
         # batch 0: all images, mode 0: data
-        x = train_set[0][0].cuda().to(self.precision)
-        self.test_data = test_set[0][0].cuda().to(self.precision)
+        x = train_set[0][0].to(dtype=self.precision, device=self.device)
+        self.test_data = test_set[0][0].to(dtype=self.precision, device=self.device)
 
         # batch 0: all images, mode 1: labels
         y = train_set[0][1].cuda()

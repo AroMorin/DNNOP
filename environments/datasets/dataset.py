@@ -22,7 +22,6 @@ class Dataset(Environment):
         self.batch_size = 0
         self.nb_batches = 0
         self.current_batch_idx = 0
-        self.set_optimization_mode()
 
     def ingest_params_lvl1(self, env_params):
         assert type(env_params) is dict

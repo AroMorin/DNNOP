@@ -18,40 +18,63 @@ class Environment(object):
         self.loss = False
         self.acc = False
         self.score = False
+        self.error = False
         self.observation = None
         self.target = 0
         self.minimize = True  # Are we trying to minimize a value, e.g. error?
-        self.set_scoring()
+        self.set_scoring(env_params)
 
     def ingest_params_lvl0(self, env_params):
         assert "score type" in env_params
         default_params = {
                             "precision": torch.float,
-                            "loss type": ''
+                            "loss type": '',
+                            # only case when target is unknown is when the
+                            # scoring mode is set to "score", we assume infinity
+                            # unless the user defines something else
+                            "target": float('inf')
                             }
         default_params.update(env_params)
         return default_params
 
-    def set_scoring(self):
+    def set_scoring(self, env_params):
         if self.score_type == "loss":
             # Use when environment has a loss (differentiable) function
             self.loss = True
             self.acc = False
             self.score = False
+            self.error = False
+            self.minimize = True
+            self.target = 0
+        elif self.score_type == "error":
+            # Activate when the environment has an evaluation function
+            self.loss = False
+            self.acc = False
+            self.score = False
+            self.error = True
+            self.minimize = True
+            self.target = 0
         elif self.score_type == "accuracy":
             # Use when the environment has an accuracy measure
             self.loss = False
             self.acc = True
             self.score = False
+            self.error = False
+            self.minimize = False  # Maximize accuracy
+            self.target = 100  # 100%
         elif self.score_type == "score":
             # Activate when the environment has an evaluation function
             self.loss = False
             self.acc = False
             self.score = True
+            self.error = False
+            self.minimize = False
+            self.target = env_params["target"]  # User must define score
         elif self.score_type == "none":
             self.loss = False
             self.acc = False
             self.score = False
+            self.error = False
         else:
             print("Unknown scoring method")
             exit()

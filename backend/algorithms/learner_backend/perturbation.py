@@ -17,16 +17,21 @@ class Perturbation(object):
         self.distribution = None
         self.precision = None
         self.choices = None
+        self.even_p = None
         self.p = None  # Index choice probability vector (P dist)
         self.p_counter = 0
-        self.disocunt = 0.1
+        self.discount = 0.1  # discount is 10% of equal probability value
+        self.device = torch.device('cuda')
 
     def init_perturbation(self, vec):
         """Initialize state and some variables."""
         self.precision = vec.dtype
         self.vec_length = torch.numel(vec)
         self.indices = range(self.vec_length)
-        self.p = np.full(self.vec_length, 0.5)
+        even_prob = 1/(self.vec_length)
+        self.even_p = np.full(self.vec_length, even_prob)
+        self.p = self.even_p
+        self.discount = even_prob*self.discount  # Factor in the vector size
 
     def update_state(self, analyzer):
         # Set noise size (scope)
@@ -40,13 +45,9 @@ class Perturbation(object):
         a = -limit
         b = limit
         if self.noise_distribution == "uniform":
-            self.distribution = uniform.Uniform(torch.Tensor([a]), torch.Tensor([b]), device='cuda')
+            self.distribution = uniform.Uniform(torch.Tensor([a]), torch.Tensor([b]))
         elif self.noise_distribution == "normal":
-            self.distribution = normal.Normal(torch.Tensor([0]), torch.Tensor([b]), device='cuda')
-        if self.precision == torch.float:
-            self.distribution.float()
-        elif self.precision == torch.half:
-            self.distribution.half()
+            self.distribution = normal.Normal(torch.Tensor([0]), torch.Tensor([b]))
         else:
             print("Unknown precision type")
             exit()
@@ -59,7 +60,7 @@ class Perturbation(object):
         Finally use the above to add to the vector of choice.
         """
         self.set_choices()
-        noise = self.get_noise(choices)
+        noise = self.get_noise()
         vec.add_(noise)
 
     def set_choices(self):
@@ -69,10 +70,11 @@ class Perturbation(object):
         """
         np.random.seed()
         choices = np.random.choice(self.indices, self.size, replace=False, p=self.p)
-        self.choices = torch.tensor(choices).cuda().long()
-        self.update_p()
+        self.update_p(choices)
+        #self.choices = torch.tensor(choices).cuda().long()
+        self.choices = choices.tolist()
 
-    def update_p(self):
+    def update_p(self, choices):
         """Counts the number of steps the function is called. We want to reset
         the P-distribution for every anchor. Thus, we reset the counter after
         M calls, which corresponds to M probes. To ensure this mechanism works
@@ -87,12 +89,23 @@ class Perturbation(object):
         current p_vector. Subtraction happens only at the indices chosen.
         """
         if self.p_counter <= self.hp.nb_probes:
-            depress = np.full(self.size, self.discount)
-            self.p[self.choices] = numpy.subtract(self.p[self.choices], depress)
+            self.push_down(choices)
+            self.push_up(choices)
             self.p_counter += 1  # Increment counter
         else:
-            self.p = np.full(self.vec_length, 0.5)  # Reset State
+            self.p = self.even_p  # Reset State
             self.p_counter = 0  # Reset state, new anchor
+
+    def push_down(self, choices):
+        decrease = np.full(self.size, self.discount)
+        temp = np.subtract(self.p[choices], decrease)
+        temp[temp<0] = 0  # No negative probabilities
+        self.p[choices] = temp
+
+    def push_up(self, choices):
+        others = np.delete(np.arange(self.vec_length), choices)
+        increase = (1 - np.sum(self.p))/len(others)
+        self.p[others] = np.add(self.p[others], increase)
 
     def get_noise(self):
         """ This function defines a noise tensor, and returns it. The noise
@@ -101,11 +114,11 @@ class Perturbation(object):
         modified.
         """
         noise = self.distribution.sample(torch.Size([self.size]))
-        # Cast to precision
-        noise = noise.cuda().squeeze()
-        basis = torch.zeros((self.vec_length), dtype=self.precision, device='cuda')
+        # Cast to precision and CUDA, and edit shape
+        noise = noise.to(dtype=self.precision, device=self.device).squeeze()
+        basis = torch.zeros((self.vec_length), dtype=self.precision, device=self.device)
         basis[self.choices] = noise
-        return noise
+        return basis
 
 
 

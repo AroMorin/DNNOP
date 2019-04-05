@@ -10,46 +10,21 @@ The optimizer object will own the pool.?
 from __future__ import division
 import torch
 import numpy as np
+from .learner_backend.hyper_parameters import Hyper_Parameters
+from .learner_backend.pool import Pool
 from .learner_backend.optimizer import Optimizer
 import time
 
 class LEARNER(object):
-    def __init__(self, pool, alg_params):
+    def __init__(self, models, alg_params):
         print ("Using Learner algorithm")
-        alg_params = self.ingest_params(alg_params)
-        self.hyper_params = alg_params
-        self.pool = pool
-        self.pool_size = len(pool)
-        self.train_losses = []
-        self.test_loss = []
-        self.train_accs = []
-        self.test_acc = []
-        self.correct_test_preds = []
+        self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
+        self.pool = Pool(models, self.hyper_params) # Create a pool object
+        self.optim = Optimizer(self.pool, self.hyper_params)  # Optimizer object
+        self.pool_size = alg_params["pool size"]
         self.inferences = []
         self.scores = []
-        self.optimizer = alg_params["optimizer"]  # Name of optimizer
-        self.optim = None  # Optimizer object
-        self.set_optim()
-
-    def ingest_params(self, alg_params):
-        default_params = {
-                            "optimizer": "default"
-                            }
-        default_params.update(alg_params)
-        return default_params
-
-    def set_optim(self):
-        """If the user gives an optimizer, then use it. Otherwise, use the
-        default Learner optimizer.
-        The given optimizer has to contain the required methods for the Learner
-        algorithm to function, for example inference().
-        """
-        assert "optimizer" in self.hyper_params
-        if self.optimizer == "default":
-            self.optim = Optimizer(self.pool, self.hyper_params)
-        else:
-            print("Unknown optimizer, exiting!")
-            exit()
+        self.correct_test_preds = 0
 
     def set_environment(self, env):
         """Sets the environment attribute."""
@@ -58,43 +33,79 @@ class LEARNER(object):
         if self.env.loss:
             self.scoring = "loss"
         if self.env.acc:
-            self.scoring = "acc"
+            self.scoring = "accuracy"
         if self.env.score:
             self.scoring = "score"
+        if self.env.error:
+            self.scoring = "error"
+        self.optim.set_environment(env)
 
     def optimize(self):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        self.inferences = self.optim.inference(self.env)
+        self.inference()
+        self.optim.reset_state()
         if self.scoring == "loss":
-            self.optim.calculate_losses(self.inferences, self.env)
-        elif self.scoring == "acc":
-            self.optim.calculate_correct_predictions(self.inferences, self.env)
-        elif self.scoring == "score":
-            self.optim.calculate_scores(self.inferences, self.env)
+            self.optim.calculate_losses(self.inferences)
+        elif self.scoring == "accuracy":
+            self.optim.calculate_correct_predictions(self.inferences, acc=True)
+        elif self.scoring == "score" or self.scoring == "error":
+            self.optim.calculate_scores(self.inferences)
         else:
             self.optim.set_scores(self.inferences)
         self.optim.step()
 
+    def inference(self, test=False, silent=True):
+        """This method runs inference on the given environment using the models.
+        I'm not sure, but I think there could be many ways to run inference. For
+        that reason, I designate this function, to be a single point of contact
+        for running inference, in whatever way the user/problem requires.
+        """
+        with torch.no_grad():
+            if not test:
+                # Training
+                inferences = []
+                for model in self.pool.models:
+                    inference = model(self.env.observation)
+                    inferences.append(inference)
+            else:
+                # Testing
+                model = self.pool.models[self.pool.anchors.anchors_idxs[0]]
+                model.eval()  # Turn on evaluation mode
+                inferences = model(self.env.test_data)
+        self.inferences = inferences
+        if not silent:
+            self.print_inferences()
 
-    def test(self, env):
-        """This is a method for testing."""
-        self.inferences = self.optim.inference(test=True)
-        if env.test_data is not None:
-            self.correct_test_preds = self.optim.calculate_correct_predictions(
-                                                    self.inferences, test=True)
+    def print_inferences(self):
+        """Prints the inference of the neural networks. Attempts to extract
+        the output items from the tensors.
+        """
+        print (self.inferences[0])
+        print (len(self.inferences[0]))
+        if len(self.inferences[0]) == 1:
+            x = [a.item() for a in self.inferences]
+        elif len(self.inferences[0]) == 2:
+            x = [[a[0].item(), a[1].item()] for a in self.inferences]
         else:
-            print ("Environment has no test cases!")
-            exit()
+            x = [[tensor_.item() for tensor_ in output_] for output_ in self.inferences]
+        print("Inference: ", x)
 
-    def print_test_accuracy(self, env):
+    def test(self):
+        """This is a method for testing."""
+        assert self.env.test_data is not None  # Sanity check
+        self.inference(test=True)
+        self.optim.calculate_correct_predictions(self.inferences, test=True)
+        self.correct_test_preds = self.optim.scores
+
+    def print_test_accuracy(self):
         """Prints the accuracy figure for the test/validation case/set."""
-        test_size = len(env.test_data)
+        test_size = len(self.env.test_data)
         correct = self.correct_test_preds
         self.test_acc = 100.*correct/test_size
-        if env.loss:
-            loss = self.test_loss[0]  # Assuming minizming loss
+        if self.env.loss:
+            loss = self.optim.test_loss  # Assuming minizming loss
             loss /= test_size  # Not really sure what this does
             print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
                                     loss, correct, test_size, self.test_acc))
@@ -105,17 +116,17 @@ class LEARNER(object):
     def achieved_target(self):
         """Determines whether the algorithm achieved its target or not."""
         best = self.optim.pool.elite.elite_score
-        if self.optim.hp.minimizing:
-            return best <= (self.optim.hp.target + self.optim.hp.tolerance)
+        if self.hyper_params.minimizing:
+            return best <= (self.hyper_params.target + self.hyper_params.tolerance)
         else:
-            return best >= (self.optim.hp.target - self.optim.hp.tolerance)
+            return best >= (self.hyper_params.target - self.hyper_params.tolerance)
 
     def save_weights(self, path):
         for i, sample in enumerate(self.pool):
             fn = path+"model_"+str(i)+".pth"
             torch.save(sample.state_dict(), fn)
         fn = path+"model_elite.pth"
-        torch.save(self.optim.pool.elite.model.state_dict(), fn)
+        torch.save(self.pool.elite.model.state_dict(), fn)
 
 
 

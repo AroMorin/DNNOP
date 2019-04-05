@@ -21,7 +21,7 @@ def make_alg(name, m, alg_params):
         return SGD(m, alg_params)
     elif name == 'MSN':
         return MSN(m, alg_params)
-    elif name == 'Learner':
+    elif name == 'learner':
         return LEARNER(m, alg_params)
     else:
         print("Unknown algorithm requested!")

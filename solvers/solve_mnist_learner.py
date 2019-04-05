@@ -15,13 +15,13 @@ from backend.solver import Solver
 import torch
 
 def main():
-    precision = torch.float
+    precision = torch.half
     pool_size = 50
     # Make an MNIST Dataset environment
     env_params = {
-                    "data path": "~/Documents/mnist_data",
+                    "data path": "~/Documents/ahmed/mnist_data",
                     "precision": precision,
-                    "score type": "loss",
+                    "score type": "accuracy",
                     "loss type": "NLL loss",
                     "batch size": 2000  # Entire set
                     }
@@ -37,11 +37,12 @@ def main():
 
     # Make an algorithm --algorithm takes control of the pool--
     alg_params = {
+                    "pool size": pool_size,
                     "number of anchors": 3,
                     "number of probes per anchor": 13,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -0.1,  # Percentage
+                    "minimum entropy": 0.1,  # Percentage
                     "minimum distance": 1000,
                     "patience": 20,
                     "tolerance": 0.01,
@@ -49,7 +50,7 @@ def main():
                     "lambda": 5,
                     "step size": 0.02
                     }
-    alg = algorithm_factory.make_alg("MSN", pool, alg_params)
+    alg = algorithm_factory.make_alg("learner", pool, alg_params)
 
     # Make a solver
     slv = Solver(env, alg)

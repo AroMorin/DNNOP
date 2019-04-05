@@ -11,14 +11,16 @@ from __future__ import division
 import torch
 import numpy as np
 from .msn_backend.optimizer import Optimizer
+from .hyper_parameters import Hyper_Parameters
+from .pool import Pool
 import time
 
 class MSN(object):
-    def __init__(self, pool, alg_params):
+    def __init__(self, models, alg_params):
         print ("Using MSN algorithm")
         alg_params = self.ingest_params(alg_params)
-        self.hyper_params = alg_params
-        self.pool = pool
+        self.hyper_params = Hyper_Parameters(hyper_params) # Create a hyper parameters object
+        self.pool = Pool(models, self.hp) # Create a pool object
         self.pool_size = len(pool)
         self.train_losses = []
         self.test_loss = []
@@ -77,6 +79,38 @@ class MSN(object):
             self.optim.set_scores(self.inferences)
         self.optim.step()
 
+    def inference(self, env, test=False):
+        """This method runs inference on the given environment using the models.
+        I'm not sure, but I think there could be many ways to run inference. For
+        that reason, I designate this function, to be a single point of contact
+        for running inference, in whatever way the user/problem requires.
+        """
+        inferences = []
+        with torch.no_grad():
+            if test:
+                model = self.pool.models[self.pool.anchors.anchors_idxs[0]]
+                model.eval()  # Turn on evaluation mode
+                inference = model(env.test_data)
+                inferences.append(inference)
+            else:
+                for model in self.pool.models:
+                    inference = model(env.observation)
+                    inferences.append(inference)
+        self.print_inference(inferences)
+        return inferences
+
+    def print_inference(self, outputs):
+        """Prints the inference of the neural networks. Attempts to extract
+        the output items from the tensors.
+        """
+        if self.print_inferences:
+            if len(outputs[0]) == 1:
+                x = [a.item() for a in outputs]
+            elif len(outputs[0]) == 2:
+                x = [[a[0].item(), a[1].item()] for a in outputs]
+            else:
+                x = [[tensor_.item() for tensor_ in output_] for output_ in outputs]
+            print("Inference: ", x)
 
     def test(self, env):
         """This is a method for testing."""

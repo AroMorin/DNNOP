@@ -35,13 +35,14 @@ class Optimizer(object):
         """This method calculates the loss."""
         if self.env.loss_type == 'NLL loss':
             losses = []
-            for idx, inference in enumerate(inferences):
-                if not test:
+            if not test:
+                for idx, inference in enumerate(inferences):
                     loss = F.nll_loss(inference, self.env.labels)
                     self.train_losses.append(loss)
-                else:
-                    loss = F.nll_loss(inference, self.env.test_labels, reduction='sum').item()
-                    self.test_loss = loss
+                    losses.append(loss)
+            else:
+                loss = F.nll_loss(inference, self.env.test_labels, reduction='sum').item()
+                self.test_loss = loss
                 losses.append(loss)
             self.scores = losses
         else:
@@ -55,20 +56,29 @@ class Optimizer(object):
         if not test:
             # Training
             collection = []
-            for idx, inference in enumerate(inferences):
+            for inference in inferences:
                 # Correct predictions on all test data for a single model
                 pred = inference.max(1, keepdim=True)[1]
                 correct = pred.eq(self.env.labels.view_as(pred)).sum().float()
                 if acc:
-                    size = len(self.env.observation)
-                    correct.div_(size)
-                    correct.mul_(100)
+                    self.abs_to_acc(correct)
                 collection.append(correct)
         else:
             # Testing
             pred = inferences.max(1, keepdim=True)[1]
-            collection = pred.eq(self.env.test_labels.view_as(pred)).sum().item()
+            collection = pred.eq(self.env.test_labels.view_as(pred)).sum().float().item()
+            if acc:
+                self.abs_to_acc(collection)
         self.scores = collection
+
+    def abs_to_acc(self, a):
+        """Absolute number to accuracy percentage. These are in-place
+        modification/ops on a torch tensor. It is assumed that they translate,
+        and thus no need to return the tensor back to the caller func.
+        """
+        size = len(self.env.observation)
+        a.div_(size)
+        a.mul_(100)
 
     def calculate_scores(self, inferences):
         """Calculates the scores given the network inferences."""

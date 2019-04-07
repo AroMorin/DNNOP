@@ -10,81 +10,57 @@ sys.path.insert(0, os.path.abspath('..'))
 import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory
-from solver import Solver
+from backend.solver import Solver
 
-import argparse
 import torch
 
 def main():
-    # Assumes CUDA is available
-    parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
-    parser.add_argument('--pool_size', type=int, default=50, metavar='N',
-                        help='number of samples in the pool (def: 50)')
-    parser.add_argument('--nb_anchors', type=int, default=5, metavar='N',
-                        help='number of anchors (def: 5)')
-    parser.add_argument('--nb_probes', type=int, default=8, metavar='N',
-                        help='number of probes per anchor (def: 8)')
-    parser.add_argument('--iterations', type=int, default=500, metavar='N',
-                        help='maximum number of optimization steps (def: 500)')
-    args = parser.parse_args()
-
-    precision = torch.half # Set precision
-
+    precision = torch.half
+    pool_size = 50
     # Make an MNIST Dataset environment
-    data_path = "C:/Users/aaa2cn/Documents/mnist_data"
-    #env = environments.make_env("dataset", "mnist", data_path=data_path, precision=precision)
-    env = env_factory.make_env("dataset",
-                                "mnist",
-                                data_path=data_path,
-                                batch_size=32,
-                                precision=precision,
-                                loss=False)
+    env_params = {
+                    "data path": "~/Documents/ahmed/mnist_data",
+                    "precision": precision,
+                    "score type": "accuracy",
+                    "loss type": "NLL loss",
+                    "batch size": 2000  # Entire set
+                    }
+    env = env_factory.make_env("dataset", "mnist", env_params)
 
     # Make a pool
-    pool = model_factory.make_pool("MNIST CNN MSN", args.pool_size, precision)
+    model_params = {
+                    "pool size": pool_size,
+                    "precision": precision,
+                    "weight initialization scheme": "Default"  # Xavier Normal
+                    }
+    pool = model_factory.make_pool("MNIST CNN MSN", model_params)
 
     # Make an algorithm --algorithm takes control of the pool--
-    hyper_params = {
-                    "pool size": args.pool_size,
-                    "number of anchors": args.nb_anchors,
-                    "number of probes per anchor": args.nb_probes,
+    alg_params = {
+                    "pool size": pool_size,
+                    "number of anchors": 3,
+                    "number of probes per anchor": 13,
                     "target": env.target,
-                    "minimization mode": env.minimize
+                    "minimization mode": env.minimize,
+                    "minimum entropy": 0.1,  # Percentage
+                    "minimum distance": 1000,
+                    "patience": 20,
+                    "tolerance": 0.01,
+                    "learning rate": 0.02,
+                    "lambda": 5,
+                    "step size": 0.02
                     }
-    alg = algorithm_factory.make_alg("MSN", pool, hyper_params)
+    alg = algorithm_factory.make_alg("MSN", pool, alg_params)
 
     # Make a solver
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    #slv.train_dataset_with_validation(args.iterations)
-    slv.repeated_batch_train_dataset_with_validation(args.iterations)
+    slv.train_dataset_with_validation(iterations=500)
+    #slv.repeated_batch_train_dataset_with_validation(args.iterations)
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

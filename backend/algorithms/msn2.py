@@ -1,5 +1,5 @@
 """It is expected that the hyper_params object passed to the class is compatible
-with the chosen algorithm. Thus, since Learner is chosen here, it is expected that
+with the chosen algorithm. Thus, since MSN is chosen here, it is expected that
 the hyper_params object will contain the expected information/params in the
 expected locations.
 
@@ -10,21 +10,20 @@ The optimizer object will own the pool.?
 from __future__ import division
 import torch
 import numpy as np
-from .learner_backend.hyper_parameters import Hyper_Parameters
-from .learner_backend.pool import Pool
-from .learner_backend.optimizer import Optimizer
+from .msn_backend.optimizer import Optimizer
+from .hyper_parameters import Hyper_Parameters
+from .pool import Pool
 import time
 
-class LEARNER(object):
+class MSN(object):
     def __init__(self, models, alg_params):
-        print ("Using Learner algorithm")
-        self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
-        self.pool = Pool(models, self.hyper_params) # Create a pool object
-        self.optim = Optimizer(self.pool, self.hyper_params)  # Optimizer object
-        self.pool_size = alg_params["pool size"]
+        print ("Using MSN algorithm")
+        self.hyper_params = Hyper_Parameters(hyper_params) # Create a hyper parameters object
+        self.pool = Pool(models, self.hp) # Create a pool object
+        self.optim = Optimizer(self.pool, self.hyper_params)
+        self.correct_test_preds = 0
         self.inferences = []
         self.scores = []
-        self.correct_test_preds = 0
 
     def set_environment(self, env):
         """Sets the environment attribute."""
@@ -48,7 +47,7 @@ class LEARNER(object):
         self.optim.reset_state()
         if self.scoring == "loss":
             self.optim.calculate_losses(self.inferences)
-        elif self.scoring == "accuracy":
+        elif self.scoring == "acc":
             self.optim.calculate_correct_predictions(self.inferences, acc=True)
         elif self.scoring == "score" or self.scoring == "error":
             self.optim.calculate_scores(self.inferences)
@@ -64,17 +63,15 @@ class LEARNER(object):
         """
         with torch.no_grad():
             if not test:
-                # Training
                 inferences = []
                 for model in self.pool.models:
                     inference = model(self.env.observation)
                     inferences.append(inference)
             else:
-                # Testing
                 model = self.pool.elite.model
                 model.eval()  # Turn on evaluation mode
                 inferences = model(self.env.test_data)
-        self.inferences = inferences
+        self.inferences = inferences  # Update state
         if not silent:
             self.print_inferences()
 
@@ -90,11 +87,11 @@ class LEARNER(object):
             x = [[tensor_.item() for tensor_ in output_] for output_ in self.inferences]
         print("Inference: ", x)
 
-    def test(self):
+    def test(self, env):
         """This is a method for testing."""
         assert self.env.test_data is not None  # Sanity check
-        self.inference(test=True)
-        self.optim.calculate_correct_predictions(self.inferences, test=True)
+        self.optim.inference(test=True)
+        self.optim.calculate_correct_predictions(self.inferences, test=True, acc=True)
         self.correct_test_preds = self.optim.scores
 
     def print_test_accuracy(self):
@@ -103,7 +100,7 @@ class LEARNER(object):
         correct = self.correct_test_preds
         self.test_acc = 100.*correct/test_size
         if self.env.loss:
-            loss = self.optim.test_loss  # Assuming minizming loss
+            loss = self.optim.test_loss
             loss /= test_size  # Not really sure what this does
             print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
                                     loss, correct, test_size, self.test_acc))
@@ -124,7 +121,7 @@ class LEARNER(object):
             fn = path+"model_"+str(i)+".pth"
             torch.save(sample.state_dict(), fn)
         fn = path+"model_elite.pth"
-        torch.save(self.pool.elite.model.state_dict(), fn)
+        torch.save(self.optim.pool.elite.model.state_dict(), fn)
 
 
 

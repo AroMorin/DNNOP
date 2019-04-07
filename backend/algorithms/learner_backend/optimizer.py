@@ -22,6 +22,7 @@ class Optimizer(object):
         # Will only be used if the appropriate score type is selected
         self.train_losses = []
         self.test_loss = 1
+        self.test_acc = 0
 
     def set_environment(self, env):
         self.env = env
@@ -30,6 +31,7 @@ class Optimizer(object):
         # Flush values
         self.train_losses = []
         self.test_loss = 1
+        self.test_acc = 0
 
     def calculate_losses(self, inferences, test=False):
         """This method calculates the loss."""
@@ -69,6 +71,7 @@ class Optimizer(object):
             collection = pred.eq(self.env.test_labels.view_as(pred)).sum().float().item()
             if acc:
                 self.abs_to_acc(collection)
+                self.test_acc = collection
         self.scores = collection
 
     def abs_to_acc(self, a):

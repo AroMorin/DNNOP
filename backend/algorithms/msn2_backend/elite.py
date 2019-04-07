@@ -4,7 +4,7 @@ import copy
 
 class Elite(object):
     def __init__(self, hp):
-        self.model = None
+        self.model = []
         self.elite_score = hp.initial_score
         self.minimizing = hp.minimizing
         self.elite_idx = 0

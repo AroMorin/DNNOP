@@ -40,6 +40,7 @@ class Analysis(object):
 
     def clean_list(self, x):
         """Removes deformities in the score list such as NaNs."""
+        x = torch.stack(x)
         temp = torch.zeros_like(x)
         # Removes NaNs and infinities
         self.scores = torch.where(torch.isfinite(x), x, temp)

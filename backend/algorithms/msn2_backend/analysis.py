@@ -37,9 +37,9 @@ class Analysis(object):
         self.set_search_radius()
         print("Integrity: %f" %self.integrity)
 
+
     def clean_list(self, x):
         """Removes deformities in the score list such as NaNs."""
-        x = torch.stack(x)
         temp = torch.zeros_like(x)
         # Removes NaNs and infinities
         self.scores = torch.where(torch.isfinite(x), x, temp)
@@ -57,6 +57,22 @@ class Analysis(object):
         self.sorted_idxs = self.sorted[1]
         self.new_top = self.sorted_scores[0]
         #print("Pool top score: %f" %self.new_top)
+
+    def sort_idxs(self):
+        """This function checks each element in the sorted list to retrieve
+        all matching indices in the original scores list. This preserves
+        duplicates. It reduces the likelihood that anchor slots will be
+        unfilled.
+        """
+        self.sorted_idxs = []
+        for i in range(len(self.sorted_scores)):
+            score = self.sorted_scores[i]
+            idxs = [idx for idx, value in enumerate(self.scores) if value == score]
+            self.sorted_idxs.extend(idxs)
+        # Sanity checks
+        assert len(self.sorted_idxs) == len(self.scores)  # No missing elements
+        assert len(set(self.sorted_idxs)) == len(self.sorted_idxs)  # No duplicates
+        self.top_idx = self.sorted_idxs[0]
 
     def set_integrity(self):
         """Once an improvement is detected, the flag "reset_integrity" is set

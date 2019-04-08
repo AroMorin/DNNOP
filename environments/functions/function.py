@@ -15,17 +15,16 @@ class Function(Environment):
         self.x_high = [0, 0]
         self.domain = []  # Matrix of coordinate vectors
         self.range = []  # Matrix of function values
-        self.score = True
         self.iteration = -1  # State
         self.plot = env_params["plot"]
-        self.init_plot(env_params["data path"])
 
     def ingest_params_lvl1(self, env_params):
         assert type(env_params) is dict
         default_params = {
                             "data path": "C:/",
                             "plot": False,
-                            "precision": torch.float
+                            "precision": torch.float,
+                            "scoring type": "error"
                             }
         default_params.update(env_params)  # Update with user selections
         return default_params
@@ -51,9 +50,9 @@ class Function(Environment):
 
     def set_domain(self):
         """Sets the meshgrid domain for the function."""
-        x1 = np.linspace(self.x_low[0], self.x_high[0], self.resolution)
-        x2 = np.linspace(self.x_low[1], self.x_high[1], self.resolution)
-        m1, m2 = np.meshgrid(x1, x2)
+        x1 = torch.linspace(self.x_low[0], self.x_high[0], self.resolution)
+        x2 = torch.linspace(self.x_low[1], self.x_high[1], self.resolution)
+        m1, m2 = torch.meshgrid(x1, x2)
         self.domain = [m1, m2]
 
     def set_range(self):
@@ -61,15 +60,12 @@ class Function(Environment):
         self.x = self.domain
         self.range = self.get_func()
 
-    def construct_base(self):
-        """Not sure what this does, remove?"""
-        pass
-
     def evaluate(self, position):
         """Evaluates the function given an (x1, x2) coordinate."""
-        x1 = position[0].cpu().numpy()
-        x2 = position[1].cpu().numpy()
-        self.x = [x1, x2]
+        #x1 = position[0].cpu().numpy()
+        #x2 = position[1].cpu().numpy()
+        #self.x = [x1, x2]
+        self.x = position
         self.z = self.get_func()
         return self.z
 
@@ -82,7 +78,7 @@ class Function(Environment):
             self.plotter.plot_artists(positions, scores, alg, self.iteration)
         else:
             positions = alg.inferences
-            scores = alg.scores
+            scores = alg.optim.scores
             self.plotter.plot_net(positions, scores)
 
     def step(self):
@@ -93,30 +89,32 @@ class Function(Environment):
         """Acquires the predictions and corresponding scores/evaluations from
         the algorithm object. Every category needs to be distinguished.
         """
-        elite = alg.inferences[alg.optim.pool.elite.elite_idx]
-        elite_score = alg.optim.pool.elite.elite_score
-        a = alg.optim.pool.anchors.nb_anchors
+        elite = alg.inferences[alg.pool.elite.elite_idx]
+        elite_score = alg.pool.elite.elite_score
+        a = alg.pool.anchors.nb_anchors
         anchors = alg.inferences[1:a+1]
-        anchors_scores = alg.scores[1:a+1]
+        anchors_scores = alg.optim.scores[1:a+1]
         assert len(anchors) == a  # Sanity check
-        b = a+(alg.optim.pool.anchors.nb_anchors*alg.optim.hp.nb_probes)
+        b = a+(alg.pool.anchors.nb_anchors*alg.optim.hp.nb_probes)
         probes = alg.inferences[a+1:b+1]
-        probes_scores = alg.scores[a+1:b+1]
-        assert len(probes) == len(alg.optim.pool.probes.probes_idxs)  # Sanity check
+        probes_scores = alg.optim.scores[a+1:b+1]
+        assert len(probes) == len(alg.pool.probes.probes_idxs)  # Sanity check
         blends = alg.inferences[b+1:]
-        blends_scores = alg.scores[b+1:]
-        assert len(blends) == len(alg.optim.pool.blends.blends_idxs)  # Sanity check
+        blends_scores = alg.optim.scores[b+1:]
+        assert len(blends) == len(alg.pool.blends.blends_idxs)  # Sanity check
 
         positions = {
                     "elite": elite,
                     "anchors": anchors,
                     "probes":probes,
-                    "blends":blends}
+                    "blends":blends
+                    }
         scores = {
                     "elite": elite_score,
                     "anchors": anchors_scores,
                     "probes":probes_scores,
-                    "blends":blends_scores}
+                    "blends":blends_scores
+                    }
         return positions, scores
 
 #

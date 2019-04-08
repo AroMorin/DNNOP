@@ -102,7 +102,7 @@ class Hyper_Parameters(object):
         default score to negative infinity.
         """
         if not self.hyper_params['minimization mode']:
-            self.initial_score = -numpy.inf
+            self.initial_score *= -1
 
     def sanity_checks(self):
         """Some checks to make sure the used hyperparameters make sense."""

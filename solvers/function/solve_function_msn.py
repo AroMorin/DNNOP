@@ -5,7 +5,7 @@ Currently, only MSN algorithm is avaiable to solve this problem.
 from __future__ import print_function
 import sys, os
 # Append SYSPATH in order to access different modules of the library
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
 import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory
@@ -17,13 +17,15 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
+    function = "rastrigin"
     env_params = {
-                    "data path": "~/Documents/ahmed/function_data/rastrigin/",
+                    "data path": "function_data/"+function+"/",
                     "precision": precision,
-                    "plot": False,
-                    "score type": "score"  # Function evaluation
+                    "plot": True,
+                    "score type": "error"  # Function evaluation
                     }
-    env = env_factory.make_env("function", "rastrigin", env_params)
+    env = env_factory.make_env("function", function, env_params)
+
 
     # Make a pool
     model_params = {
@@ -36,13 +38,14 @@ def main():
     # Make an algorithm --algorithm needs to take charge of the pool--
     alg_params = {
                     "pool size": 50,
-                    "number of anchors": 5,
-                    "number of probes per anchor": 8,
+                    "number of anchors": 4,
+                    "number of probes per anchor": 9,
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum entropy": -3,  # Percentage
                     "minimum distance": 400,
-                    "patience": 27,
+                    "patience": 32,
+                    "step size": 0.04,
                     "tolerance": 0.12
                     }
     alg = algorithm_factory.make_alg("MSN", pool, alg_params)

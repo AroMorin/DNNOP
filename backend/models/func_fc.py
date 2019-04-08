@@ -21,6 +21,6 @@ class Net(nn.Module):
         x = self.fc1(origin)
         x = self.act1(x)
         x = self.fc2(x)
-        x1 = torch.clamp(x[0], x1_low, x1_high)
-        x2 = torch.clamp(x[1], x2_low, x2_high)
-        return [x1, x2]
+        x[0] = torch.clamp(x[0], x1_low, x1_high)
+        x[1] = torch.clamp(x[1], x2_low, x2_high)
+        return x

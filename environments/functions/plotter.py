@@ -5,6 +5,8 @@ from matplotlib import gridspec
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 from matplotlib import cm, colors
+import torch
+import os
 
 class Plotter:
     def __init__(self, func, data_path):
@@ -14,6 +16,7 @@ class Plotter:
         self.iteration = 0
         self.backtracking = False
         self.data_path = data_path
+        self.make_dir(data_path)
         self.top = None
         self.front = None
         self.artists = []
@@ -22,7 +25,7 @@ class Plotter:
         self.gs = None
         self.x1 = func.domain[0]
         self.x2 = func.domain[1]
-        self.z = func.range
+        self.z = func.range.cpu().numpy()
         self.x1_low = 0
         self.x2_low = 0
         self.x1_high = 0
@@ -32,6 +35,10 @@ class Plotter:
         self.set_limits(func)
         self.z_levels = np.linspace(self.z_low, self.z_high, func.resolution)
         self.plot_base()
+
+    def make_dir(self, data_path):
+        if not os.path.exists(data_path):
+            os.makedirs(data_path)
 
     def set_limits(self, func):
         """Sets the limits of the plot in X1, X2 and Z axes."""
@@ -116,6 +123,7 @@ class Plotter:
         """Plots the initial guesses of the networks."""
         x = [i[0].item() for i in positions]
         y = [i[1].item() for i in positions]
+        scores = [i.item() for i in scores]
         marker = '^'
         s = 100
         color = 'black'
@@ -174,6 +182,7 @@ class Plotter:
         """Plots the elite."""
         x = position[0].item()
         y = position[1].item()
+        score = score.item()
         s = 100
         marker = '*'
         color = 'red'
@@ -186,6 +195,10 @@ class Plotter:
         """Plots the anchors."""
         x = [i[0].item() for i in positions]
         y = [i[1].item() for i in positions]
+        scores = [i.item() for i in scores]
+        print(len(x))
+        print(len(y))
+        print(len(scores))
         s = 100
         marker = 'x'
         color = 'blue'
@@ -198,6 +211,7 @@ class Plotter:
         """Plots probes."""
         x = [i[0].item() for i in positions]
         y = [i[1].item() for i in positions]
+        scores = [i.item() for i in scores]
         s = 100
         marker = '.'
         color = 'green'
@@ -210,6 +224,7 @@ class Plotter:
         """Plots blends."""
         x = [i[0].item() for i in positions]
         y = [i[1].item() for i in positions]
+        scores = [i.item() for i in scores]
         s = 100
         marker = '+'
         color = 'yellow'

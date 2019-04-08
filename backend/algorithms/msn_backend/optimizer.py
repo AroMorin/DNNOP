@@ -87,8 +87,10 @@ class Optimizer(object):
 
     def calculate_scores(self, inferences):
         """Calculates the scores given the network inferences."""
-        inferences = torch.stack(inferences)
-        scores = self.env.evaluate(inferences)
+        scores = []
+        for inference in inferences:
+            score = self.env.evaluate(inference)
+            scores.append(score)
         self.scores = scores
 
     def set_scores(self, scores):

@@ -5,7 +5,7 @@ Currently, only MSN algorithm is avaiable to solve this problem.
 from __future__ import print_function
 import sys, os
 # Append SYSPATH in order to access different modules of the library
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
 import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory

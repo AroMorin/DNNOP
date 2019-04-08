@@ -5,7 +5,7 @@ Comet ML is used to automatically upload and document the results.
 from __future__ import print_function
 import sys, os
 # Append SYSPATH in order to access different modules of the library
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../..'))
 
 import environments as env_factory
 import backend.models as model_factory
@@ -21,7 +21,7 @@ def main():
     env_params = {
                     "data path": "~/Documents/ahmed/mnist_data",
                     "precision": precision,
-                    "score type": "accuracy",
+                    "score type": "loss",
                     "loss type": "NLL loss",
                     "batch size": 2000  # Entire set
                     }
@@ -42,7 +42,7 @@ def main():
                     "number of probes per anchor": 13,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": 0.1,  # Percentage
+                    "minimum entropy": -0.1,  # Percentage
                     "minimum distance": 1000,
                     "patience": 20,
                     "tolerance": 0.01,
@@ -50,7 +50,7 @@ def main():
                     "lambda": 5,
                     "step size": 0.02
                     }
-    alg = algorithm_factory.make_alg("learner", pool, alg_params)
+    alg = algorithm_factory.make_alg("MSN2", pool, alg_params)
 
     # Make a solver
     slv = Solver(env, alg)

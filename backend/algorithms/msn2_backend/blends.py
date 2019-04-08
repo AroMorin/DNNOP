@@ -10,35 +10,33 @@ class Blends(object):
         self.hp = hp
         self.nb_blends = self.hp.pool_size-((self.hp.nb_anchors*self.hp.nb_probes)+1)
         self.nb_anchors = 0  # State not hyperparameter
-        self.models = []
+        self.vectors = []
         self.blends_idxs = []
         self.blend_type = "crisscross"  # Or "random choice"
         self.anchors = None
         self.analyzer = None
-        self.vectors = []
         self.vec_length = 0
         self.compounds1 = []
         self.compounds2 = []
         self.indices = []
 
     def set_blends(self, anchors, vectors, analyzer, perturb):
-        """Sets the blends number and models."""
-        self.update_state(anchors, vectors, analyzer, perturb)
+        """Sets the blends number and vectors."""
+        self.update_state(anchors, analyzer, perturb)
         if self.nb_blends>0:
             self.set_indices()
             self.set_compounds1()
-            self.set_compounds2()
+            self.set_compounds2(vectors)
             self.blend()
 
-    def update_state(self, anchors, vectors, analyzer, perturb):
+    def update_state(self, anchors, analyzer, perturb):
         """Resets the class state and determines the number of blends."""
-        self.models = [] # Reset state
+        self.vectors = [] # Reset state
         self.anchors = anchors
-        self.vectors = vectors
         self.analyzer = analyzer
         self.perturb = perturb
-        self.vec_length = torch.numel(anchors.models[0])
-        self.nb_anchors = len(anchors.models)
+        self.vec_length = torch.numel(anchors.vectors[0])
+        self.nb_anchors = len(anchors.vectors)
         self.nb_blends = self.hp.pool_size-(self.nb_anchors+(
                                     self.nb_anchors*self.hp.nb_probes)+1)
 
@@ -60,18 +58,18 @@ class Blends(object):
         # From anchors
         #idxs = choices(range(self.nb_anchors), k=self.nb_blends)
         idxs = np.random.choice(range(self.nb_anchors), size=self.nb_blends, replace=True)
-        self.compounds1 = [self.anchors.models[i] for i in idxs]
+        self.compounds1 = [self.anchors.vectors[i] for i in idxs]
 
-    def set_compounds2(self):
+    def set_compounds2(self, vectors):
         """Random choices from probes+blends, with replacement, as the lineup
         of second blend components.
         """
-        # From pool, i.e. vectors
+        # From pool
         lower = self.anchors.nb_anchors+1
         upper = self.anchors.nb_anchors*self.hp.nb_probes
         #idxs = choices(range(lower, upper+1), k=self.nb_blends)
         idxs = np.random.choice(range(lower, upper+1), size=self.nb_blends, replace=True)
-        self.compounds2 = [self.vectors[i] for i in idxs]
+        self.compounds2 = [vectors[i] for i in idxs]
 
     def blend(self):
         """Implements the blend action between the first and second lineup of
@@ -82,7 +80,5 @@ class Blends(object):
             c2 = self.compounds2[i]
             c1.put_(self.indices, c2[self.indices])
             blend = c1
-            #p2 = torch.take(p2, self.indices)
-            #p1.put_(self.indices, p2)  # Accumulate false
             self.perturb.apply(blend)
-            self.models.append(blend)
+            self.vectors.append(blend)

@@ -113,8 +113,8 @@ class Pool(object):
         self.available_idxs = [x for x in self.available_idxs
                                 if x not in self.anchors.anchors_idxs
                                 and x != 0]
-        self.probes.probes_idxs = self.update_models(self.probes.models)
-        self.blends.blends_idxs = self.update_models(self.blends.models)
+        self.probes.probes_idxs = self.update_models(self.probes.vectors)
+        self.blends.blends_idxs = self.update_models(self.blends.vectors)
 
         current_pool = self.models
         anchors = [current_pool[i] for i in self.anchors.anchors_idxs]
@@ -128,7 +128,6 @@ class Pool(object):
         self.models.extend(anchors)
         self.models.extend(probes)
         self.models.extend(blends)
-        assert len(self.available_idxs) == 0  # Sanity
         assert len(self.models) == self.hp.pool_size  # Same pool size
 
     def update_models(self, vectors):
@@ -145,7 +144,7 @@ class Pool(object):
 
     def set_idx(self):
         """This method blindly takes the first available index and loads it into
-        the idx attribute. It then proceeds to remove that index from the list
+        the idx attribute. It then removes that index from the list
         of available indices.
         """
         self.idx = self.available_idxs[0]

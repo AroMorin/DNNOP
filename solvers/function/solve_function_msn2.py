@@ -15,10 +15,11 @@ import argparse
 import torch
 
 def main():
+    precision = torch.float
     # Make a function environment
     env_params = {
-                    "data path": "C:/Users/aaa2cn/Documents/function_data/rastrigin/",
-                    "precision": torch.float,
+                    "data path": "~/Documents/ahmed/function_data/rastrigin/",
+                    "precision": precision,
                     "plot": False,
                     "score type": "score"  # Function evaluation
                     }
@@ -27,7 +28,7 @@ def main():
     # Make a pool
     model_params = {
                     "pool size": 50,
-                    "precision": torch.float,
+                    "precision": precision,
                     "weight initialization scheme": "Identical"
                     }
     pool = model_factory.make_pool("Function FC model", model_params)
@@ -44,7 +45,7 @@ def main():
                     "patience": 27,
                     "tolerance": 0.12
                     }
-    alg = algorithm_factory.make_alg("MSN", pool, alg_params)
+    alg = algorithm_factory.make_alg("MSN2", pool, alg_params)
 
     # Make a solver using the environment and algorithm objects
     slv = Solver(env, alg)

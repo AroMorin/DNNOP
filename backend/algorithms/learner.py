@@ -45,7 +45,6 @@ class LEARNER(object):
         obtains the scores and accordingly updates the models.
         """
         self.inference()
-        self.optim.reset_state()
         if self.scoring == "loss":
             self.optim.calculate_losses(self.inferences)
         elif self.scoring == "accuracy":
@@ -94,22 +93,20 @@ class LEARNER(object):
         """This is a method for testing."""
         assert self.env.test_data is not None  # Sanity check
         self.inference(test=True)
-        self.optim.calculate_correct_predictions(self.inferences, test=True)
-        self.correct_test_preds = self.optim.scores
+        self.optim.calculate_correct_predictions(self.inferences, test=True, acc=True)
+        if self.env.loss:
+            self.optim.calculate_losses(self.inferences, test=True)
 
     def print_test_accuracy(self):
         """Prints the accuracy figure for the test/validation case/set."""
-        test_size = len(self.env.test_data)
-        correct = self.correct_test_preds
-        self.test_acc = 100.*correct/test_size
+        test_acc = self.optim.test_acc
         if self.env.loss:
-            loss = self.optim.test_loss  # Assuming minizming loss
-            loss /= test_size  # Not really sure what this does
-            print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
-                                    loss, correct, test_size, self.test_acc))
+            test_loss = self.optim.test_loss  # Assuming minizming loss
+            test_loss /= len(self.env.test_data)
+            print('\nTest set: Loss: {:.4f}, Accuracy: ({:.0f}%)'.format(test_loss,
+                                                                test_acc))
         else:
-            print('\nTest set: Accuracy: {}/{} ({:.0f}%)'.format(
-                                    correct, test_size, self.test_acc))
+            print('\nTest set: Accuracy: ({:.0f}%)'.format(test_acc))
 
     def achieved_target(self):
         """Determines whether the algorithm achieved its target or not."""

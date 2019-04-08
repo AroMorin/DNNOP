@@ -38,15 +38,14 @@ class Optimizer(object):
         if self.env.loss_type == 'NLL loss':
             losses = []
             if not test:
-                for idx, inference in enumerate(inferences):
+                for inference in inferences:
                     loss = F.nll_loss(inference, self.env.labels)
                     self.train_losses.append(loss)
                     losses.append(loss)
+                self.scores = losses
             else:
-                loss = F.nll_loss(inference, self.env.test_labels, reduction='sum').item()
+                loss = F.nll_loss(inferences, self.env.test_labels, reduction='sum').item()
                 self.test_loss = loss
-                losses.append(loss)
-            self.scores = losses
         else:
             print("Unknown loss type")
             exit()
@@ -60,26 +59,29 @@ class Optimizer(object):
             collection = []
             for inference in inferences:
                 # Correct predictions on all test data for a single model
-                pred = inference.max(1, keepdim=True)[1]
+                pred = inference.argmax(dim=1, keepdim=True)
                 correct = pred.eq(self.env.labels.view_as(pred)).sum().float()
                 if acc:
-                    self.abs_to_acc(correct)
+                    self.abs_to_acc(correct, test=test)
                 collection.append(correct)
+            self.scores = collection
         else:
             # Testing
-            pred = inferences.max(1, keepdim=True)[1]
-            collection = pred.eq(self.env.test_labels.view_as(pred)).sum().float().item()
+            pred = inferences.argmax(dim=1, keepdim=True)
+            correct = pred.eq(self.env.test_labels.view_as(pred)).sum().float()
             if acc:
-                self.abs_to_acc(collection)
-                self.test_acc = collection
-        self.scores = collection
+                self.abs_to_acc(correct, test=test)
+            self.test_acc = correct
 
-    def abs_to_acc(self, a):
+    def abs_to_acc(self, a, test):
         """Absolute number to accuracy percentage. These are in-place
         modification/ops on a torch tensor. It is assumed that they translate,
         and thus no need to return the tensor back to the caller func.
         """
-        size = len(self.env.observation)
+        if not test:
+            size = len(self.env.observation)
+        else:
+            size = len(self.env.test_data)
         a.div_(size)
         a.mul_(100)
 

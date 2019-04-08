@@ -2,6 +2,7 @@
 
 from .sgd import SGD
 from .msn import MSN
+from .msn2 import MSN2
 from .learner import LEARNER
 
 def make_alg(name, m, alg_params):
@@ -20,6 +21,8 @@ def make_alg(name, m, alg_params):
     if name == 'sgd':
         return SGD(m, alg_params)
     elif name == 'MSN':
+        return MSN(m, alg_params)
+    elif name == 'MSN2':
         return MSN(m, alg_params)
     elif name == 'learner':
         return LEARNER(m, alg_params)

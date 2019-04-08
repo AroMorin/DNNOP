@@ -22,6 +22,7 @@ class Optimizer(object):
         # Will only be used if the appropriate score type is selected
         self.train_losses = []
         self.test_loss = 1
+        self.test_acc = 0
 
     def set_environment(self, env):
         self.env = env
@@ -30,21 +31,21 @@ class Optimizer(object):
         # Flush values
         self.train_losses = []
         self.test_loss = 1
+        self.test_acc = 0
 
     def calculate_losses(self, inferences, test=False):
         """This method calculates the loss."""
         if self.env.loss_type == 'NLL loss':
             losses = []
             if not test:
-                for idx, inference in enumerate(inferences):
+                for inference in inferences:
                     loss = F.nll_loss(inference, self.env.labels)
                     self.train_losses.append(loss)
                     losses.append(loss)
+                self.scores = losses
             else:
-                loss = F.nll_loss(inf, env.test_labels, reduction='sum').item()
+                loss = F.nll_loss(inferences, self.env.test_labels, reduction='sum').item()
                 self.test_loss = loss
-                losses.append(loss)
-            self.scores = losses
         else:
             print("Unknown loss type")
             exit()
@@ -58,33 +59,36 @@ class Optimizer(object):
             collection = []
             for inference in inferences:
                 # Correct predictions on all test data for a single model
-                pred = inference.max(1, keepdim=True)[1]
-                correct = pred.eq(env.labels.view_as(pred)).sum().float()
+                pred = inference.argmax(dim=1, keepdim=True)
+                correct = pred.eq(self.env.labels.view_as(pred)).sum().float()
+                if acc:
+                    self.abs_to_acc(correct, test=test)
                 collection.append(correct)
-            if acc:
-                self.abs_to_acc(correct)
-            collection.append(correct)
+            self.scores = collection
         else:
             # Testing
-            pred = inferences.max(1, keepdim=True)[1]
-            collection = pred.eq(env.test_labels.view_as(pred)).sum().float().item()
+            pred = inferences.argmax(dim=1, keepdim=True)
+            correct = pred.eq(self.env.test_labels.view_as(pred)).sum().float()
             if acc:
-                self.abs_to_acc(collection)
-        self.scores = collection
+                self.abs_to_acc(correct, test=test)
+            self.test_acc = correct
 
-    def abs_to_acc(self, a):
+    def abs_to_acc(self, a, test):
         """Absolute number to accuracy percentage. These are in-place
         modification/ops on a torch tensor. It is assumed that they translate,
         and thus no need to return the tensor back to the caller func.
         """
-        size = len(self.env.observation)
+        if not test:
+            size = len(self.env.observation)
+        else:
+            size = len(self.env.test_data)
         a.div_(size)
         a.mul_(100)
 
-    def calculate_scores(self, inferences, env):
+    def calculate_scores(self, inferences):
         """Calculates the scores given the network inferences."""
         inferences = torch.stack(inferences)
-        scores = env.evaluate(inferences)
+        scores = self.env.evaluate(inferences)
         self.scores = scores
 
     def set_scores(self, scores):

@@ -33,7 +33,7 @@ class Hyper_Parameters(object):
         self.target = 0
         self.tolerance = 0
         self.minimizing = True
-        self.initial_score = 99999999  # Infinity results in overflow
+        self.initial_score = float("inf")  # Infinity & high numbers results in overflow
         self.epsilon = 0.00000001  # Prevents division by zero
         self.set_hyperparams_dict(hyper_params)
         self.set_hyperparams()
@@ -102,7 +102,7 @@ class Hyper_Parameters(object):
         default score to negative infinity.
         """
         if not self.hyper_params['minimization mode']:
-            self.initial_score = -99999999  # negative inf results in overflow
+            self.initial_score *= -1  # Make score negative
 
     def sanity_checks(self):
         """Some checks to make sure the used hyperparameters make sense."""

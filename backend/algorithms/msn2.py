@@ -10,16 +10,16 @@ The optimizer object will own the pool.?
 from __future__ import division
 import torch
 import numpy as np
-from .msn_backend.optimizer import Optimizer
-from .hyper_parameters import Hyper_Parameters
-from .pool import Pool
+from .msn2_backend.optimizer import Optimizer
+from .msn2_backend.hyper_parameters import Hyper_Parameters
+from .msn2_backend.pool import Pool
 import time
 
-class MSN(object):
+class MSN2(object):
     def __init__(self, models, alg_params):
-        print ("Using MSN algorithm")
-        self.hyper_params = Hyper_Parameters(hyper_params) # Create a hyper parameters object
-        self.pool = Pool(models, self.hp) # Create a pool object
+        print ("Using MSN2 algorithm")
+        self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
+        self.pool = Pool(models, self.hyper_params) # Create a pool object
         self.optim = Optimizer(self.pool, self.hyper_params)
         self.correct_test_preds = 0
         self.inferences = []
@@ -47,7 +47,7 @@ class MSN(object):
         self.optim.reset_state()
         if self.scoring == "loss":
             self.optim.calculate_losses(self.inferences)
-        elif self.scoring == "acc":
+        elif self.scoring == "accuracy":
             self.optim.calculate_correct_predictions(self.inferences, acc=True)
         elif self.scoring == "score" or self.scoring == "error":
             self.optim.calculate_scores(self.inferences)
@@ -84,29 +84,27 @@ class MSN(object):
         elif len(self.inferences[0]) == 2:
             x = [[a[0].item(), a[1].item()] for a in self.inferences]
         else:
-            x = [[tensor_.item() for tensor_ in output_] for output_ in self.inferences]
+            x = self.inferences[0:3]
         print("Inference: ", x)
 
-    def test(self, env):
+    def test(self):
         """This is a method for testing."""
         assert self.env.test_data is not None  # Sanity check
-        self.optim.inference(test=True)
+        self.inference(test=True)
         self.optim.calculate_correct_predictions(self.inferences, test=True, acc=True)
-        self.correct_test_preds = self.optim.scores
+        if self.env.loss:
+            self.optim.calculate_losses(self.inferences, test=True)
 
     def print_test_accuracy(self):
         """Prints the accuracy figure for the test/validation case/set."""
-        test_size = len(self.env.test_data)
-        correct = self.correct_test_preds
-        self.test_acc = 100.*correct/test_size
+        test_acc = self.optim.test_acc
         if self.env.loss:
-            loss = self.optim.test_loss
-            loss /= test_size  # Not really sure what this does
-            print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)'.format(
-                                    loss, correct, test_size, self.test_acc))
+            test_loss = self.optim.test_loss  # Assuming minizming loss
+            test_loss /= len(self.env.test_data)
+            print('\nTest set: Loss: {:.4f}, Accuracy: ({:.0f}%)'.format(test_loss,
+                                                                test_acc))
         else:
-            print('\nTest set: Accuracy: {}/{} ({:.0f}%)'.format(
-                                    correct, test_size, self.test_acc))
+            print('\nTest set: Accuracy: ({:.0f}%)'.format(test_acc))
 
     def achieved_target(self):
         """Determines whether the algorithm achieved its target or not."""

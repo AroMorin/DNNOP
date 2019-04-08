@@ -41,6 +41,7 @@ class Pool(object):
         # Arbitrarily chose 4th model in pool
         self.set_shapes(self.state_dicts[4])
         self.set_vectors()
+        self.perturb.init_perturbation(self.vectors[0])
 
     def set_state_dicts(self):
         """This method takes in the list of models, i.e. pool, and produces
@@ -89,7 +90,7 @@ class Pool(object):
         self.anchors.set_anchors(self.vectors, self.analyzer)
 
         # Define noise magnitude and scale
-        self.perturb.set_perturbation(self.vectors[0], self.analyzer)
+        self.perturb.update_state(self.analyzer)
 
         # Implement probes and blends
         self.probes.set_probes(self.anchors, self.perturb)
@@ -113,8 +114,8 @@ class Pool(object):
         self.available_idxs = [x for x in self.available_idxs
                                 if x not in self.anchors.anchors_idxs
                                 and x != 0]
-        self.probes.probes_idxs = self.update_models(self.probes.models)
-        self.blends.blends_idxs = self.update_models(self.blends.models)
+        self.probes.probes_idxs = self.update_models(self.probes.vectors)
+        self.blends.blends_idxs = self.update_models(self.blends.vectors)
 
         current_pool = self.models
         anchors = [current_pool[i] for i in self.anchors.anchors_idxs]
@@ -128,7 +129,6 @@ class Pool(object):
         self.models.extend(anchors)
         self.models.extend(probes)
         self.models.extend(blends)
-        assert len(self.available_idxs) == 0  # Sanity
         assert len(self.models) == self.hp.pool_size  # Same pool size
 
     def update_models(self, vectors):
@@ -145,7 +145,7 @@ class Pool(object):
 
     def set_idx(self):
         """This method blindly takes the first available index and loads it into
-        the idx attribute. It then proceeds to remove that index from the list
+        the idx attribute. It then removes that index from the list
         of available indices.
         """
         self.idx = self.available_idxs[0]

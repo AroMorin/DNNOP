@@ -53,9 +53,13 @@ class Analysis(object):
             self.sorted = self.scores.sort()
         else:
             self.sorted = self.scores.sort(descending=True)
+        # .sort() returns two lists they are assigned below
         self.sorted_scores = self.sorted[0]
         self.sorted_idxs = self.sorted[1]
+
+        # Update state
         self.new_top = self.sorted_scores[0]
+        self.top_idx = self.sorted_idxs[0]
         #print("Pool top score: %f" %self.new_top)
 
     def set_integrity(self):

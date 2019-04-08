@@ -6,7 +6,7 @@ import math
 class Anchors(object):
     def __init__(self, hp):
         self.hp = hp
-        self.models = []
+        self.vectors = []
         self.anchors_idxs = []
         self.nb_anchors = 0  # State not hyperparameter
         self.print_distance = True
@@ -18,7 +18,7 @@ class Anchors(object):
         self.reset_state()
         #idxs = list(range(self.hp.pool_size))
         anchors_idxs = self.set_anchors_idxs(analyzer.sorted_idxs, vectors)
-        self.set_models(vectors)
+        self.set_vectors(vectors)
         print("Anchors: ", len(self.anchors_idxs))
         print("Anchors idxs: ", self.anchors_idxs)
 
@@ -27,15 +27,13 @@ class Anchors(object):
 
     def reset_state(self):
         """Resets the class' states."""
-        self.models = []
+        self.vectors = []
         self.anchors_idxs = []
         self.nb_anchors = 0
 
     def set_anchors_idxs(self, sorted_idxs, vectors):
         """Determines the indices for anchors."""
         for i in sorted_idxs:
-            if i == 0:
-                continue  # skip Elite
             candidate = vectors[i]
             self.admit(candidate, i, vectors)
             if self.nb_anchors == self.hp.nb_anchors:
@@ -81,10 +79,10 @@ class Anchors(object):
         result = j.sum()
         return result
 
-    def set_models(self, pool):
-        """Sets the models of the anchors."""
+    def set_vectors(self, pool):
+        """Sets the vectors of the anchors."""
         for i in self.anchors_idxs:
-            self.models.append(pool[i])
+            self.vectors.append(pool[i])
 
 
 

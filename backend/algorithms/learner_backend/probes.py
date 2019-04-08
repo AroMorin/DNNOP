@@ -6,32 +6,30 @@ import torch
 class Probes(object):
     def __init__(self, hp):
         self.nb_probes = hp.nb_probes
-        self.models = []
+        self.vectors = []
         self.probes_idxs = []
         self.perturb = None
-        self.anchors = None
 
     def set_probes(self, anchors, perturb):
         """Set the new probes based on the calculated anchors."""
-        self.update_state(anchors, perturb)
-        for anchor in anchors.models:
-            self.create_probes(anchor)
+        self.update_state(perturb)
+        for vector in anchors.vectors:
+            self.create_probes(vector)
         # Sanity check
-        assert len(self.models) == ((len(anchors.models))*(self.nb_probes))
+        assert len(self.vectors) == ((len(anchors.vectors))*(self.nb_probes))
 
-    def update_state(self, anchors, perturb):
+    def update_state(self, perturb):
         """Updates class state."""
-        self.models = []  # Reset state
-        self.anchors = anchors
+        self.vectors = []  # Reset state
         self.perturb = perturb
 
-    def create_probes(self, anchor):
+    def create_probes(self, vector):
         """Create a clone of anchors, then implement the perturbation operation.
         """
         for _ in range(self.nb_probes):
-            probe = anchor.clone()
+            probe = vector.clone()
             self.perturb.apply(probe)
-            self.models.append(probe)
+            self.vectors.append(probe)
 
 
 #

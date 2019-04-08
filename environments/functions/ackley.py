@@ -30,7 +30,7 @@ class Ackley(Function):
         f = -a*torch.exp(e)
         g = torch.cos(torch.mul(self.x[0], c))+torch.cos(torch.mul(self.x[1], c))
         h = torch.exp(0.5*g)
-        i = f-h+a+torch.exp(torch.ones(1))
+        i = f-h+a+math.exp(1)
         return i
 
 

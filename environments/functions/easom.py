@@ -8,11 +8,11 @@ import torch
 
 class Easom(Function):
     def __init__(self, env_params):
-        super(Schwefel, self).__init__(env_params)
+        super(Easom, self).__init__(env_params)
         self.x = None  # NP array
         self.x_low = [-100, -100]
         self.x_high = [100, 100]
-        self.optimal_x = [np.pi, np.pi]  # Location
+        self.optimal_x = [math.pi, math.pi]  # Location
         self.target = -1
         self.resolution = 250
         self.z = None  # Function evaluation

@@ -17,7 +17,7 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
-    function = "eggholder"
+    function = "ackley"
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,

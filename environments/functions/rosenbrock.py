@@ -21,12 +21,9 @@ class Rosenbrock(Function):
 
     def get_func(self):
         """Evaluate the function based on the position attribute."""
-        a = 100
-        b = (self.x[1]**2)-(self.x[0]**2)
-        #b = np.square(self.x[1]-np.square(self.x[0]))
-        c = (self.x[0]**2)-1
-        #c = np.square(self.x[0]-1)
-        d = (a*b)+c
+        b = (self.x[1].sub(self.x[0]**2))**2
+        c = (self.x[0].sub(1))**2
+        d = (100*b)+c
         return d
 
 

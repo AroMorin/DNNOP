@@ -17,13 +17,15 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
+    function = "eggholder"
     env_params = {
-                    "data path": "~/Documents/ahmed/function_data/rastrigin/",
+                    "data path": "function_data/"+function+"/",
                     "precision": precision,
-                    "plot": False,
-                    "score type": "score"  # Function evaluation
+                    "plot": True,
+                    "score type": "error"  # Function evaluation
                     }
-    env = env_factory.make_env("function", "rastrigin", env_params)
+    env = env_factory.make_env("function", function, env_params)
+
 
     # Make a pool
     model_params = {
@@ -36,14 +38,17 @@ def main():
     # Make an algorithm --algorithm needs to take charge of the pool--
     alg_params = {
                     "pool size": 50,
-                    "number of anchors": 5,
-                    "number of probes per anchor": 8,
+                    "number of anchors": 4,
+                    "number of probes per anchor": 9,
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum entropy": -3,  # Percentage
-                    "minimum distance": 400,
-                    "patience": 27,
-                    "tolerance": 0.12
+                    "minimum distance": 430,
+                    "patience": 32,
+                    "tolerance": 0.12,
+                    "learning rate": 0.1,
+                    "lambda": 5,
+                    "step size": 0.02
                     }
     alg = algorithm_factory.make_alg("MSN2", pool, alg_params)
 

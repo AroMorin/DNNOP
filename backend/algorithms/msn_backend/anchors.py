@@ -19,6 +19,7 @@ class Anchors(object):
         #idxs = list(range(self.hp.pool_size))
         anchors_idxs = self.set_anchors_idxs(analyzer.sorted_idxs, vectors)
         self.set_vectors(vectors)
+        print("Top IDX: ", analyzer.top_idx)
         print("Anchors: ", len(self.anchors_idxs))
         print("Anchors idxs: ", self.anchors_idxs)
 
@@ -38,10 +39,6 @@ class Anchors(object):
             self.admit(candidate, i, vectors)
             if self.nb_anchors == self.hp.nb_anchors:
                 break  # Terminate
-
-    def remove_elite(self, idxs):
-        """Removes the elite index."""
-        idxs.remove(0)
 
     def admit(self, candidate, candidate_idx, vectors):
         """Determines whether to admit a sample into the anchors list."""

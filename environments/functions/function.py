@@ -74,8 +74,7 @@ class Function(Environment):
         a figure on disk/storage.
         """
         if self.iteration != 0:
-            positions, scores = self.get_artists(alg)
-            self.plotter.plot_artists(positions, scores, alg, self.iteration)
+            self.plotter.plot_artists(alg, self.iteration)
         else:
             positions = alg.inferences
             scores = alg.optim.scores
@@ -84,37 +83,5 @@ class Function(Environment):
     def step(self):
         """Steps the environment."""
         self.iteration += 1
-
-    def get_artists(self, alg):
-        """Acquires the predictions and corresponding scores/evaluations from
-        the algorithm object. Every category needs to be distinguished.
-        """
-        elite = alg.inferences[alg.pool.elite.elite_idx]
-        elite_score = alg.pool.elite.elite_score
-        a = alg.pool.anchors.nb_anchors
-        anchors = alg.inferences[1:a+1]
-        anchors_scores = alg.optim.scores[1:a+1]
-        assert len(anchors) == a  # Sanity check
-        b = a+(alg.pool.anchors.nb_anchors*alg.optim.hp.nb_probes)
-        probes = alg.inferences[a+1:b+1]
-        probes_scores = alg.optim.scores[a+1:b+1]
-        assert len(probes) == len(alg.pool.probes.probes_idxs)  # Sanity check
-        blends = alg.inferences[b+1:]
-        blends_scores = alg.optim.scores[b+1:]
-        assert len(blends) == len(alg.pool.blends.blends_idxs)  # Sanity check
-
-        positions = {
-                    "elite": elite,
-                    "anchors": anchors,
-                    "probes":probes,
-                    "blends":blends
-                    }
-        scores = {
-                    "elite": elite_score,
-                    "anchors": anchors_scores,
-                    "probes":probes_scores,
-                    "blends":blends_scores
-                    }
-        return positions, scores
 
 #

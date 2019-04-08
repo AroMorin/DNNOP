@@ -6,8 +6,8 @@ from .function import Function
 import numpy as np
 
 class Rosenbrock(Function):
-    def __init__(self, plot, precision, data_path):
-        super().__init__(plot, precision)
+    def __init__(self, env_params):
+        super(Rosenbrock, self).__init__(env_params)
         self.x = None  # NP array
         self.x_low = [-5, -5]
         self.x_high = [10, 10]
@@ -17,13 +17,15 @@ class Rosenbrock(Function):
         self.set_observation()
         self.set_domain()
         self.set_range()
-        self.init_plot(data_path)
+        self.init_plot(env_params["data path"])
 
     def get_func(self):
         """Evaluate the function based on the position attribute."""
         a = 100
-        b = np.square(self.x[1]-np.square(self.x[0]))
-        c = np.square(self.x[0]-1)
+        b = (self.x[1]**2)-(self.x[0]**2)
+        #b = np.square(self.x[1]-np.square(self.x[0]))
+        c = (self.x[0]**2)-1
+        #c = np.square(self.x[0]-1)
         d = (a*b)+c
         return d
 

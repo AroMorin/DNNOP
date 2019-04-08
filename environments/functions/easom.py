@@ -3,11 +3,12 @@ problem dimensions is arbitrary, as well as the bounds.
 https://www.sfu.ca/~ssurjano/easom.html
 """
 from .function import Function
-import numpy as np
+import math
+import torch
 
 class Easom(Function):
-    def __init__(self, plot, precision, data_path):
-        super().__init__(plot, precision)
+    def __init__(self, env_params):
+        super(Schwefel, self).__init__(env_params)
         self.x = None  # NP array
         self.x_low = [-100, -100]
         self.x_high = [100, 100]
@@ -18,15 +19,15 @@ class Easom(Function):
         self.set_observation()
         self.set_domain()
         self.set_range()
-        self.init_plot(data_path)
+        self.init_plot(env_params["data path"])
 
     def get_func(self):
         """Evaluate the function based on the position attribute."""
-        a = np.cos(self.x[0])*np.cos(self.x[1])
-        b = np.square(self.x[0]-np.pi)
-        c = np.square(self.x[1]-np.pi)
+        a = torch.cos(self.x[0])*torch.cos(self.x[1])
+        b = (self.x[0]-math.pi)**2
+        c = (self.x[1]-math.pi)**2
         d = -b-c
-        e = -a*np.exp(d)
+        e = -a*torch.exp(d)
         return e
 
 

@@ -3,11 +3,11 @@ problem dimensions is arbitrary, as well as the bounds.
 https://www.sfu.ca/~ssurjano/bukin6.html
 """
 from .function import Function
-import numpy as np
+import torch
 
 class Bukin6(Function):
-    def __init__(self, plot, precision, data_path):
-        super().__init__(plot, precision)
+    def __init__(self, env_params):
+        super(Bukin6, self).__init__(env_params)
         self.x = None  # NP array
         self.x_low = [-15, -5]
         self.x_high = [-3, 3]
@@ -17,14 +17,14 @@ class Bukin6(Function):
         self.set_observation()
         self.set_domain()
         self.set_range()
-        self.init_plot(data_path)
+        self.init_plot(env_params["data path"])
 
     def get_func(self):
         """Evaluate the function based on the position attribute."""
         a = 100
-        b = self.x[1]-(0.01*np.square(self.x[0]))
-        c = np.sqrt(np.abs(b))
-        d = 0.01*np.abs(self.x[0]+10)
+        b = self.x[1]-(0.01*(self.x[0]**2))
+        c = torch.sqrt(torch.abs(b))
+        d = 0.01*torch.abs(self.x[0]+10)
         return (a*c)+d
 
 

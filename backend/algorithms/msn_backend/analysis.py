@@ -112,7 +112,7 @@ class Analysis(object):
         #t1 = time.time()
         #torch.cuda.synchronize()
         #print("-----------time %s-------------" %(time.time()-t1))
-        eps = self.current_top.gt(0)
+        eps = self.current_top.ne(0)
         if eps:
             # Percentage change
             _ = self.new_top.sub(self.current_top)

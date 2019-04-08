@@ -136,15 +136,15 @@ class Plotter:
         self.save_figure()
         self.remove_artists()
 
-    def plot_artists(self, positions, scores, alg, iteration):
+    def plot_artists(self, alg, iteration):
         """Adds the guesses from the networks, saves the plot figure, then
         removes the artists.
         """
         self.update_state(alg, iteration)
-        self.plot_anchors(positions["anchors"], scores["anchors"])
-        self.plot_probes(positions["probes"], scores["probes"])
-        self.plot_blends(positions["blends"], scores["blends"])
-        self.plot_elite(positions["elite"], scores["elite"])
+        self.plot_anchors()
+        self.plot_probes()
+        self.plot_blends()
+        self.plot_elite()
         self.iso.legend(loc='best')
         self.plot_text()
         self.save_figure()
@@ -152,13 +152,42 @@ class Plotter:
 
     def update_state(self, alg, iteration):
         """Update plotter state."""
-        self.backtracking = alg.optim.pool.analyzer.backtracking
-        self.integrity = alg.optim.pool.analyzer.integrity
+        self.backtracking = alg.pool.analyzer.backtracking
+        self.integrity = alg.pool.analyzer.integrity
         self.iteration = iteration
-        self.elite_position = alg.inferences[alg.optim.pool.elite.elite_idx]
-        self.elite_score = alg.optim.pool.elite.elite_score
         self.artists = []  # Reset state
         self.net = []  # Reset state
+
+        elite = alg.inferences[alg.pool.elite.elite_idx]
+        elite_score = alg.pool.elite.elite_score
+        self.elite_x = elite[0].item()
+        self.elite_y = elite[1].item()
+        self.elite_score = elite_score.item()
+
+        a = alg.pool.anchors.nb_anchors
+        anchors = alg.inferences[1:a+1]
+        anchors_scores = alg.optim.scores[1:a+1]
+        assert len(anchors) == a  # Sanity check
+        self.anchors_x = [i[0].item() for i in anchors]
+        self.anchors_y = [i[1].item() for i in anchors]
+        self.anchors_scores = [i.item() for i in anchors_scores]
+
+        b = a+(alg.pool.anchors.nb_anchors*alg.optim.hp.nb_probes)
+        probes = alg.inferences[a+1:b+1]
+        probes_scores = alg.optim.scores[a+1:b+1]
+        assert len(probes) == len(alg.pool.probes.probes_idxs)  # Sanity check
+        self.probes_x = [i[0].item() for i in probes]
+        self.probes_y = [i[1].item() for i in probes]
+        self.probes_scores = [i.item() for i in probes_scores]
+
+
+        blends = alg.inferences[b+1:]
+        blends_scores = alg.optim.scores[b+1:]
+        assert len(blends) == len(alg.pool.blends.blends_idxs)  # Sanity check
+        self.blends_x = [i[0].item() for i in blends]
+        self.blends_y = [i[1].item() for i in blends]
+        self.blends_scores = [i.item() for i in blends_scores]
+
 
     def plot_text(self):
         """Adds text to the plot figure. Text conveys important information
@@ -168,8 +197,8 @@ class Plotter:
         score_str = 'Elite Score: '+str("{0:.4g}".format(self.elite_score))
         b = self.fig.text(0.85, 0.1, score_str)
         pos_str = 'Elite Position: ('+str(
-                    "{0:.4g}".format(self.elite_position[0]))+', '+str(
-                    "{0:.4g}".format(self.elite_position[1]))+')'
+                    "{0:.4g}".format(self.elite_x))+', '+str(
+                    "{0:.4g}".format(self.elite_y))+')'
         c = self.fig.text(0.85, 0.08, pos_str)
         integrity_str = 'Integrity: '+str("{0:.4g}".format(self.integrity))
         d = self.fig.text(0.85, 0.06, integrity_str)
@@ -178,11 +207,11 @@ class Plotter:
             e = self.fig.text(0.85, 0.04, 'Backtracking activated!')
         self.artists.extend([a, b, c, d, e])
 
-    def plot_elite(self, position, score):
+    def plot_elite(self):
         """Plots the elite."""
-        x = position[0].item()
-        y = position[1].item()
-        score = score.item()
+        x = self.elite_x
+        y = self.elite_y
+        score = self.elite_score
         s = 100
         marker = '*'
         color = 'red'
@@ -191,14 +220,11 @@ class Plotter:
         c = self.iso.scatter(x, y, score, marker=marker, s=s, c=color, label = 'elite')
         self.artists.extend([a, b, c])
 
-    def plot_anchors(self, positions, scores):
+    def plot_anchors(self):
         """Plots the anchors."""
-        x = [i[0].item() for i in positions]
-        y = [i[1].item() for i in positions]
-        scores = [i.item() for i in scores]
-        print(len(x))
-        print(len(y))
-        print(len(scores))
+        x = self.anchors_x
+        y = self.anchors_y
+        scores = self.anchors_scores
         s = 100
         marker = 'x'
         color = 'blue'
@@ -207,11 +233,11 @@ class Plotter:
         c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color, label = 'anchors')
         self.artists.extend([a, b, c])
 
-    def plot_probes(self, positions, scores):
+    def plot_probes(self):
         """Plots probes."""
-        x = [i[0].item() for i in positions]
-        y = [i[1].item() for i in positions]
-        scores = [i.item() for i in scores]
+        x = self.probes_x
+        y = self.probes_y
+        scores = self.probes_scores
         s = 100
         marker = '.'
         color = 'green'
@@ -220,11 +246,11 @@ class Plotter:
         c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color, label = 'probes')
         self.artists.extend([a, b, c])
 
-    def plot_blends(self, positions, scores):
+    def plot_blends(self):
         """Plots blends."""
-        x = [i[0].item() for i in positions]
-        y = [i[1].item() for i in positions]
-        scores = [i.item() for i in scores]
+        x = self.blends_x
+        y = self.blends_y
+        scores = self.blends_scores
         s = 100
         marker = '+'
         color = 'yellow'

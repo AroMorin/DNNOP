@@ -43,10 +43,12 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum entropy": -3,  # Percentage
-                    "minimum distance": 400,
+                    "minimum distance": 450,
                     "patience": 32,
-                    "step size": 0.04,
-                    "tolerance": 0.12
+                    "tolerance": 0.12,
+                    "learning rate": 0.5,
+                    "lambda": 5,
+                    "step size": 0.02
                     }
     alg = algorithm_factory.make_alg("MSN", pool, alg_params)
 

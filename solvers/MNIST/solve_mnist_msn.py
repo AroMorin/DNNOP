@@ -21,7 +21,7 @@ def main():
     env_params = {
                     "data path": "~/Documents/ahmed/mnist_data",
                     "precision": precision,
-                    "score type": "loss",
+                    "score type": "accuracy",
                     "loss type": "NLL loss",
                     "batch size": 2000  # Entire set
                     }
@@ -42,7 +42,7 @@ def main():
                     "number of probes per anchor": 13,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -0.1,  # Percentage
+                    "minimum entropy": 0.1,  # Percentage
                     "minimum distance": 1000,
                     "patience": 20,
                     "tolerance": 0.01,

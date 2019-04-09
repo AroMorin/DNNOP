@@ -16,11 +16,12 @@ class Perturbation(object):
         self.size = 0
         self.distribution = None
         self.precision = None
-        self.choices = None
+        self.choices = []
         self.even_p = None
         self.p = None  # Index choice probability vector (P dist)
         self.p_counter = 0
-        self.discount = 0.1  # discount is 10% of equal probability value
+        self.decr = 0.1  # decrease is 10% of probability value
+        self.incr = 0.2  # increase is 20% of probability value
         self.device = torch.device('cuda')
 
     def init_perturbation(self, vec):
@@ -35,10 +36,12 @@ class Perturbation(object):
 
     def update_state(self, analyzer):
         # Set noise size (scope)
+        self.choices = []
         self.size = int(analyzer.num_selections*self.vec_length)
         print("Number of selections: %d" %self.size)
         self.set_noise_dist(analyzer.search_radius)
         self.p_counter = 0  # Resets counter for P-dist function
+        self.update_p(analzer.scores)
 
     def set_noise_dist(self, limit):
         """Determines the shape and magnitude of the noise."""
@@ -70,11 +73,9 @@ class Perturbation(object):
         """
         np.random.seed()
         choices = np.random.choice(self.indices, self.size, replace=False, p=self.p)
-        self.update_p(choices)
-        #self.choices = torch.tensor(choices).cuda().long()
-        self.choices = choices.tolist()
+        self.choices.append(choices.tolist())
 
-    def update_p(self, choices):
+    def update_p(self, scores, ):
         """Counts the number of steps the function is called. We want to reset
         the P-distribution for every anchor. Thus, we reset the counter after
         M calls, which corresponds to M probes. To ensure this mechanism works
@@ -88,24 +89,48 @@ class Perturbation(object):
         creating a "depression vector" and subtracts said vector from the
         current p_vector. Subtraction happens only at the indices chosen.
         """
-        if self.p_counter <= self.hp.nb_probes:
-            self.push_down(choices)
-            self.push_up(choices)
-            self.p_counter += 1  # Increment counter
-        else:
-            self.p = self.even_p  # Reset State
-            self.p_counter = 0  # Reset state, new anchor
+        for i, choices in enumerate(self.choices):
+            if self.improved(self.scores[i]):
+                self.increase_p(choices)
+            else:
+                self.decrease_p(choices)
+                self.p_counter += 1  # Increment counter
+            else:
+                self.p = self.even_p  # Reset State
+                self.p_counter = 0  # Reset state, new anchor
 
-    def push_down(self, choices):
-        decrease = np.full(self.size, self.discount)
-        temp = np.subtract(self.p[choices], decrease)
-        temp[temp<0] = 0  # No negative probabilities
-        self.p[choices] = temp
+    def improved(self, val):
+        new_d = torch.abs(self.new_top-self.hp.target)
+        return new_d < self.current_d
 
-    def push_up(self, choices):
+    def increase_p(self, choices):
+        """This method decreases p at "choices" locations. No need to worry
+        about negatives here. We decrease by the same amount we increased.
+        """
+        # Pull up "choices"
+        delta = self.incr/len(choices)
+        dt = torch.full(self.size, delta)  # Delta tensor
+        self.p[choices].add_(dt)
+        # Push down everything else
         others = np.delete(np.arange(self.vec_length), choices)
-        increase = (1 - np.sum(self.p))/len(others)
-        self.p[others] = np.add(self.p[others], increase)
+        delta = self.incr/len(others)
+        dt = torch.full(len(others), delta)  # Delta tensor
+        self.p[others].sub_(delta)
+
+    def decrease_p(self, choices):
+        """This method decreases p at "choices" locations."""
+        # Push down "choices"
+        delta = self.decr/len(choices)
+        dt = torch.full(self.size, delta)
+        self.p[choices].sub_(delta)
+        self.p[self.p<0] = 0  # No negative probabilities
+
+        # Pull up everything else
+        others = np.delete(np.arange(self.vec_length), choices)
+        d = (1-self.p.sum().item())/len(others)
+        delta = torch.full(len(others), d)
+        self.p[others].add_(delta)
+
 
     def get_noise(self):
         """ This function defines a noise tensor, and returns it. The noise

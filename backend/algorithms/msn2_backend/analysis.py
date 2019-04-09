@@ -10,6 +10,8 @@ class Analysis(object):
         self.hp = hyper_params
         self.current_top = torch.tensor(self.hp.initial_score, device='cuda')
         self.new_top = torch.tensor(self.hp.initial_score, device='cuda')
+        self.current_d = float("inf")  # Infinite distance from target
+        self.vanilla = torch.full(self.hp.pool_size, self.hp.initial_score, device='cuda')
         self.top_idx = 0
         self.scores = []
         self.sorted_scores = []
@@ -41,9 +43,8 @@ class Analysis(object):
     def clean_list(self, x):
         """Removes deformities in the score list such as NaNs."""
         x = torch.stack(x)
-        temp = torch.zeros_like(x)
         # Removes NaNs and infinities
-        self.scores = torch.where(torch.isfinite(x), x, temp)
+        self.scores = torch.where(torch.isfinite(x), x, self.vanilla)
 
     def sort_scores(self):
         """This function sorts the values in the list. Duplicates are removed
@@ -51,15 +52,13 @@ class Analysis(object):
         """
         self.current_top = self.new_top  # Inheritance
         if self.hp.minimizing:
-            self.sorted = self.scores.sort()
+            self.sorted_scores, self.sorted_idxs = self.scores.sort()
         else:
-            self.sorted = self.scores.sort(descending=True)
+            self.sorted_scores, self.sorted_idxs = self.scores.sort(descending=True)
         # .sort() returns two lists they are assigned below
-        self.sorted_scores = self.sorted[0]
-        self.sorted_idxs = self.sorted[1]
         self.new_top = self.sorted_scores[0]
         self.top_idx = self.sorted_idxs[0]
-        #print("Pool top score: %f" %self.new_top)
+        print("Pool top score: %f" %self.new_top)
 
     def set_integrity(self):
         """Once an improvement is detected, the flag "reset_integrity" is set
@@ -91,44 +90,14 @@ class Analysis(object):
         """
         # Make sure we are not in the very first iteration
         if self.step>0:
-            self.set_entropy()
-            print("Entropy :%f" %self.entropy)
-            if self.hp.minimizing:
-                return self.entropy <= self.hp.min_entropy
-            else:
-                return self.entropy >= self.hp.min_entropy
+            new_d = torch.abs(self.new_top-self.hp.target)
+            res = new_d < current_d
+            self.current_d = new_d
+            return res
         else:
             # Improved over the initial score
             self.step +=1
             return True
-
-    def set_entropy(self):
-        """Function is constructed such that the conditional will evaluate to
-        True most of the time.
-        The integrity needs to be reset at some point, however. Maybe backtracking
-        is just enough for now? I want to reset integrity once no improvement
-        was detected (but only the first instance of such occasion).
-        """
-        #t1 = time.time()
-        #torch.cuda.synchronize()
-        #print("-----------time %s-------------" %(time.time()-t1))
-        eps = self.current_top.ne(0)
-        if eps:
-            # Percentage change
-            _ = self.new_top.sub(self.current_top)
-            _ = torch.div(_, self.current_top.abs())
-            _ = torch.mul(_, 100)
-            self.entropy = _
-            #self.entropy = ((self.new_top-self.current_top)/abs(self.current_top))*100
-        else:
-            # Prevent division by zero
-            _ = self.new_top.sub(self.current_top)
-            _ = torch.div(_, self.hp.epsilon)
-            _ = torch.mul(_, 100)
-            self.entropy = _
-            #self.entropy = ((self.new_top-self.current_top)/self.hp.epsilon)*100
-        #print("Entropy: %f" %self.entropy)
-
 
     def review(self, nb_anchors):
         """Implements the backtracking and radial expansion functionalities."""

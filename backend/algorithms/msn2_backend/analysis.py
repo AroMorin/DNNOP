@@ -39,7 +39,6 @@ class Analysis(object):
         self.set_search_radius()
         print("Integrity: %f" %self.integrity)
 
-
     def clean_list(self, x):
         """Removes deformities in the score list such as NaNs."""
         x = torch.stack(x)
@@ -90,8 +89,8 @@ class Analysis(object):
         """
         # Make sure we are not in the very first iteration
         if self.step>0:
-            new_d = torch.abs(self.new_top-self.hp.target)
-            res = new_d < current_d
+            new_d = abs(self.new_top-self.hp.target)  # Distance to target
+            res = new_d < self.current_d
             self.current_d = new_d
             return res
         else:

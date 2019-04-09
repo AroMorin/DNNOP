@@ -17,7 +17,8 @@ class Perturbation(object):
         self.distribution = None
         self.precision = None
         self.choices = []
-        self.even_p = None
+        self.vanilla_delta = 0
+        self.unifrom_p = None
         self.p = None  # Index choice probability vector (P dist)
         self.p_counter = 0
         self.decr = 0.1  # decrease is 10% of probability value
@@ -28,11 +29,12 @@ class Perturbation(object):
         """Initialize state and some variables."""
         self.precision = vec.dtype
         self.vec_length = torch.numel(vec)
-        self.indices = range(self.vec_length)
-        even_prob = 1/(self.vec_length)
-        self.even_p = np.full(self.vec_length, even_prob)
-        self.p = self.even_p
-        self.discount = even_prob*self.discount  # Factor in the vector size
+        self.indices = torch.arange(self.vec_length, device=self.device)
+        self.vanilla_delta = 1/(self.vec_length)
+        self.incr *= self.vanilla_delta  # Factor in the vector size
+        self.decr *= self.vanilla_delta  # Factor in the vector size
+        self.uniform_p = torch.full(self.vec_length, self.vanilla_delta)
+        self.p = self.uniform_p
 
     def update_state(self, analyzer):
         # Set noise size (scope)
@@ -75,53 +77,37 @@ class Perturbation(object):
         choices = np.random.choice(self.indices, self.size, replace=False, p=self.p)
         self.choices.append(choices.tolist())
 
-    def update_p(self, scores, ):
-        """Counts the number of steps the function is called. We want to reset
-        the P-distribution for every anchor. Thus, we reset the counter after
-        M calls, which corresponds to M probes. To ensure this mechanism works
-        as expected, we also reset counter every optimization iteration, to make
-        sure we do not "carryover" the state into a new generation (since the
-        number of anchors varies). We don't care how this behaves with blends.
-
-        The "discount" constant defines the amount of depression.
-
-        The function "depresses" the probability of selection distribution by
-        creating a "depression vector" and subtracts said vector from the
-        current p_vector. Subtraction happens only at the indices chosen.
-        """
+    def update_p(self, scores, top):
+        """Updates the probability distribution."""
         for i, choices in enumerate(self.choices):
-            if self.improved(self.scores[i]):
+            if self.improved(self.scores[i], top):
                 self.increase_p(choices)
             else:
                 self.decrease_p(choices)
-                self.p_counter += 1  # Increment counter
-            else:
-                self.p = self.even_p  # Reset State
-                self.p_counter = 0  # Reset state, new anchor
 
-    def improved(self, val):
-        new_d = torch.abs(self.new_top-self.hp.target)
-        return new_d < self.current_d
+    def improved(self, a, top):
+        if self.hp.minimizing:
+            return a < top
+        else:
+            return a > top
 
     def increase_p(self, choices):
         """This method decreases p at "choices" locations. No need to worry
         about negatives here. We decrease by the same amount we increased.
         """
         # Pull up "choices"
-        delta = self.incr/len(choices)
-        dt = torch.full(self.size, delta)  # Delta tensor
+        dt = torch.full(self.size, self.incr)  # Delta tensor
         self.p[choices].add_(dt)
         # Push down everything else
         others = np.delete(np.arange(self.vec_length), choices)
-        delta = self.incr/len(others)
+        delta = (1-self.p.sum().item())/len(others)
         dt = torch.full(len(others), delta)  # Delta tensor
         self.p[others].sub_(delta)
 
     def decrease_p(self, choices):
         """This method decreases p at "choices" locations."""
         # Push down "choices"
-        delta = self.decr/len(choices)
-        dt = torch.full(self.size, delta)
+        dt = torch.full(self.size, self.decr)
         self.p[choices].sub_(delta)
         self.p[self.p<0] = 0  # No negative probabilities
 

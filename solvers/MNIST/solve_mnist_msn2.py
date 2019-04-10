@@ -45,7 +45,7 @@ def main():
                     "minimum distance": 1000,
                     "patience": 30,
                     "tolerance": 0.01,
-                    "learning rate": 0.005,
+                    "learning rate": 0.02,
                     "lambda": 5,
                     "step size": 0.02
                     }

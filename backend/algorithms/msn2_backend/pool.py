@@ -118,6 +118,7 @@ class Pool(object):
         self.blends.blends_idxs = self.update_models(self.blends.vectors)
 
         current_pool = self.models
+        # "anchors" is a list of models not vectors
         anchors = [current_pool[i] for i in self.anchors.anchors_idxs]
         if self.analyzer.backtracking:
             print("-------Backtracking Activated! Inserting Elite-------")

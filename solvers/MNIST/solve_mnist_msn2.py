@@ -42,11 +42,10 @@ def main():
                     "number of probes per anchor": 13,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -0.1,  # Percentage
                     "minimum distance": 1000,
-                    "patience": 20,
+                    "patience": 30,
                     "tolerance": 0.01,
-                    "learning rate": 0.02,
+                    "learning rate": 0.005,
                     "lambda": 5,
                     "step size": 0.02
                     }

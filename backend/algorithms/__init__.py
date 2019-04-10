@@ -23,7 +23,7 @@ def make_alg(name, m, alg_params):
     elif name == 'MSN':
         return MSN(m, alg_params)
     elif name == 'MSN2':
-        return MSN(m, alg_params)
+        return MSN2(m, alg_params)
     elif name == 'learner':
         return LEARNER(m, alg_params)
     else:

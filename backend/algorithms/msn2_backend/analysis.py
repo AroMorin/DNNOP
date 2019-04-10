@@ -11,7 +11,7 @@ class Analysis(object):
         self.current_top = torch.tensor(self.hp.initial_score, device='cuda')
         self.new_top = torch.tensor(self.hp.initial_score, device='cuda')
         self.current_d = float("inf")  # Infinite distance from target
-        self.vanilla = torch.full(self.hp.pool_size, self.hp.initial_score, device='cuda')
+        self.vanilla = torch.full((self.hp.pool_size,), self.hp.initial_score, device='cuda')
         self.top_idx = 0
         self.scores = []
         self.sorted_scores = []
@@ -41,7 +41,7 @@ class Analysis(object):
 
     def clean_list(self, x):
         """Removes deformities in the score list such as NaNs."""
-        x = torch.stack(x)
+        x = torch.stack(x).float()
         # Removes NaNs and infinities
         self.scores = torch.where(torch.isfinite(x), x, self.vanilla)
 
@@ -68,20 +68,18 @@ class Analysis(object):
         """
         if not self.improved():
             print ("No improvement")
-            if not self.search_start:
-                # Reduce integrity, but not below the minimum allowed level
-                a = self.integrity-self.hp.step_size
-                b = self.hp.min_integrity
-                self.integrity = max(a, b)
-                self.elapsed_steps += 1
-            else:
-                print("Start searching")
-                self.integrity = self.hp.def_integrity  # Reset integrity
-                self.search_start = False
+            # Reduce integrity, but not below the minimum allowed level
+            a = self.integrity-self.hp.step_size
+            b = self.hp.min_integrity
+            self.integrity = max(a, b)
+            self.elapsed_steps += 1
         else:  # Improved
+            # Increase integrity, but not over the maximum allowed level
             print ("Improved")
             self.elapsed_steps = 0
-            self.search_start = True
+            a = self.integrity+self.hp.step_size
+            b = self.hp.max_integrity
+            self.integrity = min(a, b)
 
     def improved(self):
         """Calculate whether the score has satisfactorily improved or not based

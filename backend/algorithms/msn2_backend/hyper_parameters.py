@@ -22,7 +22,6 @@ class Hyper_Parameters(object):
         self.beta = 0
         self.lambda_ = 0
         self.min_dist = 0
-        self.min_entropy = 0
         self.step_size = 0
         self.patience = 0
         self.expansion_factor = 0
@@ -56,7 +55,6 @@ class Hyper_Parameters(object):
                                 "learning rate": 0.04,
                                 "lambda":5,
                                 "minimum distance": 500,
-                                "minimum entropy": 1,
                                 "step size": 0.03,
                                 "patience": 25,
                                 "default integrity": 0.99,
@@ -84,7 +82,6 @@ class Hyper_Parameters(object):
         self.lr = self.hyper_params["learning rate"]
         self.lambda_ = self.hyper_params["lambda"]
         self.min_dist = self.hyper_params["minimum distance"]
-        self.min_entropy = self.hyper_params["minimum entropy"]
         self.step_size = self.hyper_params["step size"]
         self.patience = self.hyper_params["patience"]
         self.def_integrity = self.hyper_params["default integrity"]
@@ -109,13 +106,3 @@ class Hyper_Parameters(object):
         assert self.pool_size >= 7  # Minimum pool size
         assert self.nb_anchors >= 2  # Minimum anchor count
         assert self.nb_probes >= 2  # Minimum probes count
-        self.check_min_entropy()
-
-    def check_min_entropy(self):
-        """Makes sure the minimum entropy hyperparameter is consistent with the
-        chosen mode of optimization.
-        """
-        if self.hyper_params['minimization mode']:
-            assert self.hyper_params['minimum entropy'] < 0
-        else:
-            assert self.hyper_params['minimum entropy'] > 0

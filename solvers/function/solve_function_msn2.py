@@ -17,7 +17,7 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
-    function = "ackley"
+    function = "rosenbrock"
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
@@ -42,7 +42,6 @@ def main():
                     "number of probes per anchor": 9,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -3,  # Percentage
                     "minimum distance": 430,
                     "patience": 32,
                     "tolerance": 0.12,

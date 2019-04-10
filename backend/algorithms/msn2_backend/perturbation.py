@@ -23,8 +23,8 @@ class Perturbation(object):
         self.unifrom_p = None
         self.p = None  # Index choice probability vector (P dist)
         self.p_counter = 0
-        self.decr = 0.1  # decrease is 10% of probability value
-        self.incr = 0.3  # increase is 20% of probability value
+        self.decr = 0.0  # decrease is 10% of probability value
+        self.incr = 0.1  # increase is 20% of probability value
         self.device = torch.device('cuda')
         self.idx = 0
 

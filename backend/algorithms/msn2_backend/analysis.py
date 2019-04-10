@@ -77,9 +77,9 @@ class Analysis(object):
             # Increase integrity, but not over the maximum allowed level
             print ("Improved")
             self.elapsed_steps = 0
-            a = self.integrity+self.hp.step_size
+            a = self.integrity+(self.hp.step_size*0.125)
             b = self.hp.max_integrity
-            #self.integrity = min(a, b)
+            self.integrity = min(a, b)
 
     def improved(self):
         """Calculate whether the score has satisfactorily improved or not based

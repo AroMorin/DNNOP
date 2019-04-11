@@ -71,13 +71,17 @@ class Analysis(object):
             print ("No improvement")
             # Reduce integrity, but not below the minimum allowed level
             a = self.integrity-self.hp.step_size
+            a += (a*self.mu)
             b = self.hp.min_integrity
-            self.integrity = max(a, b)
-            if self.integrity == self.hp.min_integrity:
+            a = max(a, b)
+            if a == self.hp.min_integrity:
                 self.elapsed_steps = self.hp.patience  # Trigger backtracking!
+            if a>self.hp.max_integrity:
+                self.integrity = self.hp.max_integrity
+                self.mu = 0.01
             self.elapsed_steps += 1
             self.search_start = True
-            self.mu*=-0.01
+            self.mu -= (self.mu*0.02)
             self.mu = max(0.01, self.mu)  # Momentum never below zero
 
         else:  # Improved

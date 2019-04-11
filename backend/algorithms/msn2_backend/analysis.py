@@ -101,13 +101,16 @@ class Analysis(object):
                 # Increase integrity, but not over the maximum allowed level
                 self.elapsed_steps = 0
                 a = self.integrity+(self.hp.step_size)
+                print(a)
                 a -= self.integrity*self.mu  # Factor in Momentum
+                print(a)
                 b = self.hp.max_integrity
                 a = min(a, b)
+                print(a)
                 b = self.hp.min_integrity
                 self.integrity = max(a, b)
                 assert self.integrity < 1.0
-                self.mu+=(0.1*self.mu)
+                self.mu+=(0.25*self.mu)
         print("Momentum: %f" %self.mu)
         print("Steps to Backtrack: %d" %self.elapsed_steps)
 
@@ -140,6 +143,7 @@ class Analysis(object):
             self.backtracking = True
             self.elapsed_steps = 0
             self.integrity = self.hp.max_integrity  # Reset integrity
+            self.mu = self.hp.step_size*0.5  # Reset Mu
         else:
             self.backtracking = False
 

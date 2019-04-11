@@ -47,7 +47,7 @@ def main():
                     "tolerance": 0.12,
                     "learning rate": 0.05,
                     "lambda": 5,
-                    "step size": 0.02
+                    "step size": 0.04
                     }
     alg = algorithm_factory.make_alg("MSN2", pool, alg_params)
 

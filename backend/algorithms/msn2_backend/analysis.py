@@ -27,7 +27,7 @@ class Analysis(object):
         self.nb_anchors = self.hp.nb_anchors  # State
         self.radial_expansion = False
         self.step = 0  # State
-        self.mu = 0.01  # Momentum
+        self.mu = self.hp.step_size*0.5  # Momentum
 
     def analyze(self, scores, nb_anchors):
         """The main function."""
@@ -70,19 +70,25 @@ class Analysis(object):
         if not self.improved():
             print ("No improvement")
             # Reduce integrity, but not below the minimum allowed level
-            a = self.integrity-self.hp.step_size
-            a += (a*self.mu)
+            a = self.integrity-self.hp.step_size  # Decrease integrity
+            print(a)
+            a = a+self.mu  # Add momentum
+            print(a)
             b = self.hp.min_integrity
             a = max(a, b)
+            print(a)
             if a == self.hp.min_integrity:
                 self.elapsed_steps = self.hp.patience  # Trigger backtracking!
             if a>self.hp.max_integrity:
                 self.integrity = self.hp.max_integrity
-                self.mu = 0.01
+                self.mu = self.hp.step_size*0.5  # MU has grown too much
+            else:
+                self.integrity = a
             self.elapsed_steps += 1
             self.search_start = True
-            self.mu -= (self.mu*0.02)
-            self.mu = max(0.01, self.mu)  # Momentum never below zero
+            self.mu -= (self.mu*0.25)
+            # Momentum never below a small portion of step size
+            self.mu = max(self.hp.step_size*0.05, self.mu)
 
         else:  # Improved
             print ("Improved")
@@ -94,17 +100,14 @@ class Analysis(object):
             else:
                 # Increase integrity, but not over the maximum allowed level
                 self.elapsed_steps = 0
-                a = self.integrity+(self.hp.step_size*0.25)
-                print(a)
-                print(self.integrity*self.mu)
+                a = self.integrity+(self.hp.step_size)
                 a -= self.integrity*self.mu  # Factor in Momentum
-                print(a)
                 b = self.hp.max_integrity
                 a = min(a, b)
                 b = self.hp.min_integrity
                 self.integrity = max(a, b)
                 assert self.integrity < 1.0
-                self.mu+=(0.15*self.mu)
+                self.mu+=(0.1*self.mu)
         print("Momentum: %f" %self.mu)
         print("Steps to Backtrack: %d" %self.elapsed_steps)
 

@@ -76,7 +76,7 @@ class Pool(object):
         self.update_state()
         self.analyzer.analyze(score, self.anchors.nb_anchors)
         self.elite.set_elite(self.model, self.analyzer)
-        self.anchors.set_anchors(self.vectors, self.analyzer)
+        self.anchors.set_anchors(self.vector, self.analyzer)
 
         # Define noise magnitude and scale
         self.perturb.update_state(self.analyzer)

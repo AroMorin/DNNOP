@@ -2,70 +2,76 @@
 
 import torch
 import math
+import copy
 
 class Anchors(object):
     def __init__(self, hp):
         self.hp = hp
         self.vectors = []
-        self.anchors_idxs = []
+        self.scores = []
         self.nb_anchors = 0  # State not hyperparameter
         self.print_distance = True
+        self.idx = 0
+        self.replace = False
+        self.better_score = False
 
-    def set_anchors(self, vectors, analyzer):
+    def set_anchors(self, vector, score):
         """The func is structured as below in order for the conditional to
         evaluate to True most of the time.
         """
         self.reset_state()
-        #idxs = list(range(self.hp.pool_size))
-        anchors_idxs = self.set_anchors_idxs(analyzer.sorted_idxs, vectors)
-        self.set_vectors(vectors)
-        print("Anchors: ", len(self.anchors_idxs))
-        print("Anchors idxs: ", self.anchors_idxs)
-
-        #as_ = [self.analyzer.scores[i] for i in self.anchors.anchors_idxs]
-        #print("Anchors scores: ", as_)
+        self.check(vector, score)
+        self.nb_anchors = len(self.vectors)
+        print("Anchors: %d" %self.nb_anchors)
+        #print("Anchors scores: ", self.scores)
 
     def reset_state(self):
         """Resets the class' states."""
-        self.vectors = []
-        self.anchors_idxs = []
-        self.nb_anchors = 0
+        self.idx = 0
+        self.replace = False
+        self.better_score = False
 
-    def set_anchors_idxs(self, sorted_idxs, vectors):
-        """Determines the indices for anchors."""
-        for i in sorted_idxs:
-            candidate = vectors[i]
-            self.admit(candidate, i, vectors)
-            if self.nb_anchors == self.hp.nb_anchors:
-                break  # Terminate
-
-    def remove_elite(self, idxs):
-        """Removes the elite index."""
-        idxs.remove(0)
-
-    def admit(self, candidate, candidate_idx, vectors):
+    def check(self, candidate, score):
         """Determines whether to admit a sample into the anchors list."""
-        if self.anchors_idxs:
-            if self.accept_candidate(candidate, vectors):
-                self.anchors_idxs.append(candidate_idx)
-                self.nb_anchors += 1
+        if self.nb_anchors>0:
+            self.evaluate_candidate(candidate, score)
+            if self.replace:
+                self.admit(candidate, score)
+                self.admitted = True
         else:
             # List is empty, admit
-            self.anchors_idxs.append(candidate_idx)
-            self.nb_anchors += 1
+            self.vectors.append(candidate.clone())
+            self.scores.append(score)
+            self.admitted = True
+        # Sanity checks
+        assert len(self.vectors) == len(self.scores)
+        assert len(self.vectors) <= self.hp.nb_anchors
 
-    def accept_candidate(self, candidate, vectors):
+    def evaluate_candidate(self, candidate, score):
         """Make sure the candidate is far enough from every anchor."""
-        for i in self.anchors_idxs:
-            anchor = vectors[i]
+        # Must be better than current anchor(s) score(s)
+        self.evaluate_score(score)
+        if self.better_score:
+            # Must be far enough from all/the other anchor(s)
+            if self.far_enough(candidate):
+                self.replace = True
+
+    def evaluate_score(self, score):
+        for i, anc_score in enumerate(self.scores):
+            if self.hp.minimizing:
+                yes = score < anc_score
+            else:
+                yes = score > anc_score
+            if yes:
+                self.idx = i  # Add to list of replacement candidates
+                self.better_score = True
+
+    def far_enough(self, candidate):
+        for anchor in self.vectors:
             distance = self.canberra_distance(candidate, anchor)
-            if self.print_distance:
-                print(distance)
-            if distance.lt(self.hp.min_dist):
-                return False
-            if not torch.isfinite(distance):
-                return False
-        return True
+            if distance.gt(self.hp.min_dist) and torch.isfinite(distance):
+                return False  # Not satisfying distance conditions
+        return True # Satisfies conditions
 
     def canberra_distance(self, a, b):
         """Calculates Canberra distance between two vectors. There is a bug
@@ -77,14 +83,18 @@ class Anchors(object):
         f = torch.div(x, y)
         j = torch.masked_select(f, torch.isfinite(f))
         result = j.sum()
+        if self.print_distance:
+            print(result)
         return result
 
-    def set_vectors(self, pool):
-        """Sets the vectors of the anchors."""
-        for i in self.anchors_idxs:
-            self.vectors.append(pool[i])
-
-
+    def admit(self, vector, score):
+        if self.nb_anchors==self.hp.nb_anchors:
+            self.vectors[self.idx] = vector.clone()
+            self.scores[self.idx] = score
+        else:
+            self.vectors.append(vector.clone())
+            self.scores.append(score)
+        assert self.nb_anchors <= self.hp.nb_anchors  # Sanity check
 
 
 

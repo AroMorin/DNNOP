@@ -8,14 +8,10 @@ import time
 class Analysis(object):
     def __init__(self, hyper_params):
         self.hp = hyper_params
-        self.current_top = torch.tensor(self.hp.initial_score, device='cuda')
-        self.new_top = torch.tensor(self.hp.initial_score, device='cuda')
-        self.current_d = float("inf")  # Infinite distance from target
-        self.vanilla = torch.full((self.hp.pool_size,), self.hp.initial_score, device='cuda')
-        self.top_idx = 0
-        self.scores = []
-        self.sorted_scores = []
-        self.sorted_idxs = []
+        self.initial_score = torch.tensor(self.hp.initial_score)
+        self.prev_score = torch.tensor(self.hp.initial_score, device='cuda')
+        self.score = torch.tensor(self.hp.initial_score, device='cuda')
+        self.distance = float("inf")  # Infinite distance from target
         self.backtracking = False
         self.elapsed_steps = 0  # Counts steps without improvement
         self.reset_integrity = False
@@ -24,40 +20,23 @@ class Analysis(object):
         self.alpha = self.hp.alpha
         self.lambda_ = self.hp.lambda_
         self.search_start = False
-        self.nb_anchors = self.hp.nb_anchors  # State
+        self.nb_anchors = 0  # State
         self.radial_expansion = False
         self.step = 0  # State
 
-    def analyze(self, scores, nb_anchors):
+    def analyze(self, score, nb_anchors):
         """The main function."""
-        self.clean_list(scores)
-        self.sort_scores()
-        #print("Sorted scores: ", self.sorted_scores)
+        self.clean_score(score)
         self.set_integrity()
         self.review(nb_anchors)
         self.set_num_selections()
         self.set_search_radius()
         print("Integrity: %f" %self.integrity)
 
-    def clean_list(self, x):
+    def clean_score(self, x):
         """Removes deformities in the score list such as NaNs."""
-        x = torch.stack(x).float()
         # Removes NaNs and infinities
-        self.scores = torch.where(torch.isfinite(x), x, self.vanilla)
-
-    def sort_scores(self):
-        """This function sorts the values in the list. Duplicates are removed
-        also.
-        """
-        self.current_top = self.new_top  # Inheritance
-        if self.hp.minimizing:
-            self.sorted_scores, self.sorted_idxs = self.scores.sort()
-        else:
-            self.sorted_scores, self.sorted_idxs = self.scores.sort(descending=True)
-        # .sort() returns two lists they are assigned below
-        self.new_top = self.sorted_scores[0]
-        self.top_idx = self.sorted_idxs[0]
-        print("Pool top score: %f" %self.new_top)
+        self.score = torch.where(torch.isfinite(x), x, self.initial_score)
 
     def set_integrity(self):
         """Once an improvement is detected, the flag "reset_integrity" is set
@@ -68,18 +47,14 @@ class Analysis(object):
         """
         if not self.improved():
             print ("No improvement")
-            # Reduce integrity, but not below the minimum allowed level
-            a = self.integrity-self.hp.step_size  # Decrease integrity
-            if a <= self.hp.min_integrity:
-                self.elapsed_steps = self.hp.patience  # Trigger backtracking!
-            else:
-                self.integrity = a
+            self.reduce_integrity()
             self.elapsed_steps += 1
             self.search_start = True
 
         else:  # Improved
             print ("Improved")
             if self.search_start:
+                # Prevents moonshots from disturbing the search process
                 if self.integrity<self.hp.def_integrity:
                     print("Reseting Integrity!!!!")
                     self.integrity = self.hp.def_integrity
@@ -88,9 +63,7 @@ class Analysis(object):
             else:
                 # Increase integrity, but not over the maximum allowed level
                 self.elapsed_steps = 0
-                a = self.integrity+(self.hp.step_size*0.1)
-                b = self.hp.max_integrity
-                self.integrity = min(a, b)
+                self.maintain_integrity()
         print("Steps to Backtrack: %d" %(self.hp.patience-self.elapsed_steps))
 
     def improved(self):
@@ -99,14 +72,29 @@ class Analysis(object):
         """
         # Make sure we are not in the very first iteration
         if self.step>0:
-            new_d = abs(self.new_top-self.hp.target)  # Distance to target
-            res = new_d < self.current_d
-            self.current_d = new_d
-            return res
+            new_d = abs(self.score-self.hp.target)  # Distance to target
+            improvement = new_d < self.distance
+            if improvement:
+                self.distance = new_d  # Update state
+            return improvement
         else:
             # Improved over the initial score
             self.step +=1
             return True
+
+    def reduce_integrity(self):
+        # Reduce integrity, but not below the minimum allowed level
+        a = self.integrity-self.hp.step_size  # Decrease integrity
+        if a <= self.hp.min_integrity:
+            self.elapsed_steps = self.hp.patience  # Trigger backtracking!
+        else:
+            self.integrity = a
+
+    def maintain_integrity(self):
+        a = self.integrity+(self.hp.step_size*0.1)
+        b = self.hp.max_integrity
+        self.integrity = min(a, b)
+
 
     def review(self, nb_anchors):
         """Implements the backtracking and radial expansion functionalities."""

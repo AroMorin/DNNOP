@@ -23,10 +23,11 @@ class Analysis(object):
         self.lr = self.hp.lr
         self.alpha = self.hp.alpha
         self.lambda_ = self.hp.lambda_
-        self.search_start = True
+        self.search_start = False
         self.nb_anchors = self.hp.nb_anchors  # State
         self.radial_expansion = False
         self.step = 0  # State
+        self.mu = 0.01  # Momentum
 
     def analyze(self, scores, nb_anchors):
         """The main function."""
@@ -72,14 +73,36 @@ class Analysis(object):
             a = self.integrity-self.hp.step_size
             b = self.hp.min_integrity
             self.integrity = max(a, b)
+            if self.integrity == self.hp.min_integrity:
+                self.elapsed_steps = self.hp.patience  # Trigger backtracking!
             self.elapsed_steps += 1
+            self.search_start = True
+            self.mu*=-0.01
+            self.mu = max(0.01, self.mu)  # Momentum never below zero
+
         else:  # Improved
-            # Increase integrity, but not over the maximum allowed level
             print ("Improved")
-            self.elapsed_steps = 0
-            a = self.integrity+(self.hp.step_size*0.125)
-            b = self.hp.max_integrity
-            self.integrity = min(a, b)
+            if self.search_start and self.integrity<self.hp.def_integrity:
+                print("Reseting Integrity!!!!")
+                self.integrity = self.hp.def_integrity
+                self.search_start = False
+                self.elapsed_steps += 1
+            else:
+                # Increase integrity, but not over the maximum allowed level
+                self.elapsed_steps = 0
+                a = self.integrity+(self.hp.step_size*0.25)
+                print(a)
+                print(self.integrity*self.mu)
+                a -= self.integrity*self.mu  # Factor in Momentum
+                print(a)
+                b = self.hp.max_integrity
+                a = min(a, b)
+                b = self.hp.min_integrity
+                self.integrity = max(a, b)
+                assert self.integrity < 1.0
+                self.mu+=(0.15*self.mu)
+        print("Momentum: %f" %self.mu)
+        print("Steps to Backtrack: %d" %self.elapsed_steps)
 
     def improved(self):
         """Calculate whether the score has satisfactorily improved or not based
@@ -109,7 +132,7 @@ class Analysis(object):
             print ("Waited %d steps" %self.elapsed_steps)
             self.backtracking = True
             self.elapsed_steps = 0
-            self.integrity = self.hp.def_integrity  # Reset integrity
+            self.integrity = self.hp.max_integrity  # Reset integrity
         else:
             self.backtracking = False
 

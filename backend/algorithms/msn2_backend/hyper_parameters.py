@@ -57,7 +57,7 @@ class Hyper_Parameters(object):
                                 "minimum distance": 500,
                                 "step size": 0.03,
                                 "patience": 25,
-                                "default integrity": 0.99,
+                                "default integrity": 0.6,
                                 "initial integrity": 0.6,
                                 "minimum integrity": 0.1,
                                 "maximum integrity": 0.99,

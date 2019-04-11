@@ -17,7 +17,7 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
-    function = "rosenbrock"
+    function = "rastrigin"
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
@@ -43,9 +43,9 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum distance": 430,
-                    "patience": 32,
+                    "patience": 25,
                     "tolerance": 0.12,
-                    "learning rate": 0.1,
+                    "learning rate": 0.05,
                     "lambda": 5,
                     "step size": 0.02
                     }

@@ -36,7 +36,8 @@ class Perturbation(object):
         self.incr *= 0.5
         self.decr *= 0.5
         self.uniform_p = torch.nn.functional.softmax(
-                        torch.full((self.vec_length,), 0.5, device=self.device))
+                        torch.full((self.vec_length,), 0.5, device=self.device),
+                        dim=0)
         self.p = self.uniform_p
 
     def update_state(self, analyzer):
@@ -98,7 +99,7 @@ class Perturbation(object):
                 self.increase_p(choices)
             else:
                 self.decrease_p(choices)
-        self.p = torch.nn.functional.softmax(self.p)  # Normalize
+        self.p = torch.nn.functional.softmax(self.p, dim=0)  # Normalize
 
     def improved(self, idx):
         if self.hp.minimizing:

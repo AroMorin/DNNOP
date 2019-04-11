@@ -8,17 +8,16 @@ from torch.distributions import uniform, normal
 class Perturbation(object):
     def __init__(self, hp):
         self.hp = hp
-        self.integrity = self.hp.initial_integrity
         self.noise_distribution = "normal"  # Or "uniform"
         self.noise_type = "continuous"  # Or "discrete" -- Unimplemented feature
         self.vec_length = 0
         self.indices = []
         self.size = 0
-        self.scores = [self.hp.initial_score]*self.hp.pool_size
-        self.prev_scores = [self.hp.initial_score]*self.hp.pool_size
+        self.score = self.hp.initial_score
+        self.prev_score = self.hp.initial_score
         self.distribution = None
         self.precision = None
-        self.choices = []
+        self.choices = []  # list of indices
         self.vd = 0  # p value for uniform distribution
         self.unifrom_p = None
         self.p = None  # Index choice probability vector (P dist)
@@ -33,8 +32,6 @@ class Perturbation(object):
         self.precision = vec.dtype
         self.vec_length = torch.numel(vec)
         self.indices = np.arange(self.vec_length)
-        self.incr *= 0.5
-        self.decr *= 0.5
         self.uniform_p = torch.nn.functional.softmax(
                         torch.full((self.vec_length,), 0.5, device=self.device),
                         dim=0)
@@ -47,9 +44,9 @@ class Perturbation(object):
         print("Number of selections: %d" %self.size)
         self.set_noise_dist(analyzer.search_radius)
         if self.p_counter >0 and self.p_counter < 500:  # Reset p every 100 iterations
-            self.scores = analyzer.scores  # Acquire new state
+            self.score = analyzer.score  # Acquire new state
             self.update_p()
-            self.prev_scores = self.scores  # Update state
+            self.prev_score = self.score  # Update state
             self.p_counter += 1
         else:
             if self.p_counter == 0:
@@ -93,19 +90,17 @@ class Perturbation(object):
 
     def update_p(self):
         """Updates the probability distribution."""
-        for i, choices in enumerate(self.choices):
-            print(i)
-            if self.improved(i):
-                self.increase_p(choices)
-            else:
-                self.decrease_p(choices)
+        if self.improved():
+            self.increase_p(self.choices)
+        else:
+            self.decrease_p(self.choices)
         self.p = torch.nn.functional.softmax(self.p, dim=0)  # Normalize
 
-    def improved(self, idx):
+    def improved(self):
         if self.hp.minimizing:
-            return self.scores[idx] < self.prev_scores[idx]
+            return self.score < self.prev_score
         else:
-            return self.scores[idx] > self.prev_scores[idx]
+            return self.score > self.prev_score
 
     def increase_p(self, choices):
         """This method decreases p at "choices" locations."""

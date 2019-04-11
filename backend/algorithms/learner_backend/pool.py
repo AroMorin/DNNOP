@@ -34,6 +34,8 @@ class Pool(object):
         self.shapes = []
         self.num_elems = []
         self.keys = []
+        self.current_anchor = 0
+        self.probes = 0
         #self.available_idxs = range(self.hp.pool_size)
         #self.idx = None
         self.score = self.hp.initial_score
@@ -75,15 +77,17 @@ class Pool(object):
         """
         self.update_state()
         self.analyzer.analyze(score, self.anchors.nb_anchors)
+        self.score = self.analyzer.score
         self.elite.set_elite(self.model, self.analyzer)
-        self.anchors.set_anchors(self.vector, self.analyzer)
+        self.anchors.set_anchors(self.vector, self.score)
 
         # Define noise magnitude and scale
         self.perturb.update_state(self.analyzer)
+        self.blends.update_state(self.anchors, self.vector, self.analyzer, self.perturb)
 
         # Implement probes and blends
-        self.probes.set_probes(self.anchors, self.perturb)
-        self.blends.set_blends(self.anchors, self.vectors, self.analyzer, self.perturb)
+        self.generate()
+        #self.probes.set_probes(self.anchors, self.perturb)
 
     def update_state(self):
         """Updates the state of the class."""
@@ -91,8 +95,38 @@ class Pool(object):
         self.vector = None
         self.set_state_dict()
         self.set_vector()
-        #self.available_idxs = range(self.hp.pool_size)
-        #self.idx = None
+
+    def generate(self):
+        self.set_next()
+        if self.next == "probe":
+            self.probes.generate(self.anchors.vectors[self.current_anchor])
+            self.vector = self.probes.vector
+        elif self.next == "blend":
+            self.blends.generate(self.anchors.vectors, self.vector)
+            self.vector = self.blends.vector
+        else:
+            print("unknown generate type, exiting!")
+            exit()
+
+    def set_next(self):
+        if self.probes < self.hp.nb_probes:
+            self.next = "probe"
+            self.probes+=1  # Increment probe count
+        else:
+            if self.current_anchor < (self.anchors.nb_anchors-1):
+                self.current_anchor+=1  # Move to next Anchor
+                self.probes = 0  # Reset probe count
+                self.next = "probe"
+            else:
+                if self.blends < self.blends.nb_blends:
+                    self.next = "blend"  # No more anchors, moving to blends
+                    self.blends+=1  # Increment blend count
+                else:
+                    # Reset everything
+                    self.next = "probe"
+                    self.current_anchor = 0  # Reset Anchors
+                    self.probes = 0
+                    self.blends = 0
 
     def implement(self):
         """This function updates the ".parameters" of the models using the
@@ -100,18 +134,10 @@ class Pool(object):
         changes/updates to the weights of the models in the GPU. After that
         it assembles the new pool. --candidate for splitting into 2 methods--
         """
-        self.available_idxs = [x for x in self.available_idxs
-                                if x not in self.anchors.anchors_idxs
-                                and x != 0]
-        self.probes.probes_idxs = self.update_models(self.probes.vectors)
-        self.blends.blends_idxs = self.update_models(self.blends.vectors)
-
-        current_pool = self.models
-        # "anchors" is a list of models not vectors
-        anchors = [current_pool[i] for i in self.anchors.anchors_idxs]
         if self.analyzer.backtracking:
             print("-------Backtracking Activated! Inserting Elite-------")
             anchors[0] = self.elite.model
+        self.update_model(self.vector)
         probes = [current_pool[i] for i in self.probes.probes_idxs]
         blends = [current_pool[i] for i in self.blends.blends_idxs]
 
@@ -121,25 +147,12 @@ class Pool(object):
         self.models.extend(blends)
         assert len(self.models) == self.hp.pool_size  # Same pool size
 
-    def update_models(self, vectors):
+    def update_model(self, vector):
         """Updates the weight dictionaries of the models."""
-        idxs = []
-        for i, vector in enumerate(vectors):
-            self.set_idx()
-            idxs.append(self.idx)
-            param_list = self.vec_to_tensor(vector)  # Restore shape
-            self.update_dict(param_list)
-            # Update model's state dictionary
-            self.models[self.idx].load_state_dict(self.state_dicts[self.idx])
-        return idxs
-
-    def set_idx(self):
-        """This method blindly takes the first available index and loads it into
-        the idx attribute. It then removes that index from the list
-        of available indices.
-        """
-        self.idx = self.available_idxs[0]
-        del self.available_idxs[0]
+        param_list = self.vec_to_tensor(vector)  # Restore shape
+        self.update_dict(param_list)
+        # Update model's state dictionary
+        self.model.load_state_dict(self.state_dict)
 
     def vec_to_tensor(self, vec):
         """Changes a vector into a tensor using the original network shapes."""
@@ -151,10 +164,8 @@ class Pool(object):
 
     def update_dict(self, param_list):
         """Updates the state dictionary class attribute."""
-        state_dict = self.state_dicts[self.idx]
         for i, key in enumerate(self.keys):
-            state_dict[key] = param_list[i]
-        self.state_dicts[self.idx] = state_dict
+            self.state_dict[key] = param_list[i]
 
 
 

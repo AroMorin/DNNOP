@@ -12,7 +12,7 @@ class Hyper_Parameters(object):
         min mode but forget to turn off max mode, and vice versa. Of course,
         there can be assert checks, but I'll just be inviting bugs for no reason.
         """
-        print("Iniitializing hyper parameters of LEARNER")
+        print("Iniitializing hyper parameters of MSN")
         self.hyper_params = {}
         self.nb_anchors = 0
         self.nb_probes = 0
@@ -22,7 +22,6 @@ class Hyper_Parameters(object):
         self.beta = 0
         self.lambda_ = 0
         self.min_dist = 0
-        self.min_entropy = 0
         self.step_size = 0
         self.patience = 0
         self.expansion_factor = 0
@@ -33,7 +32,7 @@ class Hyper_Parameters(object):
         self.target = 0
         self.tolerance = 0
         self.minimizing = True
-        self.initial_score = float("inf")  # Infinity & high numbers results in overflow
+        self.initial_score = float("inf")
         self.epsilon = 0.00000001  # Prevents division by zero
         self.set_hyperparams_dict(hyper_params)
         self.set_hyperparams()
@@ -56,10 +55,9 @@ class Hyper_Parameters(object):
                                 "learning rate": 0.04,
                                 "lambda":5,
                                 "minimum distance": 500,
-                                "minimum entropy": 1,
                                 "step size": 0.03,
                                 "patience": 25,
-                                "default integrity": 0.99,
+                                "default integrity": 0.6,
                                 "initial integrity": 0.6,
                                 "minimum integrity": 0.1,
                                 "maximum integrity": 0.99,
@@ -84,7 +82,6 @@ class Hyper_Parameters(object):
         self.lr = self.hyper_params["learning rate"]
         self.lambda_ = self.hyper_params["lambda"]
         self.min_dist = self.hyper_params["minimum distance"]
-        self.min_entropy = self.hyper_params["minimum entropy"]
         self.step_size = self.hyper_params["step size"]
         self.patience = self.hyper_params["patience"]
         self.def_integrity = self.hyper_params["default integrity"]
@@ -102,20 +99,10 @@ class Hyper_Parameters(object):
         default score to negative infinity.
         """
         if not self.hyper_params['minimization mode']:
-            self.initial_score *= -1  # Make score negative
+            self.initial_score = -numpy.inf
 
     def sanity_checks(self):
         """Some checks to make sure the used hyperparameters make sense."""
         assert self.pool_size >= 7  # Minimum pool size
         assert self.nb_anchors >= 2  # Minimum anchor count
         assert self.nb_probes >= 2  # Minimum probes count
-        self.check_min_entropy()
-
-    def check_min_entropy(self):
-        """Makes sure the minimum entropy hyperparameter is consistent with the
-        chosen mode of optimization.
-        """
-        if self.hyper_params['minimization mode']:
-            assert self.hyper_params['minimum entropy'] < 0
-        else:
-            assert self.hyper_params['minimum entropy'] > 0

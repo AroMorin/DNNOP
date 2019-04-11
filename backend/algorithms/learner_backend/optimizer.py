@@ -20,8 +20,9 @@ class Optimizer(object):
         self.integrity = self.hp.initial_integrity
         self.scores = []
         # Will only be used if the appropriate score type is selected
-        self.train_losses = []
+        self.train_loss = 1
         self.test_loss = 1
+        self.train_acc = 0
         self.test_acc = 0
 
     def set_environment(self, env):
@@ -29,20 +30,17 @@ class Optimizer(object):
 
     def reset_state(self):
         # Flush values
-        self.train_losses = []
+        self.train_loss = 1
+        self.train_acc = 0
         self.test_loss = 1
         self.test_acc = 0
 
-    def calculate_losses(self, inferences, test=False):
+    def calculate_loss(self, inference, test=False):
         """This method calculates the loss."""
         if self.env.loss_type == 'NLL loss':
-            losses = []
             if not test:
-                for inference in inferences:
-                    loss = F.nll_loss(inference, self.env.labels)
-                    self.train_losses.append(loss)
-                    losses.append(loss)
-                self.scores = losses
+                self.train_loss = F.nll_loss(inference, self.env.labels)
+                self.scores = self.train_loss
             else:
                 loss = F.nll_loss(inferences, self.env.test_labels, reduction='sum').item()
                 self.test_loss = loss
@@ -50,21 +48,19 @@ class Optimizer(object):
             print("Unknown loss type")
             exit()
 
-    def calculate_correct_predictions(self, inferences, test=False, acc=False):
+    def calculate_correct_predictions(self, inference, test=False, acc=False):
         """Calculates the number of correct predictions/inferences made by the
         neural network.
         """
         if not test:
             # Training
-            collection = []
-            for inference in inferences:
-                # Correct predictions on all test data for a single model
-                pred = inference.argmax(dim=1, keepdim=True)
-                correct = pred.eq(self.env.labels.view_as(pred)).sum().float()
-                if acc:
-                    self.abs_to_acc(correct, test=test)
-                collection.append(correct)
-            self.scores = collection
+            # Correct predictions on all test data for a single model
+            pred = inference.argmax(dim=1, keepdim=True)
+            correct = pred.eq(self.env.labels.view_as(pred)).sum().float()
+            if acc:
+                self.abs_to_acc(correct, test=test)
+                self.train_acc = correct
+            self.scores = correct
         else:
             # Testing
             pred = inferences.argmax(dim=1, keepdim=True)
@@ -85,21 +81,19 @@ class Optimizer(object):
         a.div_(size)
         a.mul_(100)
 
-    def calculate_scores(self, inferences):
+    def calculate_score(self, inference):
         """Calculates the scores given the network inferences."""
-        inferences = torch.stack(inferences)
-        scores = self.env.evaluate(inferences)
-        self.scores = scores
+        self.score = self.env.evaluate(inference)
 
-    def set_scores(self, scores):
-        self.scores = scores
+    def set_score(self, score):
+        self.score = score
 
     def step(self):
         """This method takes in the scores, feeds it to the pool so that the
         selection and update process can occur.
         The pool thus updates itself.
         """
-        self.pool.prep_new_pool(self.scores)
+        self.pool.prep_new_pool(self.score)
         self.pool.implement()
 
 

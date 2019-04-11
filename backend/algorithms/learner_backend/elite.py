@@ -4,7 +4,7 @@ import copy
 
 class Elite(object):
     def __init__(self, hp):
-        self.model = None
+        self.model = []
         self.elite_score = hp.initial_score
         self.minimizing = hp.minimizing
         self.elite_idx = 0
@@ -15,7 +15,7 @@ class Elite(object):
         """
         idx = analyzer.top_idx
         pool_top_score = analyzer.new_top
-        self.elite_idx = 0  # Elite is put into slot 0 in pool
+        self.elite_idx = 0  # Reset state
         if self.replace(pool_top_score):
             print ("------Setting new Elite-------")
             elite = pool[idx]

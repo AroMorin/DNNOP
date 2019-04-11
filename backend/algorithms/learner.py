@@ -22,8 +22,8 @@ class LEARNER(object):
         self.pool = Pool(models, self.hyper_params) # Create a pool object
         self.optim = Optimizer(self.pool, self.hyper_params)  # Optimizer object
         self.pool_size = alg_params["pool size"]
-        self.inferences = []
-        self.scores = []
+        self.inference = None
+        self.score = self.hyper_params.initial_score
         self.correct_test_preds = 0
 
     def set_environment(self, env):
@@ -46,13 +46,13 @@ class LEARNER(object):
         """
         self.inference()
         if self.scoring == "loss":
-            self.optim.calculate_losses(self.inferences)
+            self.optim.calculate_loss(self.inference)
         elif self.scoring == "accuracy":
-            self.optim.calculate_correct_predictions(self.inferences, acc=True)
+            self.optim.calculate_correct_predictions(self.inference, acc=True)
         elif self.scoring == "score" or self.scoring == "error":
-            self.optim.calculate_scores(self.inferences)
+            self.optim.calculate_score(self.inference)
         else:
-            self.optim.set_scores(self.inferences)
+            self.optim.set_score(self.inference)
         self.optim.step()
 
     def inference(self, test=False, silent=True):
@@ -64,29 +64,26 @@ class LEARNER(object):
         with torch.no_grad():
             if not test:
                 # Training
-                inferences = []
-                for model in self.pool.models:
-                    inference = model(self.env.observation)
-                    inferences.append(inference)
+                model = self.pool.model
+                self.inference = model(self.env.observation)
             else:
                 # Testing
                 model = self.pool.elite.model
                 model.eval()  # Turn on evaluation mode
-                inferences = model(self.env.test_data)
-        self.inferences = inferences
+                self.inference = model(self.env.test_data)
         if not silent:
-            self.print_inferences()
+            self.print_inference()
 
-    def print_inferences(self):
+    def print_inference(self):
         """Prints the inference of the neural networks. Attempts to extract
         the output items from the tensors.
         """
-        if len(self.inferences[0]) == 1:
-            x = [a.item() for a in self.inferences]
-        elif len(self.inferences[0]) == 2:
-            x = [[a[0].item(), a[1].item()] for a in self.inferences]
+        if len(self.inference) == 1:
+            x = self.inferences.item()
+        elif len(self.inference) == 2:
+            x = (self.inference[0].item(), self.inference[1].item())
         else:
-            x = [[tensor_.item() for tensor_ in output_] for output_ in self.inferences]
+            x = [a.item() for a in self.inference]
         print("Inference: ", x)
 
     def test(self):

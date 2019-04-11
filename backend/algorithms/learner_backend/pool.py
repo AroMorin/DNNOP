@@ -19,8 +19,8 @@ import time
 import torch
 
 class Pool(object):
-    def __init__(self, models, hyper_params):
-        self.models = models # List of Models
+    def __init__(self, model, hyper_params):
+        self.model = model
         self.hp = hyper_params
         self.analyzer = Analysis(hyper_params)
         self.elite = Elite(hyper_params)
@@ -28,28 +28,26 @@ class Pool(object):
         self.perturb = Perturbation(hyper_params)
         self.probes = Probes(hyper_params)
         self.blends = Blends(hyper_params)
-        self.state_dicts = [] # List of weight dictionaries
-        self.vectors = [] # List of parameter vectors
+        self.state_dict = {} # Weights dictionary
+        self.vector = None # Parameter vector
         self.nb_layers = 0
         self.shapes = []
         self.num_elems = []
         self.keys = []
-        self.available_idxs = range(self.hp.pool_size)
-        self.idx = None
-        self.scores = []
-        self.set_state_dicts()
-        # Arbitrarily chose 4th model in pool
-        self.set_shapes(self.state_dicts[4])
-        self.set_vectors()
-        self.perturb.init_perturbation(self.vectors[0])
+        #self.available_idxs = range(self.hp.pool_size)
+        #self.idx = None
+        self.score = self.hp.initial_score
+        self.set_state_dict()
+        self.set_shapes(self.state_dict)
+        self.set_vector()
+        self.perturb.init_perturbation(self.vector)
 
-    def set_state_dicts(self):
+    def set_state_dict(self):
         """This method takes in the list of models, i.e. pool, and produces
         a list of weight dictionaries.
         """
-        for model in self.models:
-            self.state_dicts.append(model.state_dict())
-        self.nb_layers = len(model.state_dict())
+        self.state_dict = self.model.state_dict()
+        self.nb_layers = len(self.state_dict)
 
     def set_shapes(self, dict):
         """We only call this method once since all the pool models are the same
@@ -62,31 +60,22 @@ class Pool(object):
             self.num_elems.append(x.numel())
             self.keys.append(key)
 
-    def set_vectors(self):
-        """This method takes in the list of weight dictionaries and produces
-        a list of parameter vectors.
-        Note: parameter vectors are essentially "flattened" weights.
-        """
-        for state_dict in self.state_dicts:
-            vec = self.dict_to_vec(state_dict)
-            self.vectors.append(vec)
-
-    def dict_to_vec(self, dict):
+    def set_vector(self):
         """Changes the dictionary of weights into a vector."""
+        dict = self.state_dict
         mylist = []
         for i, key in enumerate(dict):
             x = dict[key]  # Get tensor of parameters
             mylist.append(x.reshape(x.numel()))  # Flatten tensor
-        vec = torch.cat(mylist)  # Flatten all tensors in model
-        return vec
+        self.vector = torch.cat(mylist)  # Flatten all tensors in model
 
-    def prep_new_pool(self, scores):
+    def prep_new_model(self, score):
         """Prepares the new pool based on the scores of the current generation
         and the results of the analysis (such as value of intergrity).
         """
         self.update_state()
-        self.analyzer.analyze(scores, self.anchors.nb_anchors)
-        self.elite.set_elite(self.models, self.analyzer)
+        self.analyzer.analyze(score, self.anchors.nb_anchors)
+        self.elite.set_elite(self.model, self.analyzer)
         self.anchors.set_anchors(self.vectors, self.analyzer)
 
         # Define noise magnitude and scale
@@ -98,12 +87,12 @@ class Pool(object):
 
     def update_state(self):
         """Updates the state of the class."""
-        self.state_dicts = []
-        self.vectors = []
-        self.set_state_dicts()
-        self.set_vectors()
-        self.available_idxs = range(self.hp.pool_size)
-        self.idx = None
+        self.state_dict = {}
+        self.vector = None
+        self.set_state_dict()
+        self.set_vector()
+        #self.available_idxs = range(self.hp.pool_size)
+        #self.idx = None
 
     def implement(self):
         """This function updates the ".parameters" of the models using the
@@ -118,6 +107,7 @@ class Pool(object):
         self.blends.blends_idxs = self.update_models(self.blends.vectors)
 
         current_pool = self.models
+        # "anchors" is a list of models not vectors
         anchors = [current_pool[i] for i in self.anchors.anchors_idxs]
         if self.analyzer.backtracking:
             print("-------Backtracking Activated! Inserting Elite-------")

@@ -14,31 +14,49 @@ class Perturbation(object):
         self.vec_length = 0
         self.indices = []
         self.size = 0
+        self.scores = [self.hp.initial_score]*self.hp.pool_size
+        self.prev_scores = [self.hp.initial_score]*self.hp.pool_size
         self.distribution = None
         self.precision = None
-        self.choices = None
-        self.even_p = None
+        self.choices = []
+        self.vd = 0  # p value for uniform distribution
+        self.unifrom_p = None
         self.p = None  # Index choice probability vector (P dist)
         self.p_counter = 0
-        self.discount = 0.1  # discount is 10% of equal probability value
+        self.decr = 0.0  # decrease is 10% of probability value
+        self.incr = 0.1  # increase is 20% of probability value
         self.device = torch.device('cuda')
+        self.idx = 0
 
     def init_perturbation(self, vec):
         """Initialize state and some variables."""
         self.precision = vec.dtype
         self.vec_length = torch.numel(vec)
-        self.indices = range(self.vec_length)
-        even_prob = 1/(self.vec_length)
-        self.even_p = np.full(self.vec_length, even_prob)
-        self.p = self.even_p
-        self.discount = even_prob*self.discount  # Factor in the vector size
+        self.indices = np.arange(self.vec_length)
+        self.incr *= 0.5
+        self.decr *= 0.5
+        self.uniform_p = torch.nn.functional.softmax(
+                        torch.full((self.vec_length,), 0.5, device=self.device),
+                        dim=0)
+        self.p = self.uniform_p
 
     def update_state(self, analyzer):
         # Set noise size (scope)
+        self.choices = []
         self.size = int(analyzer.num_selections*self.vec_length)
         print("Number of selections: %d" %self.size)
         self.set_noise_dist(analyzer.search_radius)
-        self.p_counter = 0  # Resets counter for P-dist function
+        if self.p_counter >0 and self.p_counter < 500:  # Reset p every 100 iterations
+            self.scores = analyzer.scores  # Acquire new state
+            self.update_p()
+            self.prev_scores = self.scores  # Update state
+            self.p_counter += 1
+        else:
+            if self.p_counter == 0:
+                self.p_counter += 1
+            else:
+                self.p = self.uniform_p
+        self.idx = 0  # Reset state
 
     def set_noise_dist(self, limit):
         """Determines the shape and magnitude of the noise."""
@@ -62,6 +80,7 @@ class Perturbation(object):
         self.set_choices()
         noise = self.get_noise()
         vec.add_(noise)
+        self.idx+=1
 
     def set_choices(self):
         """Use the numpy choices function (which has no equivalent in Pytorch)
@@ -69,43 +88,36 @@ class Perturbation(object):
         distribution are dynamically updated by the algorithm's state.
         """
         np.random.seed()
-        choices = np.random.choice(self.indices, self.size, replace=False, p=self.p)
-        self.update_p(choices)
-        #self.choices = torch.tensor(choices).cuda().long()
-        self.choices = choices.tolist()
+        choices = np.random.choice(self.indices, self.size, replace=False, p=self.p.cpu().numpy())
+        self.choices.append(choices.tolist())
 
-    def update_p(self, choices):
-        """Counts the number of steps the function is called. We want to reset
-        the P-distribution for every anchor. Thus, we reset the counter after
-        M calls, which corresponds to M probes. To ensure this mechanism works
-        as expected, we also reset counter every optimization iteration, to make
-        sure we do not "carryover" the state into a new generation (since the
-        number of anchors varies). We don't care how this behaves with blends.
+    def update_p(self):
+        """Updates the probability distribution."""
+        for i, choices in enumerate(self.choices):
+            print(i)
+            if self.improved(i):
+                self.increase_p(choices)
+            else:
+                self.decrease_p(choices)
+        self.p = torch.nn.functional.softmax(self.p, dim=0)  # Normalize
 
-        The "discount" constant defines the amount of depression.
-
-        The function "depresses" the probability of selection distribution by
-        creating a "depression vector" and subtracts said vector from the
-        current p_vector. Subtraction happens only at the indices chosen.
-        """
-        if self.p_counter <= self.hp.nb_probes:
-            self.push_down(choices)
-            self.push_up(choices)
-            self.p_counter += 1  # Increment counter
+    def improved(self, idx):
+        if self.hp.minimizing:
+            return self.scores[idx] < self.prev_scores[idx]
         else:
-            self.p = self.even_p  # Reset State
-            self.p_counter = 0  # Reset state, new anchor
+            return self.scores[idx] > self.prev_scores[idx]
 
-    def push_down(self, choices):
-        decrease = np.full(self.size, self.discount)
-        temp = np.subtract(self.p[choices], decrease)
-        temp[temp<0] = 0  # No negative probabilities
-        self.p[choices] = temp
+    def increase_p(self, choices):
+        """This method decreases p at "choices" locations."""
+        # Pull up "choices"
+        dt = torch.full((self.size,), self.incr, device=self.device)  # Delta tensor
+        self.p[choices].add_(dt)
 
-    def push_up(self, choices):
-        others = np.delete(np.arange(self.vec_length), choices)
-        increase = (1 - np.sum(self.p))/len(others)
-        self.p[others] = np.add(self.p[others], increase)
+    def decrease_p(self, choices):
+        """This method decreases p at "choices" locations."""
+        # Push down "choices"
+        dt = torch.full((self.size,), self.decr, device=self.device)
+        self.p[choices].sub_(delta)
 
     def get_noise(self):
         """ This function defines a noise tensor, and returns it. The noise
@@ -117,7 +129,7 @@ class Perturbation(object):
         # Cast to precision and CUDA, and edit shape
         noise = noise.to(dtype=self.precision, device=self.device).squeeze()
         basis = torch.zeros((self.vec_length), dtype=self.precision, device=self.device)
-        basis[self.choices] = noise
+        basis[self.choices[self.idx]] = noise
         return basis
 
 

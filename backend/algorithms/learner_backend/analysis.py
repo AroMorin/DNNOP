@@ -88,7 +88,7 @@ class Analysis(object):
         if a <= self.hp.min_integrity:
             self.elapsed_steps = self.hp.patience  # Trigger backtracking!
         else:
-            self.integrity = min(0, a)  # Integrity never below zero
+            self.integrity = max(0, a)  # Integrity never below zero
 
     def maintain_integrity(self):
         a = self.integrity+(self.hp.step_size*0.1)

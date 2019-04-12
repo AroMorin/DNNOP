@@ -28,8 +28,7 @@ class Blends(object):
         self.perturb = perturb
         self.vec_length = self.perturb.vec_length
         self.nb_anchors = anchors.nb_anchors
-        self.nb_blends = self.hp.pool_size-(self.nb_anchors+(
-                                    self.nb_anchors*self.hp.nb_probes)+1)
+        self.nb_blends = self.hp.pool_size-(self.nb_anchors*self.hp.nb_probes)
 
     def generate(self, vector):
         """Sets the blends number and vectors."""

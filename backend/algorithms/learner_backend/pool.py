@@ -37,8 +37,7 @@ class Pool(object):
         self.current_anchor = 0
         self.nb_probes = 0  # State
         self.nb_blends = 0  # State
-        #self.available_idxs = range(self.hp.pool_size)
-        #self.idx = None
+        self.new_gen = True
         self.score = self.hp.initial_score
         self.set_state_dict()
         self.set_shapes(self.state_dict)
@@ -87,6 +86,7 @@ class Pool(object):
         self.blends.update_state(self.anchors, self.analyzer, self.perturb)
 
     def generate(self):
+        self.new_gen = False  # Update state
         self.set_next()
         if self.next == "probe":
             self.probes.generate(self.anchors.vectors[self.current_anchor], self.perturb)
@@ -119,6 +119,7 @@ class Pool(object):
     def reset_state(self):
         """Updates the state of the class."""
         print("----------New Optimization Generation--------")
+        self.new_gen = True
         self.next = "probe"
         self.current_anchor = 0  # Reset Anchors
         self.nb_probes = 0

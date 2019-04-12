@@ -88,13 +88,12 @@ class Analysis(object):
         if a <= self.hp.min_integrity:
             self.elapsed_steps = self.hp.patience  # Trigger backtracking!
         else:
-            self.integrity = a
+            self.integrity = min(0, a)  # Integrity never below zero
 
     def maintain_integrity(self):
         a = self.integrity+(self.hp.step_size*0.1)
         b = self.hp.max_integrity
         self.integrity = min(a, b)
-
 
     def review(self, nb_anchors):
         """Implements the backtracking and radial expansion functionalities."""

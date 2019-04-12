@@ -11,6 +11,7 @@ class Analysis(object):
         self.prev_score = torch.tensor(self.hp.initial_score, device='cuda')
         self.score = torch.tensor(self.hp.initial_score, device='cuda')
         self.distance = float("inf")  # Infinite distance from target
+        self.top = self.hp.initial_score
         self.backtracking = False
         self.elapsed_steps = 0  # Counts steps without improvement
         self.reset_integrity = False
@@ -53,11 +54,12 @@ class Analysis(object):
 
         else:  # Improved
             print ("Improved")
+            self.top = self.score
             if self.search_start:
                 # Prevents moonshots from disturbing the search process
                 if self.integrity<self.hp.def_integrity:
                     print("Reseting Integrity!!!!")
-                    self.integrity = self.hp.def_integrity
+                    #self.integrity = self.hp.def_integrity
                 self.search_start = False
                 self.elapsed_steps += 1
             else:
@@ -72,11 +74,10 @@ class Analysis(object):
         """
         # Make sure we are not in the very first iteration
         if self.step>0:
-            new_d = abs(self.score-self.hp.target)  # Distance to target
-            improvement = new_d < self.distance
-            if improvement:
-                self.distance = new_d  # Update state
-            return improvement
+            if self.hp.minimizing:
+                return self.score<self.top
+            else:
+                return self.score>self.top
         else:
             # Improved over the initial score
             self.step +=1
@@ -86,7 +87,7 @@ class Analysis(object):
         # Reduce integrity, but not below the minimum allowed level
         a = self.integrity-self.hp.step_size  # Decrease integrity
         if a <= self.hp.min_integrity:
-            self.elapsed_steps = self.hp.patience  # Trigger backtracking!
+            self.integrity = self.hp.max_integrity  # Trigger backtracking!
         else:
             self.integrity = max(0, a)  # Integrity never below zero
 
@@ -100,11 +101,11 @@ class Analysis(object):
         self.set_backtracking()
         self.set_radial_expansion(nb_anchors)
 
-    def set_backtracking(self):
+    def set_backtracking(self, trigger=False):
         """Only activate backtracking for the current iteration, if the conditions
         are met. Then reset it the following turn(s). If activated, reset
         counter."""
-        if self.elapsed_steps > self.hp.patience:
+        if self.elapsed_steps > self.hp.patience or trigger:
             self.backtracking = True
             self.elapsed_steps = 0
             self.integrity = self.hp.max_integrity  # Reset integrity

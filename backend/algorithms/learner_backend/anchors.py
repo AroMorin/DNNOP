@@ -43,11 +43,14 @@ class Anchors(object):
             if self.replace:
                 self.admit(candidate, inference, score)
                 self.admitted = True
+            else:
+                if self.nb_anchors<self.hp.nb_anchors:
+                    if self.far_enough:
+                        print("Generosity")
+                        self.add_anchor(candidate, inference, score)
         else:
             # List is empty, admit
-            self.vectors.append(candidate.clone())
-            self.inferences.append(inference)
-            self.scores.append(score)
+            self.add_anchor(candidate, inference, score)
             self.admitted = True
         # Sanity checks
         assert len(self.vectors) == len(self.scores)
@@ -57,10 +60,10 @@ class Anchors(object):
     def evaluate_candidate(self, candidate, score):
         """Make sure the candidate is far enough from every anchor."""
         # Must be better than current anchor(s) score(s)
+        self.evalutate_distance(candidate)
         self.evaluate_score(score)
         if self.better_score:
             self.replace = True
-            self.evalutate_distance(candidate)
 
     def evaluate_score(self, score):
         for i, anc_score in enumerate(self.scores):
@@ -77,10 +80,10 @@ class Anchors(object):
         self.far_enough = True  # Starting assumption
         self.closest = 0
         c = float("inf")
-        self.candidates = [self.vectors[i] for i in self.idxs]
-        for i, anchor in enumerate(self.candidates):
+        #self.candidates = [self.vectors[i] for i in self.idxs]
+        for i, anchor in enumerate(self.vectors):
             d = self.canberra_distance(candidate, anchor)
-            if d.gt(self.hp.min_dist) and torch.isfinite(d):
+            if d.lt(self.hp.min_dist) and not torch.isfinite(d):
                 self.far_enough = False
             if d.lt(c):
                 self.closest = i
@@ -106,20 +109,24 @@ class Anchors(object):
                 # Replace anchor at self.idxs[0] is arbitrarily chosen
                 self.replace_anchor(vector, inference, score, self.idxs[0])
             else:
+                self.add_anchor(vector, inference, score)
                 # Fill up anchor slots, anchor is far enough
-                self.vectors.append(vector.clone())
-                self.inferences.append(inference)
-                self.scores.append(score)
-        else:
+        #else:
             # Replace closest anchor to the candidate
-            self.replace_anchor(vector, inference, score, self.idxs[self.closest])
+            #self.replace_anchor(vector, inference, score, self.idxs[self.closest])
         assert self.nb_anchors <= self.hp.nb_anchors  # Sanity check
 
     def replace_anchor(self, vector, inference, score, i):
+        print("replaced anchor")
         self.vectors[i] = vector.clone()
         self.inferences[i] = inference
         self.scores[i] = score
 
+    def add_anchor(self, vector, inference, score):
+        print("added anchor")
+        self.vectors.append(vector.clone())
+        self.inferences.append(inference)
+        self.scores.append(score)
 
 
 

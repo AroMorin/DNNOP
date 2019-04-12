@@ -36,8 +36,7 @@ class Blends(object):
         assert self.nb_blends>0
         self.set_indices()
         self.set_compound1()
-        self.set_compound2(vector)
-        self.blend()
+        self.blend(vector)
 
     def set_indices(self):
         """Sets the indices for the blends. It has two options, either a
@@ -47,8 +46,7 @@ class Blends(object):
         #indices = random.sample(range(self.vec_length), self.analyzer.num_selections)
         #self.indices = random.sample(range(self.vec_length), self.vec_length/2)
         # I can select/determine a random sequence, and keep it for the iteration
-        self.indices = np.arange(start=0, stop=self.vec_length, step=2)
-        self.indices = torch.tensor(self.indices).cuda().long()
+        self.indices = torch.arange(start=0, end=self.vec_length, step=2, device='cuda')
 
     def set_compound1(self):
         """Random choices from anchors, with replacement, as the lineup of first
@@ -56,22 +54,15 @@ class Blends(object):
         """
         # From anchors
         #idxs = choices(range(self.nb_anchors), k=self.nb_blends)
-        idxs = np.random.choice(range(self.nb_anchors), size=self.nb_blends, replace=True)
-        self.compounds1 = [self.anchors.vectors[i] for i in idxs]
+        idx = torch.randint(low=0, high=self.nb_anchors, size=(1,))
+        self.compound1 = self.anchors.vectors[idx].clone()
 
-    def set_compound2(self, vector):
-        """Random choices from probes+blends, with replacement, as the lineup
-        of second blend components.
-        """
-        self.compounds2 = vector
-
-    def blend(self):
+    def blend(self, vector):
         """Implements the blend action between the first and second lineup of
         components.
         """
         c1 = self.compound1
-        c2 = self.compound2
-        c1.put_(self.indices, c2[self.indices])
+        c1.put_(self.indices, vector[self.indices])
         self.perturb.apply(c1)
         self.vector = c1
 

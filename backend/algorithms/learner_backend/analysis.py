@@ -8,7 +8,7 @@ import time
 class Analysis(object):
     def __init__(self, hyper_params):
         self.hp = hyper_params
-        self.initial_score = torch.tensor(self.hp.initial_score)
+        self.initial_score = torch.tensor(self.hp.initial_score, device='cuda')
         self.prev_score = torch.tensor(self.hp.initial_score, device='cuda')
         self.score = torch.tensor(self.hp.initial_score, device='cuda')
         self.distance = float("inf")  # Infinite distance from target

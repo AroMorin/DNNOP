@@ -12,7 +12,7 @@ class Hyper_Parameters(object):
         min mode but forget to turn off max mode, and vice versa. Of course,
         there can be assert checks, but I'll just be inviting bugs for no reason.
         """
-        print("Iniitializing hyper parameters of MSN")
+        print("Iniitializing hyper parameters of LEARNER")
         self.hyper_params = {}
         self.nb_anchors = 0
         self.nb_probes = 0

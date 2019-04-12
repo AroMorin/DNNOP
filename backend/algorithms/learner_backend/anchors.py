@@ -15,6 +15,7 @@ class Anchors(object):
         self.idx = 0
         self.replace = False
         self.better_score = False
+        self.far_enough = False
 
     def set_anchors(self, vector, inference, score):
         """The func is structured as below in order for the conditional to
@@ -32,6 +33,7 @@ class Anchors(object):
         self.replace = False
         self.better_score = False
         self.admitted = False
+        self.far_enough = False
 
     def check(self, candidate, inference, score):
         """Determines whether to admit a sample into the anchors list."""
@@ -56,8 +58,8 @@ class Anchors(object):
         # Must be better than current anchor(s) score(s)
         self.evaluate_score(score)
         if self.better_score:
-            # Must be far enough from all/the other anchor(s)
-            if self.far_enough(candidate):
+            self.far_enough = self.evalutate_distance(candidate)
+            if self.far_enough:
                 self.replace = True
 
     def evaluate_score(self, score):
@@ -69,8 +71,9 @@ class Anchors(object):
             if yes:
                 self.idx = i  # Add to list of replacement candidates
                 self.better_score = True
+                break  # Terminate loop, we found the anchor to be replaced
 
-    def far_enough(self, candidate):
+    def evalutate_distance(self, candidate):
         for anchor in self.vectors:
             distance = self.canberra_distance(candidate, anchor)
             if distance.gt(self.hp.min_dist) and torch.isfinite(distance):
@@ -98,7 +101,7 @@ class Anchors(object):
             self.inferences[self.idx] = inference
             self.scores[self.idx] = score
         else:
-            # Fill up anchor slots
+            # Fill up anchor slots, anchor is far enough
             self.vectors.append(vector.clone())
             self.inferences.append(inference)
             self.scores.append(score)

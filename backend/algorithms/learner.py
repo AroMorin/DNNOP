@@ -44,7 +44,7 @@ class LEARNER(object):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        self.inference()
+        self.get_inference()
         if self.scoring == "loss":
             self.optim.calculate_loss(self.inference)
         elif self.scoring == "accuracy":
@@ -55,7 +55,7 @@ class LEARNER(object):
             self.optim.set_score(self.inference)
         self.optim.step()
 
-    def inference(self, test=False, silent=True):
+    def get_inference(self, test=False, silent=True):
         """This method runs inference on the given environment using the models.
         I'm not sure, but I think there could be many ways to run inference. For
         that reason, I designate this function, to be a single point of contact

@@ -25,7 +25,6 @@ class Perturbation(object):
         self.decr = 0.0  # decrease is 10% of probability value
         self.incr = 0.1  # increase is 20% of probability value
         self.device = torch.device('cuda')
-        self.idx = 0
 
     def init_perturbation(self, vec):
         """Initialize state and some variables."""
@@ -43,17 +42,16 @@ class Perturbation(object):
         self.size = int(analyzer.num_selections*self.vec_length)
         print("Number of selections: %d" %self.size)
         self.set_noise_dist(analyzer.search_radius)
-        if self.p_counter >0 and self.p_counter < 500:  # Reset p every 100 iterations
+        self.set_choices()
+        if self.p_counter > 0 and self.p_counter < 500:  # Reset p every 100 iterations
             self.score = analyzer.score  # Acquire new state
             self.update_p()
             self.prev_score = self.score  # Update state
-            self.p_counter += 1
+            self.p_counter+=1
+        elif self.p_counter == 0:
+            self.p_counter+=1  # Need to step at least once
         else:
-            if self.p_counter == 0:
-                self.p_counter += 1
-            else:
-                self.p = self.uniform_p
-        self.idx = 0  # Reset state
+            self.p = self.uniform_p  # Reset p
 
     def set_noise_dist(self, limit):
         """Determines the shape and magnitude of the noise."""
@@ -74,10 +72,8 @@ class Perturbation(object):
         based on the search radius.
         Finally use the above to add to the vector of choice.
         """
-        self.set_choices()
         noise = self.get_noise()
         vec.add_(noise)
-        self.idx+=1
 
     def set_choices(self):
         """Use the numpy choices function (which has no equivalent in Pytorch)
@@ -85,15 +81,14 @@ class Perturbation(object):
         distribution are dynamically updated by the algorithm's state.
         """
         np.random.seed()
-        choices = np.random.choice(self.indices, self.size, replace=False, p=self.p.cpu().numpy())
-        self.choices.append(choices.tolist())
+        self.choices = np.random.choice(self.indices, self.size, replace=False, p=self.p.cpu().numpy())
 
     def update_p(self):
         """Updates the probability distribution."""
         if self.improved():
-            self.increase_p(self.choices)
+            self.increase_p()
         else:
-            self.decrease_p(self.choices)
+            self.decrease_p()
         self.p = torch.nn.functional.softmax(self.p, dim=0)  # Normalize
 
     def improved(self):
@@ -102,17 +97,17 @@ class Perturbation(object):
         else:
             return self.score > self.prev_score
 
-    def increase_p(self, choices):
+    def increase_p(self):
         """This method decreases p at "choices" locations."""
         # Pull up "choices"
         dt = torch.full((self.size,), self.incr, device=self.device)  # Delta tensor
-        self.p[choices].add_(dt)
+        self.p[self.choices].add_(dt)
 
-    def decrease_p(self, choices):
+    def decrease_p(self):
         """This method decreases p at "choices" locations."""
         # Push down "choices"
         dt = torch.full((self.size,), self.decr, device=self.device)
-        self.p[choices].sub_(delta)
+        self.p[self.choices].sub_(dt)
 
     def get_noise(self):
         """ This function defines a noise tensor, and returns it. The noise
@@ -123,9 +118,9 @@ class Perturbation(object):
         noise = self.distribution.sample(torch.Size([self.size]))
         # Cast to precision and CUDA, and edit shape
         noise = noise.to(dtype=self.precision, device=self.device).squeeze()
-        basis = torch.zeros((self.vec_length), dtype=self.precision, device=self.device)
-        basis[self.choices[self.idx]] = noise
-        return basis
+        noise_vector = torch.zeros((self.vec_length), dtype=self.precision, device=self.device)
+        noise_vector[self.choices] = noise
+        return noise_vector
 
 
 

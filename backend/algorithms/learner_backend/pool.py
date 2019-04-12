@@ -35,7 +35,8 @@ class Pool(object):
         self.num_elems = []
         self.keys = []
         self.current_anchor = 0
-        self.probes = 0
+        self.nb_probes = 0  # State
+        self.nb_blends = 0  # State
         #self.available_idxs = range(self.hp.pool_size)
         #self.idx = None
         self.score = self.hp.initial_score
@@ -90,13 +91,13 @@ class Pool(object):
         print("----------New Optimization Generation--------")
         self.next = "probe"
         self.current_anchor = 0  # Reset Anchors
-        self.probes = 0
-        self.blends = 0
+        self.nb_probes = 0
+        self.nb_blends = 0
 
     def generate(self):
         self.set_next()
         if self.next == "probe":
-            self.probes.generate(self.anchors.vectors[self.current_anchor])
+            self.probes.generate(self.anchors.vectors[self.current_anchor], self.perturb)
             self.vector = self.probes.vector
         elif self.next == "blend":
             self.blends.generate(self.vector)
@@ -107,18 +108,18 @@ class Pool(object):
         self.update_model(self.vector)
 
     def set_next(self):
-        if self.probes < self.hp.nb_probes:
+        if self.nb_probes < self.hp.nb_probes:
             self.next = "probe"
-            self.probes+=1  # Increment probe count
+            self.nb_probes+=1  # Increment probe count
         else:
             if self.current_anchor < (self.anchors.nb_anchors-1):
                 self.current_anchor+=1  # Move to next Anchor
-                self.probes = 0  # Reset probe count
+                self.nb_probes = 0  # Reset probe count
                 self.next = "probe"
             else:
-                if self.blends < self.blends.nb_blends:
+                if self.nb_blends < self.blends.nb_blends:
                     self.next = "blend"  # No more anchors, moving to blends
-                    self.blends+=1  # Increment blend count
+                    self.nb_blends+=1  # Increment blend count
                 else:
                     self.reset_state()
 

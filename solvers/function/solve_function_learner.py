@@ -21,19 +21,17 @@ def main():
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
-                    "plot": True,
+                    "plot": False,
                     "score type": "error"  # Function evaluation
                     }
     env = env_factory.make_env("function", function, env_params)
 
-
     # Make a pool
     model_params = {
-                    "pool size": 50,
                     "precision": precision,
                     "weight initialization scheme": "Identical"
                     }
-    pool = model_factory.make_pool("Function FC model", model_params)
+    model = model_factory.make_model("Function FC model", model_params)
 
     # Make an algorithm --algorithm needs to take charge of the pool--
     alg_params = {
@@ -42,7 +40,6 @@ def main():
                     "number of probes per anchor": 9,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -3,  # Percentage
                     "minimum distance": 450,
                     "patience": 32,
                     "tolerance": 0.12,
@@ -50,13 +47,13 @@ def main():
                     "lambda": 5,
                     "step size": 0.02
                     }
-    alg = algorithm_factory.make_alg("learner", pool, alg_params)
+    alg = algorithm_factory.make_alg("learner", model, alg_params)
 
     # Make a solver using the environment and algorithm objects
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.solve_and_plot(iterations=500)
+    slv.solve_and_plot(iterations=5000)
 
 if __name__ == '__main__':
     main()

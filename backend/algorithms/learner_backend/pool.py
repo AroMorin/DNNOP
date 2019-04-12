@@ -71,30 +71,27 @@ class Pool(object):
             mylist.append(x.reshape(x.numel()))  # Flatten tensor
         self.vector = torch.cat(mylist)  # Flatten all tensors in model
 
-    def prep_new_model(self, score):
+    def prep_new_model(self, inference, score):
         """Prepares the new pool based on the scores of the current generation
         and the results of the analysis (such as value of intergrity).
         """
-        self.update_state()
+        self.inference = inference
         self.analyzer.analyze(score, self.anchors.nb_anchors)
         self.score = self.analyzer.score
-        self.elite.set_elite(self.model, self.analyzer)
-        self.anchors.set_anchors(self.vector, self.score)
+        self.elite.set_elite(self.model, self.inference, self.score)
+        self.anchors.set_anchors(self.vector, self.inference, self.score)
 
         # Define noise magnitude and scale
         self.perturb.update_state(self.analyzer)
-        self.blends.update_state(self.anchors, self.vector, self.analyzer, self.perturb)
+        self.blends.update_state(self.anchors, self.analyzer, self.perturb)
 
-        # Implement probes and blends
-        self.generate()
-        #self.probes.set_probes(self.anchors, self.perturb)
-
-    def update_state(self):
+    def reset_state(self):
         """Updates the state of the class."""
-        self.state_dict = {}
-        self.vector = None
-        self.set_state_dict()
-        self.set_vector()
+        print("----------New Optimization Generation--------")
+        self.next = "probe"
+        self.current_anchor = 0  # Reset Anchors
+        self.probes = 0
+        self.blends = 0
 
     def generate(self):
         self.set_next()
@@ -102,11 +99,12 @@ class Pool(object):
             self.probes.generate(self.anchors.vectors[self.current_anchor])
             self.vector = self.probes.vector
         elif self.next == "blend":
-            self.blends.generate(self.anchors.vectors, self.vector)
+            self.blends.generate(self.vector)
             self.vector = self.blends.vector
         else:
             print("unknown generate type, exiting!")
             exit()
+        self.update_model(self.vector)
 
     def set_next(self):
         if self.probes < self.hp.nb_probes:
@@ -122,30 +120,7 @@ class Pool(object):
                     self.next = "blend"  # No more anchors, moving to blends
                     self.blends+=1  # Increment blend count
                 else:
-                    # Reset everything
-                    self.next = "probe"
-                    self.current_anchor = 0  # Reset Anchors
-                    self.probes = 0
-                    self.blends = 0
-
-    def implement(self):
-        """This function updates the ".parameters" of the models using the
-        newly-constructed weight dictionaries. That is, it actualizes the
-        changes/updates to the weights of the models in the GPU. After that
-        it assembles the new pool. --candidate for splitting into 2 methods--
-        """
-        if self.analyzer.backtracking:
-            print("-------Backtracking Activated! Inserting Elite-------")
-            anchors[0] = self.elite.model
-        self.update_model(self.vector)
-        probes = [current_pool[i] for i in self.probes.probes_idxs]
-        blends = [current_pool[i] for i in self.blends.blends_idxs]
-
-        self.models = [self.elite.model]
-        self.models.extend(anchors)
-        self.models.extend(probes)
-        self.models.extend(blends)
-        assert len(self.models) == self.hp.pool_size  # Same pool size
+                    self.reset_state()
 
     def update_model(self, vector):
         """Updates the weight dictionaries of the models."""

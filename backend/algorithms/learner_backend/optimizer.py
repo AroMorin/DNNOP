@@ -37,6 +37,7 @@ class Optimizer(object):
 
     def calculate_loss(self, inference, test=False):
         """This method calculates the loss."""
+        self.inference = inference
         if self.env.loss_type == 'NLL loss':
             if not test:
                 self.train_loss = F.nll_loss(inference, self.env.labels)
@@ -52,6 +53,7 @@ class Optimizer(object):
         """Calculates the number of correct predictions/inferences made by the
         neural network.
         """
+        self.inference = inference
         if not test:
             # Training
             # Correct predictions on all test data for a single model
@@ -83,6 +85,7 @@ class Optimizer(object):
 
     def calculate_score(self, inference):
         """Calculates the scores given the network inferences."""
+        self.inference = inference
         self.score = self.env.evaluate(inference)
 
     def set_score(self, score):
@@ -93,8 +96,8 @@ class Optimizer(object):
         selection and update process can occur.
         The pool thus updates itself.
         """
-        self.pool.prep_new_pool(self.score)
-        self.pool.implement()
+        self.pool.prep_new_model(self.inference, self.score)
+        self.pool.generate()
 
 
 

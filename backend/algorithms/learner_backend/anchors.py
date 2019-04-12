@@ -9,18 +9,19 @@ class Anchors(object):
         self.hp = hp
         self.vectors = []
         self.scores = []
+        self.inferences = []
         self.nb_anchors = 0  # State not hyperparameter
         self.print_distance = True
         self.idx = 0
         self.replace = False
         self.better_score = False
 
-    def set_anchors(self, vector, score):
+    def set_anchors(self, vector, inference, score):
         """The func is structured as below in order for the conditional to
         evaluate to True most of the time.
         """
         self.reset_state()
-        self.check(vector, score)
+        self.check(vector, inference, score)
         self.nb_anchors = len(self.vectors)
         print("Anchors: %d" %self.nb_anchors)
         #print("Anchors scores: ", self.scores)
@@ -30,21 +31,24 @@ class Anchors(object):
         self.idx = 0
         self.replace = False
         self.better_score = False
+        self.admitted = False
 
-    def check(self, candidate, score):
+    def check(self, candidate, inference, score):
         """Determines whether to admit a sample into the anchors list."""
         if self.nb_anchors>0:
             self.evaluate_candidate(candidate, score)
             if self.replace:
-                self.admit(candidate, score)
+                self.admit(candidate, inference, score)
                 self.admitted = True
         else:
             # List is empty, admit
             self.vectors.append(candidate.clone())
+            self.inferences.append(inference)
             self.scores.append(score)
             self.admitted = True
         # Sanity checks
         assert len(self.vectors) == len(self.scores)
+        assert len(self.vectors) == len(self.inferences)
         assert len(self.vectors) <= self.hp.nb_anchors
 
     def evaluate_candidate(self, candidate, score):
@@ -87,12 +91,16 @@ class Anchors(object):
             print(result)
         return result
 
-    def admit(self, vector, score):
+    def admit(self, vector, inference, score):
         if self.nb_anchors==self.hp.nb_anchors:
+            # Replace anchor at self.idx
             self.vectors[self.idx] = vector.clone()
+            self.inferences[self.idx] = inference
             self.scores[self.idx] = score
         else:
+            # Fill up anchor slots
             self.vectors.append(vector.clone())
+            self.inferences.append(inference)
             self.scores.append(score)
         assert self.nb_anchors <= self.hp.nb_anchors  # Sanity check
 

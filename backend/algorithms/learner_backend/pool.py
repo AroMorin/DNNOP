@@ -80,7 +80,8 @@ class Pool(object):
         self.score = self.analyzer.score
         self.elite.set_elite(self.model, self.inference, self.score)
         self.anchors.set_anchors(self.vector, self.inference, self.score)
-
+        if self.elite.replaced_elite:
+            self.reset_state()
         # Define noise magnitude and scale
         self.perturb.update_state(self.analyzer)
         self.blends.update_state(self.anchors, self.analyzer, self.perturb)
@@ -98,6 +99,7 @@ class Pool(object):
             print("unknown generate type, exiting!")
             exit()
         self.update_model(self.vector)
+        #time.sleep(0.5)
 
     def set_next(self):
         if self.nb_probes < self.hp.nb_probes:
@@ -118,7 +120,7 @@ class Pool(object):
 
     def reset_state(self):
         """Updates the state of the class."""
-        print("----------New Optimization Generation--------")
+        print("new gen------------------------------")
         self.new_gen = True
         self.next = "probe"
         self.current_anchor = 0  # Reset Anchors

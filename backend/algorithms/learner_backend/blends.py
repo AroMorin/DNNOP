@@ -63,6 +63,7 @@ class Blends(object):
         c1 = self.compound1
         c1.put_(self.indices, vector[self.indices])
         self.perturb.apply(c1)
+        self.perturb.apply(c1)  # Apply noise twice
         self.vector = c1
 
 

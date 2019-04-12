@@ -9,9 +9,11 @@ class Probes(object):
 
     def generate(self, vector, perturb):
         """Set the new probes based on the calculated anchors."""
+        print(vector[0:10])
         probe = vector.clone()
         perturb.apply(probe)
         self.vector = probe
+        print(self.vector[0:10])
 
 
 #

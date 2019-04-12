@@ -8,7 +8,7 @@ from torch.distributions import uniform, normal
 class Perturbation(object):
     def __init__(self, hp):
         self.hp = hp
-        self.noise_distribution = "normal"  # Or "uniform"
+        self.noise_distribution = "uniform"  # Or "uniform"
         self.noise_type = "continuous"  # Or "discrete" -- Unimplemented feature
         self.vec_length = 0
         self.indices = []
@@ -20,20 +20,20 @@ class Perturbation(object):
         self.choices = []  # list of indices
         self.vd = 0  # p value for uniform distribution
         self.unifrom_p = None
+        self.device = torch.device('cuda')
+        self.p_vec = None
         self.p = None  # Index choice probability vector (P dist)
         self.p_counter = 0
-        self.decr = 0.1  # decrease is 10% of probability value
-        self.incr = 0.2  # increase is 20% of probability value
-        self.device = torch.device('cuda')
+        self.decr = 0.02  # decrease is 10% of probability value
+        self.incr = 0.04  # increase is 20% of probability value
 
     def init_perturbation(self, vec):
         """Initialize state and some variables."""
         self.precision = vec.dtype
         self.vec_length = torch.numel(vec)
         self.indices = np.arange(self.vec_length)
-        self.uniform_p = torch.nn.functional.softmax(
-                        torch.full((self.vec_length,), 0.5, device=self.device),
-                        dim=0)
+        self.p_vec = torch.full((self.vec_length,), 0.5, device=self.device)
+        self.uniform_p = torch.nn.functional.softmax(self.p_vec, dim=0)
         self.p = self.uniform_p
 
     def update_state(self, analyzer):
@@ -43,7 +43,7 @@ class Perturbation(object):
         print("Number of selections: %d" %self.size)
         self.set_noise_dist(analyzer.search_radius)
         self.set_choices()
-        if self.p_counter > 0 and self.p_counter < 500:  # Reset p every 100 iterations
+        if self.p_counter > 0 and self.p_counter < 25000:  # Reset p every 100 iterations
             self.score = analyzer.score  # Acquire new state
             self.update_p()
             self.prev_score = self.score  # Update state
@@ -81,6 +81,7 @@ class Perturbation(object):
         distribution are dynamically updated by the algorithm's state.
         """
         np.random.seed()
+        #print((self.p == 0).nonzero())
         self.choices = np.random.choice(self.indices, self.size, replace=False, p=self.p.cpu().numpy())
 
     def update_p(self):
@@ -89,7 +90,8 @@ class Perturbation(object):
             self.increase_p()
         else:
             self.decrease_p()
-        self.p = torch.nn.functional.softmax(self.p, dim=0)  # Normalize
+        print("P: ", self.p[0:10])
+        self.p = torch.nn.functional.softmax(self.p_vec, dim=0)  # Normalize
 
     def improved(self):
         if self.hp.minimizing:
@@ -101,13 +103,13 @@ class Perturbation(object):
         """This method decreases p at "choices" locations."""
         # Pull up "choices"
         dt = torch.full((self.size,), self.incr, device=self.device)  # Delta tensor
-        self.p[self.choices].add_(dt)
+        self.p_vec[self.choices] = torch.add(self.p_vec[self.choices], dt)
 
     def decrease_p(self):
         """This method decreases p at "choices" locations."""
         # Push down "choices"
         dt = torch.full((self.size,), self.decr, device=self.device)
-        self.p[self.choices].sub_(dt)
+        self.p_vec[self.choices] = torch.sub(self.p_vec[self.choices], dt)
 
     def get_noise(self):
         """ This function defines a noise tensor, and returns it. The noise

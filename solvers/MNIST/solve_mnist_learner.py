@@ -42,11 +42,11 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum distance": 1000,
-                    "patience": 50,
+                    "patience": 500,
                     "tolerance": 0.01,
                     "learning rate": 0.02,
                     "lambda": 5,
-                    "step size": 0.02
+                    "step size": 0.001
                     }
     alg = algorithm_factory.make_alg("learner", model, alg_params)
 
@@ -54,7 +54,7 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=700)
+    slv.train_dataset_with_validation(iterations=25000)
     #slv.repeated_batch_train_dataset_with_validation(args.iterations)
 
 if __name__ == '__main__':

@@ -13,7 +13,9 @@ class Elite(object):
         """Checks current top score and determines if there's a new elite. The
         elite is then either updated or set as is.
         """
+        self.replaced_elite = False  # Operating assumption
         if self.replace(score):
+            self.replaced_elite = True
             print ("------Setting new Elite-------")
             self.clone_model(model)
             self.inference = inference

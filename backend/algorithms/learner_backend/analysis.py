@@ -60,12 +60,13 @@ class Analysis(object):
                 if self.integrity<self.hp.def_integrity:
                     print("Reseting Integrity!!!!")
                     #self.integrity = self.hp.def_integrity
+                self.maintain_integrity()
                 self.search_start = False
                 self.elapsed_steps += 1
             else:
                 # Increase integrity, but not over the maximum allowed level
                 self.elapsed_steps = 0
-                self.maintain_integrity()
+                #self.maintain_integrity()
         print("Steps to Backtrack: %d" %(self.hp.patience-self.elapsed_steps+1))
 
     def improved(self):
@@ -92,7 +93,7 @@ class Analysis(object):
             self.integrity = max(0, a)  # Integrity never below zero
 
     def maintain_integrity(self):
-        a = self.integrity+(self.hp.step_size*0.1)
+        a = self.integrity+(self.hp.step_size*10.0)
         b = self.hp.max_integrity
         self.integrity = min(a, b)
 

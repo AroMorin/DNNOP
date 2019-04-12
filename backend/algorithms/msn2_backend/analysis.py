@@ -88,7 +88,7 @@ class Analysis(object):
             else:
                 # Increase integrity, but not over the maximum allowed level
                 self.elapsed_steps = 0
-                a = self.integrity+(self.hp.step_size*0.1)
+                a = self.integrity+(self.hp.step_size*0.01)
                 b = self.hp.max_integrity
                 self.integrity = min(a, b)
         print("Steps to Backtrack: %d" %(self.hp.patience-self.elapsed_steps))

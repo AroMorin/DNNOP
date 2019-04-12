@@ -17,7 +17,7 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
-    function = "schwefel"
+    function = "bukin6"
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
@@ -41,11 +41,11 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum distance": 450,
-                    "patience": 150,
+                    "patience": 1000,
                     "tolerance": 0.12,
                     "learning rate": 0.5,
                     "lambda": 5,
-                    "step size": 0.02
+                    "step size": 0.001
                     }
     alg = algorithm_factory.make_alg("learner", model, alg_params)
 
@@ -53,7 +53,7 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.solve_and_plot(iterations=5000)
+    slv.solve_and_plot(iterations=25000)
 
 if __name__ == '__main__':
     main()

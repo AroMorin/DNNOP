@@ -23,8 +23,8 @@ class Perturbation(object):
         self.unifrom_p = None
         self.p = None  # Index choice probability vector (P dist)
         self.p_counter = 0
-        self.decr = 0.0  # decrease is 10% of probability value
-        self.incr = 0.1  # increase is 20% of probability value
+        self.decr = 0.1  # decrease is 10% of probability value
+        self.incr = 0.3  # increase is 20% of probability value
         self.device = torch.device('cuda')
         self.idx = 0
 
@@ -110,14 +110,14 @@ class Perturbation(object):
     def increase_p(self, choices):
         """This method decreases p at "choices" locations."""
         # Pull up "choices"
-        dt = torch.full((self.size,), self.incr, device=self.device)  # Delta tensor
-        self.p[choices].add_(dt)
+        dt = torch.full((self.size,), self.incr*self.p[0], device=self.device)  # Delta tensor
+        self.p[choices] = torch.add(self.p[choices], dt)
 
     def decrease_p(self, choices):
         """This method decreases p at "choices" locations."""
         # Push down "choices"
-        dt = torch.full((self.size,), self.decr, device=self.device)
-        self.p[choices].sub_(delta)
+        dt = torch.full((self.size,), self.decr*self.p[0], device=self.device)
+        self.p[choices] = torch.sub(self.p[choices], dt)
 
     def get_noise(self):
         """ This function defines a noise tensor, and returns it. The noise

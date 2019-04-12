@@ -17,7 +17,7 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
-    function = "rastrigin"
+    function = "schwefel"
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
@@ -41,7 +41,7 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum distance": 450,
-                    "patience": 32,
+                    "patience": 150,
                     "tolerance": 0.12,
                     "learning rate": 0.5,
                     "lambda": 5,

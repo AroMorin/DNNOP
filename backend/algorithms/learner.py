@@ -89,10 +89,10 @@ class LEARNER(object):
     def test(self):
         """This is a method for testing."""
         assert self.env.test_data is not None  # Sanity check
-        self.inference(test=True)
-        self.optim.calculate_correct_predictions(self.inferences, test=True, acc=True)
+        self.get_inference(test=True)
+        self.optim.calculate_correct_predictions(self.inference, test=True, acc=True)
         if self.env.loss:
-            self.optim.calculate_losses(self.inferences, test=True)
+            self.optim.calculate_loss(self.inference, test=True)
 
     def print_test_accuracy(self):
         """Prints the accuracy figure for the test/validation case/set."""
@@ -100,10 +100,10 @@ class LEARNER(object):
         if self.env.loss:
             test_loss = self.optim.test_loss  # Assuming minizming loss
             test_loss /= len(self.env.test_data)
-            print('\nTest set: Loss: {:.4f}, Accuracy: ({:.0f}%)'.format(test_loss,
+            print('Test set: Loss: {:.4f}, Accuracy: ({:.0f}%)\n'.format(test_loss,
                                                                 test_acc))
         else:
-            print('\nTest set: Accuracy: ({:.0f}%)'.format(test_acc))
+            print('Test set: Accuracy: ({:.0f}%)\n'.format(test_acc))
 
     def achieved_target(self):
         """Determines whether the algorithm achieved its target or not."""

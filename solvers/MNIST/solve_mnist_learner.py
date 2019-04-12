@@ -29,11 +29,10 @@ def main():
 
     # Make a pool
     model_params = {
-                    "pool size": pool_size,
                     "precision": precision,
                     "weight initialization scheme": "Default"  # Xavier Normal
                     }
-    pool = model_factory.make_pool("MNIST CNN MSN", model_params)
+    model = model_factory.make_model("MNIST CNN MSN", model_params)
 
     # Make an algorithm --algorithm takes control of the pool--
     alg_params = {
@@ -42,21 +41,20 @@ def main():
                     "number of probes per anchor": 13,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -0.1,  # Percentage
                     "minimum distance": 1000,
-                    "patience": 20,
+                    "patience": 200,
                     "tolerance": 0.01,
                     "learning rate": 0.02,
                     "lambda": 5,
                     "step size": 0.02
                     }
-    alg = algorithm_factory.make_alg("learner", pool, alg_params)
+    alg = algorithm_factory.make_alg("learner", model, alg_params)
 
     # Make a solver
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=500)
+    slv.train_dataset_with_validation(iterations=5000)
     #slv.repeated_batch_train_dataset_with_validation(args.iterations)
 
 if __name__ == '__main__':

@@ -18,7 +18,7 @@ class Optimizer(object):
         self.hp = hyper_params
         self.env = None
         self.integrity = self.hp.initial_integrity
-        self.scores = []
+        self.score = self.hp.initial_score
         # Will only be used if the appropriate score type is selected
         self.train_loss = 1
         self.test_loss = 1
@@ -41,9 +41,9 @@ class Optimizer(object):
         if self.env.loss_type == 'NLL loss':
             if not test:
                 self.train_loss = F.nll_loss(inference, self.env.labels)
-                self.scores = self.train_loss
+                self.score = self.train_loss
             else:
-                loss = F.nll_loss(inferences, self.env.test_labels, reduction='sum').item()
+                loss = F.nll_loss(inference, self.env.test_labels, reduction='sum').item()
                 self.test_loss = loss
         else:
             print("Unknown loss type")
@@ -62,10 +62,10 @@ class Optimizer(object):
             if acc:
                 self.abs_to_acc(correct, test=test)
                 self.train_acc = correct
-            self.scores = correct
+            self.score = correct
         else:
             # Testing
-            pred = inferences.argmax(dim=1, keepdim=True)
+            pred = inference.argmax(dim=1, keepdim=True)
             correct = pred.eq(self.env.test_labels.view_as(pred)).sum().float()
             if acc:
                 self.abs_to_acc(correct, test=test)

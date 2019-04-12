@@ -86,14 +86,6 @@ class Pool(object):
         self.perturb.update_state(self.analyzer)
         self.blends.update_state(self.anchors, self.analyzer, self.perturb)
 
-    def reset_state(self):
-        """Updates the state of the class."""
-        print("----------New Optimization Generation--------")
-        self.next = "probe"
-        self.current_anchor = 0  # Reset Anchors
-        self.nb_probes = 0
-        self.nb_blends = 0
-
     def generate(self):
         self.set_next()
         if self.next == "probe":
@@ -122,6 +114,15 @@ class Pool(object):
                     self.nb_blends+=1  # Increment blend count
                 else:
                     self.reset_state()
+        print(self.next)
+
+    def reset_state(self):
+        """Updates the state of the class."""
+        print("----------New Optimization Generation--------")
+        self.next = "probe"
+        self.current_anchor = 0  # Reset Anchors
+        self.nb_probes = 0
+        self.nb_blends = 0
 
     def update_model(self, vector):
         """Updates the weight dictionaries of the models."""

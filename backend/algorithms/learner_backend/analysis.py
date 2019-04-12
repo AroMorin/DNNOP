@@ -8,7 +8,6 @@ import time
 class Analysis(object):
     def __init__(self, hyper_params):
         self.hp = hyper_params
-        self.initial_score = torch.tensor(self.hp.initial_score, device='cuda')
         self.prev_score = torch.tensor(self.hp.initial_score, device='cuda')
         self.score = torch.tensor(self.hp.initial_score, device='cuda')
         self.distance = float("inf")  # Infinite distance from target
@@ -36,7 +35,8 @@ class Analysis(object):
     def clean_score(self, x):
         """Removes deformities in the score list such as NaNs."""
         # Removes NaNs and infinities
-        self.score = torch.where(torch.isfinite(x), x, self.initial_score)
+        y = torch.full_like(x, self.hp.initial_score)
+        self.score = torch.where(torch.isfinite(x), x, y)
 
     def set_integrity(self):
         """Once an improvement is detected, the flag "reset_integrity" is set
@@ -64,7 +64,7 @@ class Analysis(object):
                 # Increase integrity, but not over the maximum allowed level
                 self.elapsed_steps = 0
                 self.maintain_integrity()
-        print("Steps to Backtrack: %d" %(self.hp.patience-self.elapsed_steps))
+        print("Steps to Backtrack: %d" %(self.hp.patience-self.elapsed_steps+1))
 
     def improved(self):
         """Calculate whether the score has satisfactorily improved or not based

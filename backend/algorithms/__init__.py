@@ -4,6 +4,7 @@ from .sgd import SGD
 from .msn import MSN
 from .msn2 import MSN2
 from .learner import LEARNER
+from .learner2 import LEARNER2
 
 def make_alg(name, m, alg_params):
     """Class factory method. This method takes the name of the desired
@@ -26,6 +27,8 @@ def make_alg(name, m, alg_params):
         return MSN2(m, alg_params)
     elif name == 'learner':
         return LEARNER(m, alg_params)
+    elif name == 'learner2':
+        return LEARNER2(m, alg_params)
     else:
         print("Unknown algorithm requested!")
         exit()

@@ -19,20 +19,20 @@ def main():
     pool_size = 50
     # Make an MNIST Dataset environment
     env_params = {
-                    "data path": "~/Documents/ahmed/mnist_data",
+                    "data path": "~/Documents/ahmed/fashion_mnist_data",
                     "precision": precision,
                     "score type": "loss",
                     "loss type": "NLL loss",
                     "batch size": 2000  # Entire set
                     }
-    env = env_factory.make_env("dataset", "mnist", env_params)
+    env = env_factory.make_env("dataset", "fashion mnist", env_params)
 
     # Make a pool
     model_params = {
                     "precision": precision,
                     "weight initialization scheme": "Default"  # Xavier Normal
                     }
-    model = model_factory.make_model("MNIST CNN MSN", model_params)
+    model = model_factory.make_model("FashionMNIST CNN", model_params)
 
     # Make an algorithm --algorithm takes control of the pool--
     alg_params = {
@@ -54,17 +54,10 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=25000)
+    slv.train_dataset_with_validation(iterations=7500)
     #slv.repeated_batch_train_dataset_with_validation(args.iterations)
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
 
 #

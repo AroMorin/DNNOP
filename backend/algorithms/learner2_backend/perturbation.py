@@ -24,8 +24,8 @@ class Perturbation(object):
         self.p_vec = None
         self.p = None  # Index choice probability vector (P dist)
         self.p_counter = 0
-        self.decr = 0.02  # decrease is 10% of probability value
-        self.incr = 0.04  # increase is 20% of probability value
+        self.decr = 0.04  # decrease is 10% of probability value
+        self.incr = 0.07  # increase is 20% of probability value
 
     def init_perturbation(self, vec):
         """Initialize state and some variables."""
@@ -43,7 +43,7 @@ class Perturbation(object):
         print("Number of selections: %d" %self.size)
         self.set_noise_dist(analyzer.search_radius)
         self.set_choices()
-        if self.p_counter > 0 and self.p_counter < 25000:  # Reset p every 100 iterations
+        if 0 < self.p_counter < 250:  # Reset p every 100 iterations
             self.score = analyzer.score  # Acquire new state
             self.update_p()
             self.prev_score = self.score  # Update state
@@ -52,6 +52,7 @@ class Perturbation(object):
             self.p_counter+=1  # Need to step at least once
         else:
             self.p = self.uniform_p  # Reset p
+            self.p_counter = 0
 
     def set_noise_dist(self, limit):
         """Determines the shape and magnitude of the noise."""
@@ -81,7 +82,9 @@ class Perturbation(object):
         distribution are dynamically updated by the algorithm's state.
         """
         np.random.seed()
-        #print((self.p == 0).nonzero())
+        if len((self.p == 0).nonzero())>0:
+            print(len((self.p == 0).nonzero()))
+            exit()
         self.choices = np.random.choice(self.indices, self.size, replace=False, p=self.p.cpu().numpy())
 
     def update_p(self):

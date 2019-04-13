@@ -8,16 +8,18 @@ class Elite(object):
         self.elite_score = hp.initial_score
         self.minimizing = hp.minimizing
         self.inference = None
+        self.vector = None
 
-    def set_elite(self, model, inference, score):
+    def set_elite(self, model, vector, inference, score, replace):
         """Checks current top score and determines if there's a new elite. The
         elite is then either updated or set as is.
         """
         self.replaced_elite = False  # Operating assumption
-        if self.replace(score):
+        if replace:
             self.replaced_elite = True
             print ("------Setting new Elite-------")
             self.clone_model(model)
+            self.vector = vector
             self.inference = inference
             self.elite_score = score
         print ("Elite Score: %f" %self.elite_score)

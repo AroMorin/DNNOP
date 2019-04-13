@@ -20,15 +20,14 @@ class Analysis(object):
         self.alpha = self.hp.alpha
         self.lambda_ = self.hp.lambda_
         self.search_start = False
-        self.nb_anchors = 0  # State
-        self.radial_expansion = False
         self.step = 0  # State
+        self.improvement = False
 
-    def analyze(self, score, nb_anchors):
+    def analyze(self, score):
         """The main function."""
         self.clean_score(score)
         self.set_integrity()
-        self.review(nb_anchors)
+        self.review()
         self.set_num_selections()
         self.set_search_radius()
         print("Integrity: %f" %self.integrity)
@@ -51,9 +50,11 @@ class Analysis(object):
             self.reduce_integrity()
             self.elapsed_steps += 1
             self.search_start = True
+            self.improvement = False
 
         else:  # Improved
             print ("Improved")
+            self.improvement = True
             self.top = self.score
             if self.search_start:
                 # Prevents moonshots from disturbing the search process
@@ -66,7 +67,7 @@ class Analysis(object):
             else:
                 # Increase integrity, but not over the maximum allowed level
                 self.elapsed_steps = 0
-                #self.maintain_integrity()
+                self.maintain_integrity()
         print("Steps to Backtrack: %d" %(self.hp.patience-self.elapsed_steps+1))
 
     def improved(self):
@@ -93,14 +94,13 @@ class Analysis(object):
             self.integrity = max(0, a)  # Integrity never below zero
 
     def maintain_integrity(self):
-        a = self.integrity+(self.hp.step_size*10.0)
+        a = self.integrity+(self.hp.step_size*0.5)
         b = self.hp.max_integrity
         self.integrity = min(a, b)
 
-    def review(self, nb_anchors):
+    def review(self):
         """Implements the backtracking and radial expansion functionalities."""
         self.set_backtracking()
-        self.set_radial_expansion(nb_anchors)
 
     def set_backtracking(self, trigger=False):
         """Only activate backtracking for the current iteration, if the conditions
@@ -113,29 +113,11 @@ class Analysis(object):
         else:
             self.backtracking = False
 
-    def set_radial_expansion(self, nb_anchors):
-        """Triggers radial expansion only if the condition is met. Then in the
-        new turn it switches it off again.
-        It compares the actual number of anchors with the desired number of
-        anchors
-        """
-        if nb_anchors<self.hp.nb_anchors and self.elapsed_steps>0 and nb_anchors<=self.nb_anchors:
-            print("--Expanding Search Radius!--")
-            self.radial_expansion = True
-            self.lr += self.lr * self.hp.expansion_factor
-            self.alpha += self.alpha * self.hp.expansion_factor
-            self.lambda_ += self.lambda_ * self.hp.expansion_factor
-        else:
-            self.radial_expansion = False
-            self.lr = self.hp.lr
-            self.alpha = self.hp.alpha
-            self.lambda_ = self.hp.lambda_
-        self.nb_anchors = nb_anchors  # State update
-
     def set_num_selections(self):
         """Sets the number of selected neurons based on the integrity and
         hyperparameters."""
-        p = 1-self.integrity
+        #p = 1-self.integrity
+        p = self.integrity
         numerator = self.hp.alpha
         denominator = 1+(self.hp.beta/p)
         self.num_selections = numerator/denominator

@@ -16,16 +16,15 @@ import torch
 
 def main():
     precision = torch.half
-    pool_size = 50
     # Make an MNIST Dataset environment
     env_params = {
-                    "data path": "~/Documents/ahmed/mnist_data",
+                    "data path": "~/Documents/ahmed/fashion_mnist_data",
                     "precision": precision,
                     "score type": "loss",
                     "loss type": "NLL loss",
                     "batch size": 2000  # Entire set
                     }
-    env = env_factory.make_env("dataset", "mnist", env_params)
+    env = env_factory.make_env("dataset", "fashion mnist", env_params)
 
     # Make a pool
     model_params = {
@@ -36,25 +35,23 @@ def main():
 
     # Make an algorithm --algorithm takes control of the pool--
     alg_params = {
-                    "pool size": pool_size,
-                    "number of anchors": 3,
-                    "number of probes per anchor": 13,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum distance": 1000,
-                    "patience": 500,
+                    "patience": 30,
                     "tolerance": 0.01,
-                    "learning rate": 0.02,
+                    "learning rate": 0.05,
                     "lambda": 5,
-                    "step size": 0.001
+                    "alpha": 0.05,
+                    "beta": 0.29,
+                    "step size": 0.02
                     }
-    alg = algorithm_factory.make_alg("learner", model, alg_params)
+    alg = algorithm_factory.make_alg("learner2", model, alg_params)
 
     # Make a solver
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=25000)
+    slv.train_dataset_with_validation(iterations=5000)
     #slv.repeated_batch_train_dataset_with_validation(args.iterations)
 
 if __name__ == '__main__':

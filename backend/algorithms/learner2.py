@@ -17,11 +17,10 @@ import time
 
 class LEARNER2(object):
     def __init__(self, models, alg_params):
-        print ("Using Learner algorithm")
+        print ("Using Learner2 algorithm")
         self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
         self.pool = Pool(models, self.hyper_params) # Create a pool object
         self.optim = Optimizer(self.pool, self.hyper_params)  # Optimizer object
-        self.pool_size = alg_params["pool size"]
         self.inference = None
         self.score = self.hyper_params.initial_score
         self.correct_test_preds = 0

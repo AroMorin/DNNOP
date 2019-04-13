@@ -31,7 +31,7 @@ def main():
                     "precision": precision,
                     "weight initialization scheme": "Default"  # Xavier Normal
                     }
-    model = model_factory.make_model("MNIST CNN MSN", model_params)
+    model = model_factory.make_model("FashionMNIST CNN", model_params)
 
     # Make an algorithm --algorithm takes control of the pool--
     alg_params = {

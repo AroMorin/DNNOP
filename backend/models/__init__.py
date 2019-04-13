@@ -3,6 +3,7 @@ is chosen.
 """
 
 from .cnn_mnist import Net as MNIST_CNN
+from .cnn_fashionMNIST import Net as FashionMNIST_CNN
 from .mnist_cnn_msn import Net as MNIST_CNN_MSN
 from .func_fc import Net as FUNC_FC
 from .nao_fc import Net as NAO_FC
@@ -58,6 +59,8 @@ def pick_model(name):
         model = MNIST_CNN()
     elif name == "MNIST CNN MSN":
         model = MNIST_CNN_MSN()
+    elif name == "FashionMNIST CNN":
+        model = FashionMNIST_CNN()
     elif name == "Function FC model":
         model = FUNC_FC()
     elif name == "NAO FC model":

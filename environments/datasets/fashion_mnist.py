@@ -10,7 +10,7 @@ class FashionMNIST(Dataset):
     """
     def __init__(self, env_params):
         # Initialize base class
-        super(MNIST, self).__init__(env_params)
+        super(FashionMNIST, self).__init__(env_params)
         env_params = self.ingest_params_lvl2(env_params)
         self.train_size = 60000 # Size of the training set
         self.test_size = 10000
@@ -57,8 +57,8 @@ class FashionMNIST(Dataset):
         """Set the desired transformations on the dataset."""
         print ("Applying dataset transformations")
         self.transforms = transforms.Compose([transforms.ToTensor(),
-                                            transforms.Normalize((0.5, 0.5, 0.5),
-                                                                (0.5, 0.5, 0.5))
+                                            transforms.Normalize((0.5,),
+                                                                (0.5,))
                                             ])
 
     def format_data(self):

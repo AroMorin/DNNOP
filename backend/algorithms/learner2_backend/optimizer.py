@@ -17,7 +17,6 @@ class Optimizer(object):
         self.pool = pool
         self.hp = hyper_params
         self.env = None
-        self.integrity = self.hp.initial_integrity
         self.score = self.hp.initial_score
         # Will only be used if the appropriate score type is selected
         self.train_loss = 1

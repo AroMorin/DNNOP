@@ -17,16 +17,17 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
-    function = "bukin6"
+    function = "rastrigin"
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
-                    "plot": False,
-                    "score type": "error"  # Function evaluation
+                    "plot": True,
+                    "score type": "error",  # Function evaluation
+                    "populations": False  # Single-solution optimization
                     }
     env = env_factory.make_env("function", function, env_params)
 
-    # Make a pool
+    # Make a model
     model_params = {
                     "precision": precision,
                     "weight initialization scheme": "Identical"
@@ -35,25 +36,21 @@ def main():
 
     # Make an algorithm --algorithm needs to take charge of the pool--
     alg_params = {
-                    "pool size": 50,
-                    "number of anchors": 4,
-                    "number of probes per anchor": 9,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum distance": 450,
-                    "patience": 1000,
+                    "patience": 25,
                     "tolerance": 0.12,
                     "learning rate": 0.5,
                     "lambda": 5,
-                    "step size": 0.001
+                    "step size": 0.02
                     }
-    alg = algorithm_factory.make_alg("learner", model, alg_params)
+    alg = algorithm_factory.make_alg("learner2", model, alg_params)
 
     # Make a solver using the environment and algorithm objects
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.solve_and_plot(iterations=25000)
+    slv.solve_and_plot(iterations=2500)
 
 if __name__ == '__main__':
     main()

@@ -9,6 +9,7 @@ class Elite(object):
         self.minimizing = hp.minimizing
         self.inference = None
         self.vector = None
+        self.replaced_elite = False  # State
 
     def set_elite(self, model, vector, inference, score, replace):
         """Checks current top score and determines if there's a new elite. The

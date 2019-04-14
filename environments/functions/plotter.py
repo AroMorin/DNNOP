@@ -10,8 +10,26 @@ import os
 
 class Plotter:
     def __init__(self, func, data_path):
+        self.elite_x = 0
+        self.elite_y = 0
         self.elite_score = 0
-        self.elite_position = []
+
+        self.anchors_x = []
+        self.anchors_y = []
+        self.anchors_scores = []
+
+        self.probes_x = []
+        self.probes_y = []
+        self.probes_scores = []
+
+        self.probe_x = 0
+        self.probe_y = 0
+        self.probe_score = 0
+
+        self.blends_x = []
+        self.blends_y = []
+        self.blends_scores = []
+
         self.integrity = 0
         self.iteration = 0
         self.backtracking = False
@@ -180,7 +198,6 @@ class Plotter:
         self.probes_y = [i[1].item() for i in probes]
         self.probes_scores = [i.item() for i in probes_scores]
 
-
         blends = alg.inferences[b+1:]
         blends_scores = alg.optim.scores[b+1:]
         assert len(blends) == len(alg.pool.blends.blends_idxs)  # Sanity check
@@ -188,24 +205,33 @@ class Plotter:
         self.blends_y = [i[1].item() for i in blends]
         self.blends_scores = [i.item() for i in blends_scores]
 
+    def plot_artist(self, alg, iteration):
+        self.update_state_single(alg, iteration)
+        if alg.pool.elite.replaced_elite:
+            self.plot_elite()
+        else:
+            self.plot_probe()
+        self.plot_text()
+        self.save_figure()
+        self.remove_text()
 
-    def plot_text(self):
-        """Adds text to the plot figure. Text conveys important information
-        such as current elte, value of integrity, etc...
-        """
-        a = self.fig.text(0.85, 0.12, 'Iteration: '+str(self.iteration))
-        score_str = 'Elite Score: '+str("{0:.4g}".format(self.elite_score))
-        b = self.fig.text(0.85, 0.1, score_str)
-        pos_str = 'Elite Position: ('+str(
-                    "{0:.4g}".format(self.elite_x))+', '+str(
-                    "{0:.4g}".format(self.elite_y))+')'
-        c = self.fig.text(0.85, 0.08, pos_str)
-        integrity_str = 'Integrity: '+str("{0:.4g}".format(self.integrity))
-        d = self.fig.text(0.85, 0.06, integrity_str)
-        e = self.fig.text(0.85, 0.04, '')
-        if self.backtracking:
-            e = self.fig.text(0.85, 0.04, 'Backtracking activated!')
-        self.artists.extend([a, b, c, d, e])
+    def update_state_single(self, alg, iteration):
+        """Update plotter state."""
+        self.backtracking = alg.pool.analyzer.backtracking
+        self.integrity = alg.pool.analyzer.integrity
+        self.iteration = iteration
+        self.artists = []  # Reset state
+        self.net = []  # Reset state
+
+        elite = alg.pool.elite.inference
+        elite_score = alg.pool.elite.elite_score
+        self.elite_x = elite[0].item()
+        self.elite_y = elite[1].item()
+        self.elite_score = elite_score.item()
+
+        self.probe_x = alg.inference[0].item()
+        self.probe_y = alg.inference[1].item()
+        self.probe_score = alg.optim.score.item()
 
     def plot_elite(self):
         """Plots the elite."""
@@ -215,6 +241,18 @@ class Plotter:
         s = 100
         marker = '*'
         color = 'red'
+        a = self.top.scatter(x, y, marker=marker, s=s, c=color)
+        b = self.front.scatter(x, score, marker=marker, s=s, c=color)
+        c = self.iso.scatter(x, y, score, marker=marker, s=s, c=color, label = 'elite')
+        self.artists.extend([a, b, c])
+
+    def plot_probe(self):
+        x = self.probe_x
+        y = self.probe_y
+        score = self.probe_score
+        s = 100
+        marker = '^'
+        color = 'black'
         a = self.top.scatter(x, y, marker=marker, s=s, c=color)
         b = self.front.scatter(x, score, marker=marker, s=s, c=color)
         c = self.iso.scatter(x, y, score, marker=marker, s=s, c=color, label = 'elite')
@@ -259,6 +297,24 @@ class Plotter:
         c = self.iso.scatter(x, y, scores, marker=marker, s=s, c=color, label = 'blends')
         self.artists.extend([a, b, c])
 
+    def plot_text(self):
+        """Adds text to the plot figure. Text conveys important information
+        such as current elte, value of integrity, etc...
+        """
+        a = self.fig.text(0.85, 0.12, 'Iteration: '+str(self.iteration))
+        score_str = 'Elite Score: '+str("{0:.4g}".format(self.elite_score))
+        b = self.fig.text(0.85, 0.1, score_str)
+        pos_str = 'Elite Position: ('+str(
+                    "{0:.4g}".format(self.elite_x))+', '+str(
+                    "{0:.4g}".format(self.elite_y))+')'
+        c = self.fig.text(0.85, 0.08, pos_str)
+        integrity_str = 'Integrity: '+str("{0:.4g}".format(self.integrity))
+        d = self.fig.text(0.85, 0.06, integrity_str)
+        e = self.fig.text(0.85, 0.04, '')
+        if self.backtracking:
+            e = self.fig.text(0.85, 0.04, 'Backtracking activated!')
+        self.artists.extend([a, b, c, d, e])
+
     def save_figure(self):
         """Saves the plot as a figue on disk/storage."""
         fn = self.data_path+str(self.iteration)+'.png'
@@ -269,6 +325,15 @@ class Plotter:
         if len(self.net)==0:
             assert len(self.artists) == 17
             for artist in self.artists:
+                artist.remove()
+        else:
+            for plot in self.net:
+                plot.remove()
+
+    def remove_text(self):
+        """Removes the plot artists from the figure."""
+        if len(self.net)==0:
+            for artist in self.artists[-5:]:
                 artist.remove()
         else:
             for plot in self.net:

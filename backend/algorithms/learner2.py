@@ -22,7 +22,6 @@ class LEARNER2(object):
         self.pool = Pool(models, self.hyper_params) # Create a pool object
         self.optim = Optimizer(self.pool, self.hyper_params)  # Optimizer object
         self.inference = None
-        self.score = self.hyper_params.initial_score
         self.correct_test_preds = 0
 
     def set_environment(self, env):

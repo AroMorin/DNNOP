@@ -49,25 +49,18 @@ class Analysis(object):
             print ("No improvement")
             self.reduce_integrity()
             self.elapsed_steps += 1
-            self.search_start = True
             self.improvement = False
 
         else:  # Improved
             print ("Improved")
             self.improvement = True
             self.top = self.score
-            if self.search_start:
-                # Prevents moonshots from disturbing the search process
-                if self.integrity<self.hp.def_integrity:
-                    print("Reseting Integrity!!!!")
-                    #self.integrity = self.hp.def_integrity
-                self.maintain_integrity()
-                self.search_start = False
-                self.elapsed_steps += 1
-            else:
-                # Increase integrity, but not over the maximum allowed level
-                self.elapsed_steps = 0
-                self.maintain_integrity()
+            self.elapsed_steps = 0
+            # Prevents moonshots from disturbing the search process
+            if self.integrity<self.hp.def_integrity:
+                print("Reseting Integrity!!!!")
+                self.integrity = self.hp.def_integrity
+            self.maintain_integrity()
         print("Steps to Backtrack: %d" %(self.hp.patience-self.elapsed_steps+1))
 
     def improved(self):
@@ -94,7 +87,7 @@ class Analysis(object):
             self.integrity = max(0, a)  # Integrity never below zero
 
     def maintain_integrity(self):
-        a = self.integrity+(self.hp.step_size*0.5)
+        a = self.integrity+(self.hp.step_size*2.5)
         b = self.hp.max_integrity
         self.integrity = min(a, b)
 

@@ -17,6 +17,7 @@ class Function(Environment):
         self.range = []  # Matrix of function values
         self.iteration = -1  # State
         self.plot = env_params["plot"]
+        self.populations = env_params["populations"]
 
     def ingest_params_lvl1(self, env_params):
         assert type(env_params) is dict
@@ -24,7 +25,8 @@ class Function(Environment):
                             "data path": "C:/",
                             "plot": False,
                             "precision": torch.float,
-                            "scoring type": "error"
+                            "scoring type": "error",
+                            "populations": True  # Population-based optimization
                             }
         default_params.update(env_params)  # Update with user selections
         return default_params
@@ -62,9 +64,6 @@ class Function(Environment):
 
     def evaluate(self, position):
         """Evaluates the function given an (x1, x2) coordinate."""
-        #x1 = position[0].cpu().numpy()
-        #x2 = position[1].cpu().numpy()
-        #self.x = [x1, x2]
         self.x = position
         self.z = self.get_func()
         return self.z
@@ -74,11 +73,17 @@ class Function(Environment):
         a figure on disk/storage.
         """
         if self.iteration != 0:
-            self.plotter.plot_artists(alg, self.iteration)
+            if self.populations:
+                self.plotter.plot_artists(alg, self.iteration)
+            else:
+                self.plotter.plot_artist(alg, self.iteration)
         else:
-            positions = alg.inferences
-            scores = alg.optim.scores
-            self.plotter.plot_net(positions, scores)
+            if self.populations:
+                positions = alg.inferences
+                scores = alg.optim.scores
+                self.plotter.plot_net(positions, scores)
+            else:
+                self.plotter.plot_artist(alg, self.iteration)
 
     def step(self):
         """Steps the environment."""

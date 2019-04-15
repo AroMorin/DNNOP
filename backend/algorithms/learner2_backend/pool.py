@@ -73,8 +73,7 @@ class Pool(object):
         self.mem.update_state(observation, inference, score)
         self.analyzer.analyze(score)
         self.score = self.analyzer.score
-        self.elite.set_elite(self.model, self.vector, self.inference, self.score,
-                            self.analyzer.improvement)
+        self.elite.set_elite(self.model, self.vector, self.inference, self.score)
         # Define noise magnitude and scale
         self.perturb.update_state(self.analyzer)
 

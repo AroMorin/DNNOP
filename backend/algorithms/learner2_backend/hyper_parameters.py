@@ -24,12 +24,14 @@ class Hyper_Parameters(object):
         self.min_integrity = 0
         self.max_integrity = 0
         self.initial_integrity = 0
+        self.min_entropy = 0
         self.target = 0
         self.tolerance = 0
         self.minimizing = True
         self.initial_score = float("inf")
         self.epsilon = 0.00000001  # Prevents division by zero
         self.set_hyperparams_dict(hyper_params)
+        self.check_min_entropy()
         self.set_hyperparams()
 
     def set_hyperparams_dict(self, hyper_params):
@@ -41,18 +43,19 @@ class Hyper_Parameters(object):
         hyper parameter.
         """
         self.hyper_params = {
-                                "alpha":0.9,
-                                "beta": 0.19,
+                                "alpha":0.05,
+                                "beta": 0.29,
                                 "learning rate": 0.04,
                                 "lambda":5,
-                                "step size": 0.03,
+                                "step size": 0.1,
                                 "patience": 25,
                                 "default integrity": 0.6,
                                 "initial integrity": 0.6,
-                                "minimum integrity": 0.1,
+                                "minimum integrity": 0.01,
                                 "maximum integrity": 0.99,
                                 "minimization mode": True,
                                 "target": 0,
+                                "minimum entropy": -0.01,
                                 "tolerance": 0
                             }
         # Update dictionary if appropriate
@@ -76,6 +79,7 @@ class Hyper_Parameters(object):
         self.minimizing = self.hyper_params["minimization mode"]
         self.target = self.hyper_params["target"]
         self.tolerance = self.hyper_params["tolerance"]
+        self.min_entropy = self.hyper_params["minimum entropy"]
         self.set_initial_score()
 
     def set_initial_score(self):
@@ -84,3 +88,12 @@ class Hyper_Parameters(object):
         """
         if not self.hyper_params['minimization mode']:
             self.initial_score = -self.initial_score
+
+    def check_min_entropy(self):
+        """Makes sure the minimum entropy hyperparameter is consistent with the
+        chosen mode of optimization.
+        """
+        if self.hyper_params['minimization mode']:
+            assert self.hyper_params['minimum entropy'] < 0
+        else:
+            assert self.hyper_params['minimum entropy'] > 0

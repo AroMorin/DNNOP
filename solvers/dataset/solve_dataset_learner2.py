@@ -43,7 +43,7 @@ def main():
                     "lambda": 5,
                     "alpha": 0.05,
                     "beta": 0.29,
-                    "step size": 0.02
+                    "step size": 0.2
                     }
     alg = algorithm_factory.make_alg("learner2", model, alg_params)
 

@@ -20,17 +20,26 @@ class Analysis(object):
         self.alpha = self.hp.alpha
         self.lambda_ = self.hp.lambda_
         self.search_start = False
-        self.step = 0  # State
+        self.step = -1  # State
         self.improvement = False
+        self.step_size = self.hp.step_size
+        self.bin = [1., 1., 1., 1.]  # Uniform distribution
 
     def analyze(self, score):
         """The main function."""
+        self.update_state()
         self.clean_score(score)
         self.set_integrity()
         self.review()
         self.set_num_selections()
         self.set_search_radius()
         print("Integrity: %f" %self.integrity)
+
+    def update_state(self):
+        self.step +=1
+        if self.step > 2500:
+            self.bin = [1., 1., 1., 1.]  # Reset bin count
+            self.step = 0
 
     def clean_score(self, x):
         """Removes deformities in the score list such as NaNs."""
@@ -45,6 +54,7 @@ class Analysis(object):
         improvement, and only with improvement. If once searching starts, then
         integrity is reduced normally.
         """
+        self.set_step_size()
         if not self.improved():
             print ("No improvement")
             self.reduce_integrity()
@@ -54,14 +64,13 @@ class Analysis(object):
         else:  # Improved
             print ("Improved")
             self.improvement = True
+            self.update_bin()
             self.top = self.score
             self.elapsed_steps = 0
-            # Prevents moonshots from disturbing the search process
-            if self.integrity<self.hp.def_integrity:
-                print("Reseting Integrity!!!!")
-                self.integrity = self.hp.def_integrity
-            self.maintain_integrity()
+            #self.maintain_integrity()
         print("Steps to Backtrack: %d" %(self.hp.patience-self.elapsed_steps+1))
+        print(self.bin)
+        print(self.step_size)
 
     def improved(self):
         """Calculate whether the score has satisfactorily improved or not based
@@ -69,25 +78,64 @@ class Analysis(object):
         """
         # Make sure we are not in the very first iteration
         if self.step>0:
+            self.set_entropy()
+            print("Entropy :%f" %self.entropy)
             if self.hp.minimizing:
-                return self.score<self.top
+                return self.entropy <= self.hp.min_entropy
             else:
-                return self.score>self.top
+                return self.entropy >= self.hp.min_entropy
         else:
             # Improved over the initial score
-            self.step +=1
             return True
+
+    def set_entropy(self):
+        """Function is constructed such that the conditional will evaluate to
+        True most of the time.
+        """
+        eps = self.top.ne(0)
+        if eps:
+            # Percentage change
+            i = self.score.sub(self.top)
+            i = torch.div(i, self.top.abs())
+            i = torch.mul(i, 100)
+            self.entropy = i
+        else:
+            # Prevent division by zero
+            i = self.score.sub(self.top)
+            i = torch.div(i, self.hp.epsilon)
+            i = torch.mul(i, 100)
+            self.entropy = i
+
+    def update_bin(self):
+        if  0. < self.integrity <= 0.25:
+            self.bin[0] +=1.
+        elif  0.25 < self.integrity <= 0.5:
+            self.bin[1] +=1.
+        elif  0.5 < self.integrity <= 0.75:
+            self.bin[2] +=1.
+        elif  0.75 < self.integrity <= 1.:
+            self.bin[3] +=1.
+
+    def set_step_size(self):
+        if  0. < self.integrity <= 0.25:
+            self.step_size = self.hp.step_size/self.bin[0]
+        elif  0.25 < self.integrity <= 0.5:
+            self.step_size = self.hp.step_size/self.bin[1]
+        elif  0.5 < self.integrity <= 0.75:
+            self.step_size = self.hp.step_size/self.bin[2]
+        elif  0.75 < self.integrity <= 1.:
+            self.step_size = self.hp.step_size/self.bin[3]
 
     def reduce_integrity(self):
         # Reduce integrity, but not below the minimum allowed level
-        a = self.integrity-self.hp.step_size  # Decrease integrity
+        a = self.integrity-self.step_size  # Decrease integrity
         if a <= self.hp.min_integrity:
             self.integrity = self.hp.max_integrity  # Trigger backtracking!
         else:
             self.integrity = max(0, a)  # Integrity never below zero
 
     def maintain_integrity(self):
-        a = self.integrity+(self.hp.step_size*2.5)
+        a = self.integrity+(self.step_size*2.5)
         b = self.hp.max_integrity
         self.integrity = min(a, b)
 

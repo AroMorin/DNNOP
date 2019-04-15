@@ -25,7 +25,7 @@ class Perturbation(object):
         self.p = None  # Index choice probability vector (P dist)
         self.p_counter = 0
         self.decr = 0.04  # decrease is 10% of probability value
-        self.incr = 0.07  # increase is 20% of probability value
+        self.incr = 0.04  # increase is 20% of probability value
 
     def init_perturbation(self, vec):
         """Initialize state and some variables."""

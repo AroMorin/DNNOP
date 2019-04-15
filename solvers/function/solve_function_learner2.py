@@ -21,7 +21,7 @@ def main():
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
-                    "plot": True,
+                    "plot": False,
                     "score type": "error",  # Function evaluation
                     "populations": False  # Single-solution optimization
                     }
@@ -40,9 +40,12 @@ def main():
                     "minimization mode": env.minimize,
                     "patience": 25,
                     "tolerance": 0.12,
-                    "learning rate": 0.5,
-                    "lambda": 5,
-                    "step size": 0.02
+                    "learning rate": 0.05,
+                    "minimum entropy": -0.1,  # Percentage
+                    "learning rate": 0.05,
+                    "alpha": 0.05,
+                    "beta": 0.29,
+                    "step size": 0.2
                     }
     alg = algorithm_factory.make_alg("learner2", model, alg_params)
 

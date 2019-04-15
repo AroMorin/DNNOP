@@ -95,8 +95,10 @@ class Optimizer(object):
         selection and update process can occur.
         The pool thus updates itself.
         """
-        self.pool.prep_new_model(self.inference, self.score)
+        print("Score: %f" %self.score.item())
+        self.pool.prep_new_model(self.env.observation, self.inference, self.score)
         self.pool.generate()
+        self.pool.evaluate()
 
 
 

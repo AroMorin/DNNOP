@@ -12,7 +12,7 @@ from .elite import Elite
 from .probes import Probes
 from .analysis import Analysis
 from .perturbation import Perturbation
-
+from .memory import Memory
 
 import time
 import torch
@@ -25,6 +25,7 @@ class Pool(object):
         self.elite = Elite(hyper_params)
         self.perturb = Perturbation(hyper_params)
         self.probes = Probes(hyper_params)
+        self.mem = Memory(hyper_params)
         self.state_dict = {} # Weights dictionary
         self.vector = None # Parameter vector
         self.nb_layers = 0
@@ -64,11 +65,12 @@ class Pool(object):
             mylist.append(x.reshape(x.numel()))  # Flatten tensor
         self.vector = torch.cat(mylist)  # Flatten all tensors in model
 
-    def prep_new_model(self, inference, score):
+    def prep_new_model(self, observation, inference, score):
         """Prepares the new pool based on the scores of the current generation
         and the results of the analysis (such as value of intergrity).
         """
         self.inference = inference
+        self.mem.update_state(observation, inference, score)
         self.analyzer.analyze(score)
         self.score = self.analyzer.score
         self.elite.set_elite(self.model, self.vector, self.inference, self.score,
@@ -77,10 +79,19 @@ class Pool(object):
         self.perturb.update_state(self.analyzer)
 
     def generate(self):
+        print("Generating!")
         self.probes.generate(self.elite.vector, self.perturb)
         self.vector = self.probes.vector
         self.update_model(self.vector)
         #time.sleep(0.5)
+
+    def evaluate(self):
+        self.mem.evaluate_model(self.model)
+        for i in range(10):
+            if not self.mem.desirable:
+                print("Refused!---")
+                self.generate()
+                self.mem.evaluate_model(self.model)
 
     def update_model(self, vector):
         """Updates the weight dictionaries of the models."""

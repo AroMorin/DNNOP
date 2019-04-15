@@ -38,7 +38,7 @@ def main():
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "patience": 25,
+                    "patience": 2500,
                     "tolerance": 0.12,
                     "learning rate": 0.05,
                     "minimum entropy": -0.1,  # Percentage

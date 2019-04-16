@@ -60,17 +60,32 @@ class Analysis(object):
             self.reduce_integrity()
             self.elapsed_steps += 1
             self.improvement = False
+            self.decrease_bin()
 
         else:  # Improved
             print ("Improved")
+            self.increase_bin()
             self.improvement = True
-            self.update_bin()
             self.top = self.score
             self.elapsed_steps = 0
             #self.maintain_integrity()
         print("Steps to Backtrack: %d" %(self.hp.patience-self.elapsed_steps+1))
         print(self.bin)
         print(self.step_size)
+
+    def improved_abs(self):
+        """Calculate whether the score has satisfactorily improved or not based
+        on the pre-defined hyper parameters.
+        """
+        # Make sure we are not in the very first iteration
+        if self.step>0:
+            if self.hp.minimizing:
+                return self.score <= self.top
+            else:
+                return self.score >= self.top
+        else:
+            # Improved over the initial score
+            return True
 
     def improved(self):
         """Calculate whether the score has satisfactorily improved or not based
@@ -106,7 +121,7 @@ class Analysis(object):
             i = torch.mul(i, 100)
             self.entropy = i
 
-    def update_bin(self):
+    def increase_bin(self):
         if  0. < self.integrity <= 0.25:
             self.bin[0] +=1.
         elif  0.25 < self.integrity <= 0.5:
@@ -115,6 +130,16 @@ class Analysis(object):
             self.bin[2] +=1.
         elif  0.75 < self.integrity <= 1.:
             self.bin[3] +=1.
+
+    def decrease_bin(self):
+        if  0. < self.integrity <= 0.25:
+            self.bin[0] = max(1., self.bin[0]-1)
+        elif  0.25 < self.integrity <= 0.5:
+            self.bin[1] = max(1., self.bin[1]-1)
+        elif  0.5 < self.integrity <= 0.75:
+            self.bin[2] = max(1., self.bin[2]-1)
+        elif  0.75 < self.integrity <= 1.:
+            self.bin[3] = max(1., self.bin[3]-1)
 
     def set_step_size(self):
         if  0. < self.integrity <= 0.25:

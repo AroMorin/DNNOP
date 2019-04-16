@@ -42,10 +42,10 @@ def main():
                     "tolerance": 0.12,
                     "learning rate": 0.05,
                     "minimum entropy": -0.1,  # Percentage
-                    "learning rate": 0.05,
-                    "alpha": 0.05,
+                    "learning rate": 0.5,
+                    "alpha": 0.4,
                     "beta": 0.29,
-                    "step size": 0.2
+                    "step size": 0.1
                     }
     alg = algorithm_factory.make_alg("learner2", model, alg_params)
 

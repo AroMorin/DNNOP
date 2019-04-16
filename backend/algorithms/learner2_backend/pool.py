@@ -78,7 +78,6 @@ class Pool(object):
         self.perturb.update_state(self.analyzer)
 
     def generate(self):
-        print("Generating!")
         self.probes.generate(self.elite.vector, self.perturb)
         self.vector = self.probes.vector
         self.update_model(self.vector)
@@ -86,11 +85,17 @@ class Pool(object):
 
     def evaluate(self):
         self.mem.evaluate_model(self.model)
-        for i in range(10):
+        for i in range(100):
             if not self.mem.desirable:
-                print("Refused!---")
                 self.generate()
                 self.mem.evaluate_model(self.model)
+        print("Expected: %f" %self.mem.eval)
+
+    def prep_new_hypothesis(self, score):
+        self.analyzer.analyze(score)
+        # Define noise magnitude and scale
+        self.perturb.update_state(self.analyzer)
+
 
     def update_model(self, vector):
         """Updates the weight dictionaries of the models."""

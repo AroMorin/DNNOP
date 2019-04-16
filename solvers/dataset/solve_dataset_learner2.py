@@ -16,9 +16,11 @@ import torch
 
 def main():
     precision = torch.half
+    data_path = "C:/Users/aaa2cn/Documents/fashion_mnist_data"
+    #data_path = "~/Documents/ahmed/fashion_mnist_data"
     # Make an MNIST Dataset environment
     env_params = {
-                    "data path": "~/Documents/ahmed/fashion_mnist_data",
+                    "data path": data_path,
                     "precision": precision,
                     "score type": "loss",
                     "loss type": "NLL loss",

@@ -9,8 +9,8 @@ class Memory(object):
     def __init__(self, hp):
         self.hp = hp
         self.observations = []
-        self.inferences = []
-        self.scores = []
+        self.inferences = None
+        self.scores = None
         self.top = self.hp.initial_score
         self.matrix = None
         self.eval = 0
@@ -20,43 +20,51 @@ class Memory(object):
 
     def update_state(self, observation, inference, score):
         self.calls = 0
+        inference = inference.reshape(1, inference.shape[0])
+        score = score.reshape(1,)
         if observation not in self.observations:
             self.observations.append(observation)
         # ONLY works for single observations
-        self.inferences.append(inference.cpu().numpy())
-        self.scores.append(score.cpu().numpy())
-        assert len(self.inferences) == len(self.scores)  # Sanity check
+        #self.inferences.append(inference)
+        if type(self.inferences) is not torch.Tensor:
+            self.inferences = inference
+            self.scores = score
+        else:
+            self.inferences = torch.cat((self.inferences, inference))
+            self.scores = torch.cat((self.scores, score))
 
     def evaluate_model(self, model):
         self.calls +=1
-        if len(self.scores)<4:
+        data_points = self.inferences.shape[0]
+        if data_points < 4:
             self.desirable = True
             return
         for observation in self.observations:
             with torch.no_grad():
                 hypothesis = model(observation)
             self.evaluate_hypothesis(hypothesis)
-        print("Expected: %f" %self.eval)
+        #print("Expected: %f" %self.eval)
 
     def evaluate_hypothesis(self, hypothesis):
-        x = hypothesis.cpu().numpy()
-        xp = np.array(self.inferences)
-        fp = np.array(self.scores)
-        matrix = interpolate.LinearNDInterpolator(xp, fp, self.hp.initial_score)
+        x = hypothesis.reshape(1,2).cpu().numpy()
+        xp = self.inferences.cpu().numpy()
+        fp = self.scores.cpu().numpy()
+        matrix = interpolate.LinearNDInterpolator(xp, fp, self.top)
         self.eval = matrix(x)
         self.evaluate_attractiveness()
 
     def evaluate_attractiveness(self):
         self.desirable = False
         if self.hp.minimizing:
-            self.top = min(self.scores)
+            self.top = min(self.scores).cpu().numpy()
             self.set_entropy()
-            if self.entropy<=0.05:
+            if self.entropy<=-0.1:
+                print("Found it ")
                 self.desirable = True
         else:
-            self.top = max(self.scores)
+            self.top = max(self.scores).cpu().numpy()
             self.set_entropy()
-            if -0.05<self.entropy:
+            if self.entropy>=0.1:
                 self.desirable = True
 
     def set_entropy(self):

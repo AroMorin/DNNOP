@@ -25,7 +25,7 @@ class Perturbation(object):
         self.p = None  # Index choice probability vector (P dist)
         self.p_counter = 0
         self.decr = 0.04  # decrease is 10% of probability value
-        self.incr = 0.05  # increase is 20% of probability value
+        self.incr = 0.1  # increase is 20% of probability value
 
     def init_perturbation(self, vec):
         """Initialize state and some variables."""
@@ -33,8 +33,8 @@ class Perturbation(object):
         self.vec_length = torch.numel(vec)
         self.indices = np.arange(self.vec_length)
         self.p_vec = torch.full((self.vec_length,), 0.5, device=self.device)
-        self.uniform_p = torch.nn.functional.softmax(self.p_vec, dim=0)
-        self.p = self.uniform_p
+        self.uniform_vec = torch.full((self.vec_length,), 0.5, device=self.device)
+        self.p = torch.nn.functional.softmax(self.uniform_vec, dim=0)
 
     def update_state(self, analyzer):
         # Set noise size (scope)
@@ -43,16 +43,13 @@ class Perturbation(object):
         print("Number of selections: %d" %self.size)
         self.set_noise_dist(analyzer.search_radius)
         self.set_choices()
-        if 0 < self.p_counter < 250:  # Reset p every 100 iterations
+        if 0 < self.p_counter:  # Reset p every 100 iterations
             self.score = analyzer.score  # Acquire new state
             self.update_p()
             self.prev_score = self.score  # Update state
             self.p_counter+=1
         elif self.p_counter == 0:
             self.p_counter+=1  # Need to step at least once
-        else:
-            self.p = self.uniform_p  # Reset p
-            self.p_counter = 0
 
     def set_noise_dist(self, limit):
         """Determines the shape and magnitude of the noise."""
@@ -65,16 +62,6 @@ class Perturbation(object):
         else:
             print("Unknown precision type")
             exit()
-
-    def apply(self, vec):
-        """Generate a list of random indices based on the number of selections,
-        without duplicates.
-        Then generate the noise vector with the appropriate size and range
-        based on the search radius.
-        Finally use the above to add to the vector of choice.
-        """
-        noise = self.get_noise()
-        vec.add_(noise)
 
     def set_choices(self):
         """Use the numpy choices function (which has no equivalent in Pytorch)
@@ -95,9 +82,12 @@ class Perturbation(object):
             self.decrease_p()
         print("P: ", self.p[0:10])
         self.p = torch.nn.functional.softmax(self.p_vec, dim=0)  # Normalize
+        var = np.var(self.p_vec.cpu().numpy())
+        self.check_var(var)
 
     def improved(self):
         if self.hp.minimizing:
+            print(self.score, self.prev_score)
             return self.score < self.prev_score
         else:
             return self.score > self.prev_score
@@ -113,6 +103,22 @@ class Perturbation(object):
         # Push down "choices"
         dt = torch.full((self.size,), self.decr, device=self.device)
         self.p_vec[self.choices] = torch.sub(self.p_vec[self.choices], dt)
+
+    def check_var(self, v):
+        print("variance: %f" %v)
+        if v>2:
+            self.p_vec = self.uniform_vec
+            self.p = torch.nn.functional.softmax(self.p_vec, dim=0)  # Normalize
+
+    def apply(self, vec):
+        """Generate a list of random indices based on the number of selections,
+        without duplicates.
+        Then generate the noise vector with the appropriate size and range
+        based on the search radius.
+        Finally use the above to add to the vector of choice.
+        """
+        noise = self.get_noise()
+        vec.add_(noise)
 
     def get_noise(self):
         """ This function defines a noise tensor, and returns it. The noise

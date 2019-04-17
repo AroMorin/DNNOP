@@ -9,8 +9,9 @@ class Memory(object):
     def __init__(self, hp):
         self.hp = hp
         self.observations = []
-        self.inferences = None
-        self.scores = None
+        self.concepts = []
+        self.inferences = []
+        self.scores = []
         self.top = self.hp.initial_score
         self.sims = []
         self.eval = 0
@@ -19,41 +20,39 @@ class Memory(object):
         self.entropy = 0
         self.error = 0
 
-    def update_state(self, observation, inference, score, label=None):
+    def init_memory(self, concepts):
+        for concept in concepts:
+            self.concepts.append(concept)
+
+    def update_state(self, observation, label, inference, score):
         self.calls = 0
         inference, score = self.reshape(inference, score)
-        if label is not None:
-            self.label_grouping( observation, inference, score, label)
-        else:
-            self.observation_grouping()
+        self.observation_grouping(observation, label, inference, score)
         self.evaluate_sim()
 
-    def label_grouping(self, observation, inference, score, label):
-        if observation not in self.observations:
-            # Lists of Tensors
-            self.observations.append(observation)
-            self.inferences.append(inference)
-            self.scores.append(score)
+    def observation_grouping(self, observation, label, inference, score):
+        if label not in self.concepts:
+            # First entries for this concept (marked by index)
+            self.concepts.append(label.clone())
+            self.observations.append([observation.clone()])
+            self.inferences.append([inference.clone()])
+            self.scores.append([score.clone()])
         else:
-            for i in range(len(self.observations)):
-                if self.observations[i] == observation:
+            # Known concept
+            for i in range(len(self.concepts)):
+                if self.concepts[i] == label:
+                    if not self.tensor_in_list(observation, self.observations[i]):
+                        self.observations[i].append(observation)
                     self.inferences[i] = torch.cat((self.inferences[i], inference))
                     self.scores[i] = torch.cat((self.scores[i], score))
                     break
 
-    def observation_grouping(self):
-        if observation not in self.observations:
-            # Lists of Tensors
-            self.observations.append(observation)
-            self.inferences.append(inference)
-            self.scores.append(score)
-        else:
-            for i in range(len(self.observations)):
-                if self.observations[i] == observation:
-                    self.inferences[i] = torch.cat((self.inferences[i], inference))
-                    self.scores[i] = torch.cat((self.scores[i], score))
-                    break
-
+    def tensor_in_list(self, mytensor, mylist):
+        for tensor in mylist:
+            yes = torch.all(torch.eq(mytensor, tensor))
+            if yes:
+                return True
+        return False
 
     def reshape(self, a, b):
         if len(inference.shape) == 1:
@@ -87,6 +86,15 @@ class Memory(object):
         else:
             opt = self.top+(3*self.top)
         self.sim[i] = interpolate.LinearNDInterpolator(xp, fp, opt)
+
+    def new_sim(self):
+        xp = self.inferences.cpu().numpy()
+        fp = self.scores.cpu().numpy()
+        if self.hp.minimizing:
+            opt = self.top-(3*self.top)
+        else:
+            opt = self.top+(3*self.top)
+        self.sims.append(interpolate.LinearNDInterpolator(xp, fp, opt))
 
     def evaluate_hypothesis(self, hypothesis, i):
         x = hypothesis.reshape(1,2).cpu().numpy()

@@ -85,8 +85,9 @@ class Pool(object):
 
     def evaluate(self):
         self.mem.evaluate_model(self.model)
-        for i in range(100):
+        for i in range(200):
             if not self.mem.desirable:
+                self.perturb.set_choices()
                 self.generate()
                 self.mem.evaluate_model(self.model)
         print("Expected: %f" %self.mem.eval)

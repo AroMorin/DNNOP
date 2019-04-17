@@ -16,8 +16,8 @@ import torch
 
 def main():
     precision = torch.half
-    data_path = "C:/Users/aaa2cn/Documents/fashion_mnist_data"
-    #data_path = "~/Documents/ahmed/fashion_mnist_data"
+    #data_path = "C:/Users/aaa2cn/Documents/fashion_mnist_data"
+    data_path = "~/Documents/ahmed/fashion_mnist_data"
     # Make an MNIST Dataset environment
     env_params = {
                     "data path": data_path,

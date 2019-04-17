@@ -92,7 +92,7 @@ class Pool(object):
             if not self.mem.desirable:
                 eval = torch.tensor(self.mem.eval, device='cuda', dtype=torch.float)
                 self.analyzer.analyze(eval)
-                self.perturb.update_state(self.analyzer)
+                #self.perturb.update_state(self.analyzer)
                 self.generate()
                 self.mem.evaluate_model(self.model)
             else:

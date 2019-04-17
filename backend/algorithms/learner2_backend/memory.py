@@ -29,6 +29,7 @@ class Memory(object):
         if type(self.inferences) is not torch.Tensor:
             self.inferences = inference
             self.scores = score
+            self.top = score  # Improved over initial score
         else:
             self.inferences = torch.cat((self.inferences, inference))
             self.scores = torch.cat((self.scores, score))
@@ -43,13 +44,16 @@ class Memory(object):
             with torch.no_grad():
                 hypothesis = model(observation)
             self.evaluate_hypothesis(hypothesis)
-        #print("Expected: %f" %self.eval)
 
     def evaluate_hypothesis(self, hypothesis):
         x = hypothesis.reshape(1,2).cpu().numpy()
         xp = self.inferences.cpu().numpy()
         fp = self.scores.cpu().numpy()
-        matrix = interpolate.LinearNDInterpolator(xp, fp, self.top)
+        if self.hp.minimizing:
+            opt = self.top-(3*self.top)
+        else:
+            opt = self.top+(3*self.top)
+        matrix = interpolate.LinearNDInterpolator(xp, fp, opt)
         self.eval = matrix(x)
         self.evaluate_attractiveness()
 
@@ -59,7 +63,6 @@ class Memory(object):
             self.top = min(self.scores).cpu().numpy()
             self.set_entropy()
             if self.entropy<=-0.1:
-                print("Found it ")
                 self.desirable = True
         else:
             self.top = max(self.scores).cpu().numpy()

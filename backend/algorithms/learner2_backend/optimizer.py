@@ -99,7 +99,7 @@ class Optimizer(object):
         self.pool.prep_new_model(self.env.observation, self.inference, self.score)
         self.pool.generate()
         self.pool.evaluate()
-
+        self.pool.print_state()
 
 
 

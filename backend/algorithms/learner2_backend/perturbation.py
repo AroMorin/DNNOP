@@ -26,6 +26,7 @@ class Perturbation(object):
         self.p_counter = 0
         self.decr = 0.01  # decrease is 10% of probability value
         self.incr = 0.1  # increase is 20% of probability value
+        self.variance = 0
 
     def init_perturbation(self, vec):
         """Initialize state and some variables."""
@@ -40,7 +41,6 @@ class Perturbation(object):
         # Set noise size (scope)
         self.choices = []
         self.size = int(analyzer.num_selections*self.vec_length)
-        print("Number of selections: %d" %self.size)
         self.set_noise_dist(analyzer.search_radius)
         self.set_choices()
         if 0 < self.p_counter:  # Reset p every 100 iterations
@@ -80,14 +80,12 @@ class Perturbation(object):
             self.increase_p()
         else:
             self.decrease_p()
-        print("P: ", self.p[0:10])
         self.p = torch.nn.functional.softmax(self.p_vec, dim=0)  # Normalize
-        var = np.var(self.p_vec.cpu().numpy())
-        self.check_var(var)
+        self.variance = np.var(self.p_vec.cpu().numpy())
+        self.check_var()
 
     def improved(self):
         if self.hp.minimizing:
-            print(self.score, self.prev_score)
             return self.score < self.prev_score
         else:
             return self.score > self.prev_score
@@ -104,10 +102,9 @@ class Perturbation(object):
         dt = torch.full((self.size,), self.decr, device=self.device)
         self.p_vec[self.choices] = torch.sub(self.p_vec[self.choices], dt)
 
-    def check_var(self, v):
-        print("variance: %f" %v)
-        if v>2:
-            self.p_vec = self.uniform_vec
+    def check_var(self):
+        if self.variance>2:
+            self.p_vec = self.uniform_vec.clone()
             self.p = torch.nn.functional.softmax(self.p_vec, dim=0)  # Normalize
 
     def apply(self, vec):
@@ -133,9 +130,15 @@ class Perturbation(object):
         noise_vector[self.choices] = noise
         return noise_vector
 
+    def suspend_reality(self):
+        self.real_p = self.p
+        self.real_p_vec = self.p_vec
+        self.real_variance = self.variance
 
-
-
+    def restore_reality(self):
+        self.p = self.real_p
+        self.p_vec = self.real_p_vec
+        self.variance = self.real_variance
 
 
 

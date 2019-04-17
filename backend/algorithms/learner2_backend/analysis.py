@@ -24,6 +24,7 @@ class Analysis(object):
         self.improvement = False
         self.step_size = self.hp.step_size
         self.bin = [1., 1., 1., 1.]  # Uniform distribution
+        self.entropy = 0
 
     def analyze(self, score):
         """The main function."""
@@ -33,13 +34,9 @@ class Analysis(object):
         self.review()
         self.set_num_selections()
         self.set_search_radius()
-        print("Integrity: %f" %self.integrity)
 
     def update_state(self):
         self.step +=1
-        if self.step > 2500:
-            self.bin = [1., 1., 1., 1.]  # Reset bin count
-            self.step = 0
 
     def clean_score(self, x):
         """Removes deformities in the score list such as NaNs."""
@@ -56,7 +53,6 @@ class Analysis(object):
         """
         self.set_step_size()
         if not self.improved():
-            print ("No improvement")
             self.reduce_integrity()
             self.elapsed_steps += 1
             self.improvement = False
@@ -69,9 +65,6 @@ class Analysis(object):
             self.top = self.score
             self.elapsed_steps = 0
             #self.maintain_integrity()
-        print("Steps to Backtrack: %d" %(self.hp.patience-self.elapsed_steps+1))
-        print(self.bin)
-        print(self.step_size)
 
     def improved_abs(self):
         """Calculate whether the score has satisfactorily improved or not based
@@ -91,17 +84,14 @@ class Analysis(object):
         """Calculate whether the score has satisfactorily improved or not based
         on the pre-defined hyper parameters.
         """
-        # Make sure we are not in the very first iteration
         if self.step>0:
             self.set_entropy()
-            print("Entropy :%f" %self.entropy)
             if self.hp.minimizing:
                 return self.entropy <= self.hp.min_entropy
             else:
                 return self.entropy >= self.hp.min_entropy
         else:
-            # Improved over the initial score
-            return True
+            return True  # Improved over the initial score
 
     def set_entropy(self):
         """Function is constructed such that the conditional will evaluate to
@@ -110,13 +100,13 @@ class Analysis(object):
         eps = self.top.ne(0)
         if eps:
             # Percentage change
-            i = self.score.sub(self.top)
+            i = torch.sub(self.score, self.top)
             i = torch.div(i, self.top.abs())
             i = torch.mul(i, 100)
             self.entropy = i
         else:
             # Prevent division by zero
-            i = self.score.sub(self.top)
+            i = torch.sub(self.score, self.top)
             i = torch.div(i, self.hp.epsilon)
             i = torch.mul(i, 100)
             self.entropy = i
@@ -133,13 +123,13 @@ class Analysis(object):
 
     def decrease_bin(self):
         if  0. < self.integrity <= 0.25:
-            self.bin[0] = max(1., self.bin[0]-0.1)
+            self.bin[0] = max(1., self.bin[0]-0.01)
         elif  0.25 < self.integrity <= 0.5:
-            self.bin[1] = max(1., self.bin[1]-0.1)
+            self.bin[1] = max(1., self.bin[1]-0.01)
         elif  0.5 < self.integrity <= 0.75:
-            self.bin[2] = max(1., self.bin[2]-0.1)
+            self.bin[2] = max(1., self.bin[2]-0.0005)
         elif  0.75 < self.integrity <= 1.:
-            self.bin[3] = max(1., self.bin[3]-0.1)
+            self.bin[3] = max(1., self.bin[3]-0.0005)
 
     def set_step_size(self):
         if  0. < self.integrity <= 0.25:
@@ -164,6 +154,16 @@ class Analysis(object):
         b = self.hp.max_integrity
         self.integrity = min(a, b)
 
+    def suspend_reality(self):
+        self.real_integrity = self.integrity
+        self.real_score = self.score
+        self.real_bin = self.bin
+
+    def restore_reality(self):
+        self.integrity = self.real_integrity
+        self.score = self.real_score
+        self.bin = self.real_bin
+
     def review(self):
         """Implements the backtracking and radial expansion functionalities."""
         self.set_backtracking()
@@ -187,7 +187,6 @@ class Analysis(object):
         numerator = self.hp.alpha
         denominator = 1+(self.hp.beta/p)
         self.num_selections = numerator/denominator
-        print("Num Selections: %f" %self.num_selections)
 
     def set_search_radius(self):
         """Sets the search radius (noise magnitude) based on the integrity and
@@ -196,7 +195,6 @@ class Analysis(object):
         argument = (self.lambda_*p)-2.5
         exp1 = math.tanh(argument)+1
         self.search_radius = exp1*self.lr
-        print ("Search Radius: %f" %self.search_radius)
 
 
 

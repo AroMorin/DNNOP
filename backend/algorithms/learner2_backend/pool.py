@@ -85,12 +85,21 @@ class Pool(object):
 
     def evaluate(self):
         self.mem.evaluate_model(self.model)
-        for i in range(200):
+        if not self.mem.desirable:
+            self.analyzer.suspend_reality()
+            self.perturb.suspend_reality()
+        for i in range(100):
             if not self.mem.desirable:
-                self.perturb.set_choices()
+                eval = torch.tensor(self.mem.eval, device='cuda', dtype=torch.float)
+                self.analyzer.analyze(eval)
+                self.perturb.update_state(self.analyzer)
                 self.generate()
                 self.mem.evaluate_model(self.model)
-        print("Expected: %f" %self.mem.eval)
+            else:
+                print("Expected: %f------------------------" %self.mem.eval)
+                return
+        self.analyzer.restore_reality()
+        self.perturb.restore_reality()
 
     def prep_new_hypothesis(self, score):
         self.analyzer.analyze(score)
@@ -118,6 +127,16 @@ class Pool(object):
         for i, key in enumerate(self.keys):
             self.state_dict[key] = param_list[i]
 
+    def print_state(self):
+        print("Integrity: %f" %self.analyzer.integrity)
+        print("Steps to Backtrack: %d" %(self.hp.patience-self.analyzer.elapsed_steps+2))
+        print(self.analyzer.bin)
+        print(self.analyzer.step_size)
+        print("SR: %f" %self.analyzer.search_radius)
+        print("Selections(%%): %f" %self.analyzer.num_selections)
+        print("Selections: %d" %self.perturb.size)
+        print("P: ", self.perturb.p[0:10])
+        print("Variance(P): %f" %self.perturb.variance)
 
 
 

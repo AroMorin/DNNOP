@@ -17,7 +17,7 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
-    function = "rastrigin"
+    function = "rosenbrock"
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
@@ -38,14 +38,14 @@ def main():
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "patience": 2500,
+                    "patience": 1000,
                     "tolerance": 0.12,
                     "learning rate": 0.05,
                     "minimum entropy": -0.1,  # Percentage
-                    "learning rate": 0.5,
-                    "alpha": 0.4,
+                    "learning rate": 0.2,
+                    "alpha": 0.5,
                     "beta": 0.29,
-                    "step size": 0.1
+                    "step size": 0.02
                     }
     alg = algorithm_factory.make_alg("learner2", model, alg_params)
 

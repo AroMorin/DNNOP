@@ -17,7 +17,7 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
-    function = "easom"
+    function = "schwefel"
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
@@ -38,12 +38,11 @@ def main():
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "patience": 1000,
+                    "patience": 2000,
                     "tolerance": 0.12,
-                    "learning rate": 0.05,
                     "minimum entropy": -0.1,  # Percentage
-                    "learning rate": 0.2,
-                    "alpha": 0.5,
+                    "learning rate": 0.35,
+                    "alpha": 0.3,
                     "beta": 0.29,
                     "step size": 0.02
                     }

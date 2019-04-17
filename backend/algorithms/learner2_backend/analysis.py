@@ -127,9 +127,9 @@ class Analysis(object):
         elif  0.25 < self.integrity <= 0.5:
             self.bin[1] = max(1., self.bin[1]-0.01)
         elif  0.5 < self.integrity <= 0.75:
-            self.bin[2] = max(1., self.bin[2]-0.0005)
+            self.bin[2] = max(1., self.bin[2]-0.0009)
         elif  0.75 < self.integrity <= 1.:
-            self.bin[3] = max(1., self.bin[3]-0.0005)
+            self.bin[3] = max(1., self.bin[3]-0.0009)
 
     def set_step_size(self):
         if  0. < self.integrity <= 0.25:
@@ -158,11 +158,13 @@ class Analysis(object):
         self.real_integrity = self.integrity
         self.real_score = self.score
         self.real_bin = self.bin
+        self.real_elapsed_steps = self.elapsed_steps
 
     def restore_reality(self):
         self.integrity = self.real_integrity
         self.score = self.real_score
         self.bin = self.real_bin
+        self.elapsed_steps = self.real_elapsed_steps
 
     def review(self):
         """Implements the backtracking and radial expansion functionalities."""

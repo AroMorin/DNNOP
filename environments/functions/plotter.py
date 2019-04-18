@@ -250,7 +250,7 @@ class Plotter:
         x = self.probe_x
         y = self.probe_y
         score = self.probe_score
-        s = 100
+        s = 10
         marker = '^'
         color = 'black'
         a = self.top.scatter(x, y, marker=marker, s=s, c=color)

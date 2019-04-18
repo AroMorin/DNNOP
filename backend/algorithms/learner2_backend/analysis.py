@@ -113,13 +113,17 @@ class Analysis(object):
 
     def increase_bin(self):
         if  0. < self.integrity <= 0.25:
-            self.bin[0] +=1.
+            inc = 1./self.bin[0]
+            self.bin[0] +=inc
         elif  0.25 < self.integrity <= 0.5:
-            self.bin[1] +=1.
+            inc = 1./self.bin[1]
+            self.bin[1] +=inc
         elif  0.5 < self.integrity <= 0.75:
-            self.bin[2] +=1.
+            inc = 1./self.bin[2]
+            self.bin[2] +=inc
         elif  0.75 < self.integrity <= 1.:
-            self.bin[3] +=1.
+            inc = 1./self.bin[3]
+            self.bin[3] +=inc
 
     def decrease_bin(self):
         if  0. < self.integrity <= 0.25:

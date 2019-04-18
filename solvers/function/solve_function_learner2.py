@@ -17,7 +17,7 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
-    function = "schwefel"
+    function = "ackley"
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
@@ -38,7 +38,7 @@ def main():
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "patience": 2000,
+                    "patience": 200,
                     "tolerance": 0.12,
                     "minimum entropy": -0.1,  # Percentage
                     "learning rate": 0.35,
@@ -52,7 +52,7 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.solve_and_plot(iterations=2500)
+    slv.solve_and_plot(iterations=5000)
 
 if __name__ == '__main__':
     main()

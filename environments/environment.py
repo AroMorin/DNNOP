@@ -20,6 +20,7 @@ class Environment(object):
         self.score = False
         self.error = False
         self.observation = None
+        self.labels = torch.zeros((1,), device='cuda', dtype=torch.float)
         self.target = 0
         self.minimize = True  # Are we trying to minimize a value, e.g. error?
         self.set_scoring(env_params)

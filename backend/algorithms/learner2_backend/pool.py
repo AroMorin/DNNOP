@@ -65,12 +65,12 @@ class Pool(object):
             mylist.append(x.reshape(x.numel()))  # Flatten tensor
         self.vector = torch.cat(mylist)  # Flatten all tensors in model
 
-    def prep_new_model(self, observation, inference, score):
+    def prep_new_model(self, observation, label, inference, score):
         """Prepares the new pool based on the scores of the current generation
         and the results of the analysis (such as value of intergrity).
         """
         self.inference = inference
-        self.mem.update_state(observation, inference, score)
+        #self.mem.update_state(observation, label, inference, score)
         self.analyzer.analyze(score)
         self.score = self.analyzer.score
         self.elite.set_elite(self.model, self.vector, self.inference, self.score)

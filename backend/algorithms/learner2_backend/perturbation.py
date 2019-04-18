@@ -70,7 +70,8 @@ class Perturbation(object):
         """
         np.random.seed()
         if len((self.p == 0).nonzero())>0:
-            print(len((self.p == 0).nonzero()))
+            nb_zeros = len((self.p == 0).nonzero())
+            print("Error: %d Zero elements in self.p" %nb_zeros)
             exit()
         self.choices = np.random.choice(self.indices, self.size, replace=False, p=self.p.cpu().numpy())
 

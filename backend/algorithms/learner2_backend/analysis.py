@@ -125,11 +125,11 @@ class Analysis(object):
         if  0. < self.integrity <= 0.25:
             self.bin[0] = max(1., self.bin[0]-0.01)
         elif  0.25 < self.integrity <= 0.5:
-            self.bin[1] = max(1., self.bin[1]-0.01)
+            self.bin[1] = max(1., self.bin[1]-0.0009)
         elif  0.5 < self.integrity <= 0.75:
             self.bin[2] = max(1., self.bin[2]-0.0009)
         elif  0.75 < self.integrity <= 1.:
-            self.bin[3] = max(1., self.bin[3]-0.0009)
+            self.bin[3] = max(1., self.bin[3]-0.01)
 
     def set_step_size(self):
         if  0. < self.integrity <= 0.25:

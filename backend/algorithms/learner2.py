@@ -71,8 +71,6 @@ class LEARNER2(object):
                 self.inference = model(self.env.test_data)
         if not silent:
             self.print_inference()
-        print(self.inference.shape)
-        exit()
 
     def print_inference(self):
         """Prints the inference of the neural networks. Attempts to extract

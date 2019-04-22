@@ -81,7 +81,6 @@ class Perturbation(object):
             self.increase_p()
         else:
             self.decrease_p()
-        print(self.p_vec[0:20])
         self.p = torch.nn.functional.softmax(self.p_vec, dim=0)  # Normalize
         self.variance = np.var(self.p_vec.cpu().numpy())
         self.check_var()

@@ -81,6 +81,7 @@ class Perturbation(object):
             self.increase_p()
         else:
             self.decrease_p()
+        print(self.p_vec[0:20])
         self.p = torch.nn.functional.softmax(self.p_vec, dim=0)  # Normalize
         self.variance = np.var(self.p_vec.cpu().numpy())
         self.check_var()
@@ -104,7 +105,7 @@ class Perturbation(object):
         self.p_vec[self.choices] = torch.sub(self.p_vec[self.choices], dt)
 
     def check_var(self):
-        if self.variance>2:
+        if self.variance>2.2:
             self.p_vec = self.uniform_vec.clone()
             self.p = torch.nn.functional.softmax(self.p_vec, dim=0)  # Normalize
 

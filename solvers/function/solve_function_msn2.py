@@ -21,7 +21,7 @@ def main():
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
-                    "plot": True,
+                    "plot": False,
                     "score type": "error"  # Function evaluation
                     }
     env = env_factory.make_env("function", function, env_params)

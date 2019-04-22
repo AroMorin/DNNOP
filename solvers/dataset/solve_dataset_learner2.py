@@ -33,7 +33,7 @@ def main():
                     "precision": precision,
                     "weight initialization scheme": "Default"  # Xavier Normal
                     }
-    model = model_factory.make_model("MNIST CNN MSN", model_params)
+    model = model_factory.make_model("FashionMNIST CNN", model_params)
 
     # Make an algorithm --algorithm takes control of the pool--
     alg_params = {
@@ -53,7 +53,7 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=5000)
+    slv.train_dataset_with_validation(iterations=2500)
     #slv.repeated_batch_train_dataset_with_validation(args.iterations)
 
 if __name__ == '__main__':

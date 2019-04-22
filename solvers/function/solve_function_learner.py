@@ -17,7 +17,7 @@ import torch
 def main():
     precision = torch.float
     # Make a function environment
-    function = "bukin6"
+    function = "rastrigin"
     env_params = {
                     "data path": "function_data/"+function+"/",
                     "precision": precision,
@@ -53,7 +53,7 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.solve_and_plot(iterations=25000)
+    slv.solve_and_plot(iterations=8900)
 
 if __name__ == '__main__':
     main()

@@ -54,7 +54,8 @@ def main():
 
     # Use solver to solve the problem
     slv.train_dataset_with_validation(iterations=2500)
-    #slv.repeated_batch_train_dataset_with_validation(args.iterations)
+    #slv.batch_train_dataset_with_validation(iterations=2500)
+    #slv.repeated_batch_train_dataset_with_validation(iterations=5)
 
 if __name__ == '__main__':
     main()

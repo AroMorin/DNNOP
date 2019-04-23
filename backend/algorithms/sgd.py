@@ -17,6 +17,7 @@ class SGD(object):
         alg_params = self.ingest_params(alg_params)
         self.hyper_params = alg_params
         self.model = model # Model is set as a class attribute
+        self.inference = None
         self.train_loss = 0.
         self.test_loss = 0.
         self.train_acc = 0.
@@ -48,7 +49,7 @@ class SGD(object):
                                         lr = self.hyper_params["learning rate"],
                                         momentum = self.hyper_params["momentum"])
         else:
-            print("Unkown optimizer, exiting!")
+            print("Unknown optimizer, exiting!")
             exit()
 
     def set_environment(self, env):
@@ -58,17 +59,17 @@ class SGD(object):
         """Implements the main optimization function of the algorithm."""
         self.model.train() #Sets behavior to "training" mode
         self.optim.zero_grad()
-        predictions = self.model(self.env.observation)
-        self.train_loss = F.nll_loss(predictions, self.env.labels)
+        self.inference = self.model(self.env.observation)
+        self.train_loss = F.nll_loss(self.inference, self.env.labels)
         self.train_loss.backward()
         self.optim.step()
 
     def achieved_target(self):
         """Determines whether the algorithm achieved its target or not."""
         if self.env.minimize:
-            return self.test_loss <= self.hyper_params["target loss"]
+            return self.train_loss <= self.hyper_params["target loss"]
         else:
-            return self.test_loss >= self.hyper_params["target loss"]
+            return self.train_loss >= self.hyper_params["target loss"]
 
     def test(self):
         """Local variables are chosen not to feature here.
@@ -91,6 +92,17 @@ class SGD(object):
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
             loss, self.correct_test_preds, test_size, self.test_acc))
 
+    def print_train_accuracy(self):
+        """Prints the accuracy figure for the test/validation case/set."""
+        train_size = len(self.env.observation)
+        pred = self.inference.max(1, keepdim=True)[1]
+        # Number of correct predictions
+        self.correct_train_preds = pred.eq(self.env.labels.view_as(pred)).sum().item()
+        self.train_acc = 100.*self.correct_train_preds/train_size
+        loss = self.train_loss
+        loss /= train_size # Not really sure what this does
+        print('\nTrain set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+            loss, self.correct_train_preds, train_size, self.train_acc))
 
 
 

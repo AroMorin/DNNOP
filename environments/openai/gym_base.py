@@ -1,5 +1,6 @@
 from ..environment import Environment
 import gym
+import torch
 
 class Gym_base(Environment):
     def __init__(self, env_params):
@@ -34,22 +35,26 @@ class Gym_base(Environment):
         self.obs_space = self.env.observation_space
         self.obs_high = self.obs_space.high
         self.obs_low = self.obs_space.low
-        self.observation = self.env.reset()
+        observation = self.env.reset()
+        self.observation = torch.Tensor(observation).cuda()
 
     def step(self, action):
         """Instantiates the plotter class if a plot is requested by the user."""
-        self.observation, self.reward, self.done, self.info = self.env.step(action)
+        action = action.argmax().int()
+        action = action.cpu().numpy()
+        observation, reward, self.done, self.info = self.env.step(action)
+        self.reward += reward
+        self.observation = torch.Tensor(observation).cuda()
         self.iteration += 1
-        if self.done:
-            self.reset_state()
 
     def evaluate(self, inference):
-        return self.reward
+        return torch.Tensor([self.reward])
 
     def reset_state(self):
         self.iteration = 0
-        self.observation = self.env.reset()
-        self.reward = None  # Matrix of function values
+        observation = self.env.reset()
+        self.observation = torch.Tensor(observation).cuda()
+        self.reward = 0.  # Matrix of function values
         self.done = False
         self.info = {}
 
@@ -59,3 +64,6 @@ class Gym_base(Environment):
 
     def render(self):
         self.env.render()
+
+    def close(self):
+        self.env.close()

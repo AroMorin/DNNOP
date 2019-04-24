@@ -7,11 +7,11 @@ class Net(nn.Module):
         super(Net, self).__init__()
         model_params = self.ingest_params_lvl1(model_params)
         self.fc1 = nn.Linear(model_params['in features'], 256)
-        self.act1 = nn.Relu()
+        self.act1 = nn.ReLU()
         self.fc2 = nn.Linear(256, 128)
-        self.act2 = nn.Relu()
+        self.act2 = nn.ReLU()
         self.fc3 = nn.Linear(128, 64)
-        self.act3 = nn.Relu()
+        self.act3 = nn.ReLU()
         self.fc4 = nn.Linear(64, model_params['number of outputs'])
 
     # Called with either one element to determine next action, or a batch

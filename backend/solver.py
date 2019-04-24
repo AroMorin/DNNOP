@@ -43,8 +43,9 @@ class Solver(object):
         for iteration in range(iterations):
             print("Iteration: %d\n" %iteration)
             print("New Episode")
+            self.alg.env.reset_state()
             while not self.alg.env.done:
-                if self.alg.env.render:
+                if self.alg.env.rendering:
                     self.alg.env.render()
                 self.alg.get_inference()
                 action = self.alg.inference

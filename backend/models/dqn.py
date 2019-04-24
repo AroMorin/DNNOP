@@ -10,9 +10,9 @@ class Net(nn.Module):
                                 stride=4)
         self.conv2 = nn.Conv2d(32, 64, kernel_size=4, stride=2)
         self.conv3 = nn.Conv2d(64, 64, kernel_size=3, stride=1)
-        self.act1 = nn.Relu()
-        self.act2 = nn.Relu()
-        self.act3 = nn.Relu()
+        self.act1 = nn.ReLU()
+        self.act2 = nn.ReLU()
+        self.act3 = nn.ReLU()
 
         # Number of Linear input connections depends on output of conv2d layers
         # and therefore the input image size, so compute it.
@@ -30,7 +30,7 @@ class Net(nn.Module):
         linear_input_size = convw * convh * 64
 
         self.fc1 = nn.Linear(linear_input_size, 512)
-        self.act4 = nn.Relu()
+        self.act4 = nn.ReLU()
         self.fc2 = nn.Linear(512, model_params['number of outputs'])
 
     # Called with either one element to determine next action, or a batch

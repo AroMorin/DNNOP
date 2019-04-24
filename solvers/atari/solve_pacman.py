@@ -26,7 +26,7 @@ def main():
     model_params = {
                     "precision": precision,
                     "weight initialization scheme": "Default",
-                    "number of outputs": env.action_space,
+                    "number of outputs": 8,
                     "w": 210,
                     "h": 160,
                     "in features": 128,
@@ -38,6 +38,7 @@ def main():
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
+                    "minimum entropy": 0.1,
                     "patience": 3000,
                     "tolerance": 0.01,
                     "learning rate": 0.05,
@@ -52,7 +53,7 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.solve_and_plot(iterations=10)
+    slv.solve_env(iterations=100)
 
 if __name__ == '__main__':
     main()

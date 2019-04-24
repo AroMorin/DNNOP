@@ -23,6 +23,7 @@ class LEARNER2(object):
         self.optim = Optimizer(self.pool, self.hyper_params)  # Optimizer object
         self.inference = None
         self.correct_test_preds = 0
+        self.populations = False
 
     def set_environment(self, env):
         """Sets the environment attribute."""

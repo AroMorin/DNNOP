@@ -37,6 +37,26 @@ class Solver(object):
                 print ("Achieved/exceeded target")
                 break # Terminate optimization
 
+    def solve_env(self, iterations):
+        """In cases where training is needed."""
+        print("Training OpenAI environment solver \n")
+        for iteration in range(iterations):
+            print("Iteration: %d\n" %iteration)
+            print("New Episode")
+            while not self.alg.env.done:
+                if self.alg.env.render:
+                    self.alg.env.render()
+                self.alg.get_inference()
+                action = self.alg.inference
+                self.alg.env.step(action)
+            self.alg.optimize()
+            self.current_iteration +=1
+            print("\n")
+            if self.alg.achieved_target():
+                print ("Achieved/exceeded target")
+                break # Terminate optimization
+        self.alg.env.close()
+
     def solve_and_plot(self, iterations):
         """In cases where training is needed."""
         print("Training regular solver \n")

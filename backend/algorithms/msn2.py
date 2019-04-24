@@ -21,6 +21,7 @@ class MSN2(object):
         self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
         self.pool = Pool(models, self.hyper_params) # Create a pool object
         self.optim = Optimizer(self.pool, self.hyper_params)
+        self.populations = True
         self.correct_test_preds = 0
         self.inferences = []
         self.scores = []
@@ -43,7 +44,7 @@ class MSN2(object):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        self.inference()
+        self.get_inference()
         self.optim.reset_state()
         if self.scoring == "loss":
             self.optim.calculate_losses(self.inferences)
@@ -55,7 +56,7 @@ class MSN2(object):
             self.optim.set_scores(self.inferences)
         self.optim.step()
 
-    def inference(self, test=False, silent=True):
+    def get_inference(self, test=False, silent=True):
         """This method runs inference on the given environment using the models.
         I'm not sure, but I think there could be many ways to run inference. For
         that reason, I designate this function, to be a single point of contact
@@ -90,7 +91,7 @@ class MSN2(object):
     def test(self):
         """This is a method for testing."""
         assert self.env.test_data is not None  # Sanity check
-        self.inference(test=True)
+        self.get_inference(test=True)
         self.optim.calculate_correct_predictions(self.inferences, test=True, acc=True)
         if self.env.loss:
             self.optim.calculate_losses(self.inferences, test=True)

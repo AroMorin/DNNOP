@@ -8,6 +8,8 @@ from .mnist_cnn_msn import Net as MNIST_CNN_MSN
 from .func_fc import Net as FUNC_FC
 from .nao_fc import Net as NAO_FC
 from .object_detection_msn import Net as OD_CNN_MSN
+from .dqn import Net as DQN
+from .dqn_ram import Net as DQN_RAM
 
 import torch
 import torch.nn as nn
@@ -20,7 +22,7 @@ def make_model(name, model_params={}):
     model.cuda().to(model_params["precision"])
     init_weights(model, model_params["weight initialization scheme"])
     if model_params["pre-trained"]:
-        load_weights(model, model_params["path"])
+        load_weights(model, model_params["elite path"])
     return model
 
 def make_pool(name, model_params={}):
@@ -48,7 +50,7 @@ def ingest_params(user_params):
                     "precision": torch.float,
                     "weight initialization scheme": "Default",
                     "pre-trained": False,
-                    "path": 'C:/model_elite.pth'
+                    "elite path": 'C:/model_elite.pth'
                     }
     default_params.update(user_params)  # Override with user choices
     return default_params
@@ -67,6 +69,10 @@ def pick_model(name):
         model = NAO_FC()
     elif name == "OD CNN MSN":
         model = OD_CNN_MSN()
+    elif name == "DQN RAM model":
+        model = DQN_RAM()
+    elif name == "DQN model":
+        model = DQN()
     else:
         print("Unknown model selected")
         exit()

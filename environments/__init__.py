@@ -4,6 +4,7 @@ import environments.datasets as dataset
 import environments.functions as funcs
 import environments.nao as nao
 import environments.tasks as tasks
+import environments.openai as openai
 
 def make_env(type, name, env_params):
     """Class factory method. This method takes the name of the environment
@@ -18,6 +19,8 @@ def make_env(type, name, env_params):
         return nao.make_nao(name, env_params)
     elif type == 'task':
         return tasks.make_task(name, env_params)
+    elif type == 'openai':
+        return tasks.make_env(name, env_params)
     else:
         print("Unknown environment type requested, exiting!")
         exit()

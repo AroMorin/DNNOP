@@ -17,6 +17,7 @@ class SGD(object):
         alg_params = self.ingest_params(alg_params)
         self.hyper_params = alg_params
         self.model = model # Model is set as a class attribute
+        self.populations = False
         self.inference = None
         self.train_loss = 0.
         self.test_loss = 0.

@@ -25,6 +25,8 @@ class LEARNER(object):
         self.inference = None
         self.score = self.hyper_params.initial_score
         self.correct_test_preds = 0
+        self.populations = False
+
 
     def set_environment(self, env):
         """Sets the environment attribute."""

@@ -18,7 +18,7 @@ import numpy as np
 def make_model(name, model_params={}):
     """Makes a single model."""
     model_params = ingest_params(model_params)
-    model = pick_model(name)
+    model = pick_model(name, model_params)
     model.cuda().to(model_params["precision"])
     init_weights(model, model_params["weight initialization scheme"])
     if model_params["pre-trained"]:
@@ -55,24 +55,24 @@ def ingest_params(user_params):
     default_params.update(user_params)  # Override with user choices
     return default_params
 
-def pick_model(name):
+def pick_model(name, model_params):
     """Defines which class of models to pick, based on user input."""
     if name == "MNIST CNN":
-        model = MNIST_CNN()
+        model = MNIST_CNN(model_params)
     elif name == "MNIST CNN MSN":
-        model = MNIST_CNN_MSN()
+        model = MNIST_CNN_MSN(model_params)
     elif name == "FashionMNIST CNN":
-        model = FashionMNIST_CNN()
+        model = FashionMNIST_CNN(model_params)
     elif name == "Function FC model":
-        model = FUNC_FC()
+        model = FUNC_FC(model_params)
     elif name == "NAO FC model":
-        model = NAO_FC()
+        model = NAO_FC(model_params)
     elif name == "OD CNN MSN":
-        model = OD_CNN_MSN()
+        model = OD_CNN_MSN(model_params)
     elif name == "DQN RAM model":
-        model = DQN_RAM()
+        model = DQN_RAM(model_params)
     elif name == "DQN model":
-        model = DQN()
+        model = DQN(model_params)
     else:
         print("Unknown model selected")
         exit()

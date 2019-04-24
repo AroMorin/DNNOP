@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import torch
 
 class Net(nn.Module):
-    def __init__(self):
+    def __init__(self, model_params):
         print("Creating basic CNN MNIST model for MSN")
         super(Net, self).__init__()
         self.conv1 = nn.Conv2d(1, 10, kernel_size=5)

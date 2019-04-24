@@ -1,8 +1,4 @@
 """solve atari"""
-"""This script solves a global optimization function by finding the location
-of its global optimum.
-Currently, only MSN algorithm is avaiable to solve this problem.
-"""
 from __future__ import print_function
 import sys, os
 # Append SYSPATH in order to access different modules of the library
@@ -31,7 +27,10 @@ def main():
                     "precision": precision,
                     "weight initialization scheme": "Default",
                     "number of outputs": env.action_space,
-
+                    "w": 210,
+                    "h": 160,
+                    "in features": 128,
+                    "in channels": 3
                     }
     model = model_factory.make_model("DQN RAM model", model_params)
 
@@ -53,7 +52,7 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.solve_and_plot(iterations=5000)
+    slv.solve_and_plot(iterations=10)
 
 if __name__ == '__main__':
     main()

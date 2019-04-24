@@ -20,7 +20,7 @@ def make_env(type, name, env_params):
     elif type == 'task':
         return tasks.make_task(name, env_params)
     elif type == 'openai':
-        return tasks.make_env(name, env_params)
+        return openai.make_env(name, env_params)
     else:
         print("Unknown environment type requested, exiting!")
         exit()

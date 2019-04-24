@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch
 
 class Net(nn.Module):
-    def __init__(self):
+    def __init__(self, model_params):
         super(Net, self).__init__()
         self.fc1 = nn.Linear(2, 128)
         self.act1 = nn.PReLU()

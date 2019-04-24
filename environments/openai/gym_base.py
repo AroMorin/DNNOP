@@ -1,6 +1,3 @@
-import numpy as np
-import torch
-from .plotter import Plotter
 from ..environment import Environment
 import gym
 

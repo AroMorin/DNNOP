@@ -3,7 +3,7 @@ from .gym_base import Gym_base
 
 class MsPacman(Gym_base):
     def __init__(self, env_params):
-        super(Pacman, self).__init__(env_params)
+        super(MsPacman, self).__init__(env_params)
         env_params = self.ingest_params_lvl2(env_params)
         self.render = env_params['render']
 

@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import torch
 
 class Net(nn.Module):
-    def __init__(self):
+    def __init__(self, model_params):
         print("Creating Object Detection model for MSN")
         super(Net, self).__init__()
         self.conv1 = nn.Conv2d(1, 20, kernel_size=3)

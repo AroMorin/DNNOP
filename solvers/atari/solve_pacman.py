@@ -47,7 +47,7 @@ def main():
                     "beta": 0.29,
                     "step size": 0.2
                     }
-    alg = algorithm_factory.make_alg("learner2", model, alg_params)
+    alg = algorithm_factory.make_alg("learner3", model, alg_params)
 
     # Make a solver using the environment and algorithm objects
     slv = Solver(env, alg)

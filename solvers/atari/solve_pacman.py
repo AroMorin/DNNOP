@@ -17,8 +17,8 @@ def main():
     game = "MsPacman"
     env_params = {
                     "score type": "score",  # Function evaluation
-                    "render": True,
-                    "RAM": True
+                    "render": False,
+                    "RAM": False
                     }
     env = env_factory.make_env("openai", game, env_params)
 
@@ -26,13 +26,13 @@ def main():
     model_params = {
                     "precision": precision,
                     "weight initialization scheme": "Default",
-                    "number of outputs": 8,
+                    "number of outputs": env.action_space.n,
                     "w": 210,
                     "h": 160,
                     "in features": 128,
                     "in channels": 3
                     }
-    model = model_factory.make_model("DQN RAM model", model_params)
+    model = model_factory.make_model("DQN model", model_params)
 
     # Make an algorithm --algorithm needs to take charge of the pool--
     alg_params = {
@@ -53,7 +53,9 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.solve_env(iterations=100)
+    slv.solve_env(iterations=120)
+    slv.save()
+    slv.demonstrate_env()
 
 if __name__ == '__main__':
     main()

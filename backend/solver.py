@@ -8,6 +8,7 @@ I'm still torn between using a class or just using a script.
 """
 
 import torch
+import time
 
 class Solver(object):
     """This class makes absolute sense because there are many types of training
@@ -150,3 +151,25 @@ class Solver(object):
         self.current_iteration = 0
         self.current_batch = 0
         self.current_step = 0
+
+    def save(self, path=''):
+        """Only works with my algorithms, not with SGD."""
+        fn = path+"model_elite.pth"
+        torch.save(self.alg.pool.elite.model.state_dict(), fn)
+
+    def load(self, path):
+        """Only works with my algorithms, not with SGD."""
+        fn = path+"model_elite.pth"
+        self.alg.pool.elite.model.load_state_dict(torch.load(fn))
+
+    def demonstrate_env(self):
+        """In cases where training is needed."""
+        self.alg.env.reset_state()
+        self.alg.pool.model = self.alg.pool.elite.model
+        while not self.alg.env.done:
+            self.alg.env.render()
+            self.alg.get_inference()
+            action = self.alg.inference
+            self.alg.env.step(action)
+            time.sleep(0.05)
+        self.alg.env.close()

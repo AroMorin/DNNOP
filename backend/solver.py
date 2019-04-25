@@ -121,16 +121,14 @@ class Solver(object):
         self.alg.test()
         self.alg.print_test_accuracy()
 
-    def repeated_batch_train_dataset_with_validation(self, iterations):
+    def repeated_batch_train_dataset_with_validation(self, iterations, reps):
         """In cases where a dataset is being trained with a validation component
         such as MNIST.
         """
         print("Mini-batch training model(s) on a dataset w/ validation")
         # Local variable definition
         batches = self.env.nb_batches
-        reps = 2000  # repititions
         self.reset_state()
-
         # Process
         for _ in range(iterations):
             print ("Iteration %d" %self.current_iteration)
@@ -140,6 +138,8 @@ class Solver(object):
                 print("Step %d" %self.current_step)
                 self.alg.optimize()
                 self.current_step += 1
+            self.alg.pool.elite.reset_state()
+            self.alg.pool.analyzer.reset_state()
             self.current_iteration += 1
         self.alg.test()
         self.alg.print_test_accuracy()

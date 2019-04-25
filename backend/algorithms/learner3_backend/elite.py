@@ -5,6 +5,7 @@ import copy
 class Elite(object):
     def __init__(self, hp):
         self.model = None
+        self.hp = hp
         self.elite_score = hp.initial_score
         self.minimizing = hp.minimizing
         self.inference = None
@@ -41,3 +42,6 @@ class Elite(object):
     def get_elite(self, observation):
         inference = self.model(observation)
         return inference
+
+    def reset_state(self):
+        self.elite_score = self.hp.initial_score

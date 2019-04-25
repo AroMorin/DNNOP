@@ -43,9 +43,10 @@ def main():
                     "tolerance": 0.01,
                     "learning rate": 0.05,
                     "lambda": 5,
-                    "alpha": 0.05,
+                    "alpha": 0.09,
                     "beta": 0.29,
-                    "step size": 0.2
+                    "step size": 0.15,
+                    "minimum entropy": -0.1
                     }
     alg = algorithm_factory.make_alg("learner3", model, alg_params)
 
@@ -55,7 +56,7 @@ def main():
     # Use solver to solve the problem
     slv.train_dataset_with_validation(iterations=2500)
     #slv.batch_train_dataset_with_validation(iterations=2500)
-    #slv.repeated_batch_train_dataset_with_validation(iterations=5)
+    #slv.repeated_batch_train_dataset_with_validation(iterations=5, reps=500)
 
 if __name__ == '__main__':
     main()

@@ -11,7 +11,7 @@ class Analysis(object):
         self.prev_score = torch.tensor(self.hp.initial_score, device='cuda')
         self.score = torch.tensor(self.hp.initial_score, device='cuda')
         self.distance = float("inf")  # Infinite distance from target
-        self.top = self.hp.initial_score
+        self.top = torch.tensor(self.hp.initial_score, device='cuda')
         self.backtracking = False
         self.elapsed_steps = 0  # Counts steps without improvement
         self.reset_integrity = False
@@ -20,7 +20,7 @@ class Analysis(object):
         self.alpha = self.hp.alpha
         self.lambda_ = self.hp.lambda_
         self.search_start = False
-        self.step = -1  # State
+        self.step = 0  # State
         self.improvement = False
         self.step_size = self.hp.step_size
         self.bin = [1., 1., 1., 1.]  # Uniform distribution
@@ -28,15 +28,19 @@ class Analysis(object):
 
     def analyze(self, score):
         """The main function."""
-        self.update_state()
         self.clean_score(score)
         self.set_integrity()
         self.review()
         self.set_num_selections()
         self.set_search_radius()
+        self.update_state()
 
     def update_state(self):
         self.step +=1
+
+    def reset_state(self):
+        self.step = 0
+        self.top = torch.tensor(self.hp.initial_score, device='cuda')
 
     def clean_score(self, x):
         """Removes deformities in the score list such as NaNs."""
@@ -62,9 +66,10 @@ class Analysis(object):
             print ("Improved")
             self.increase_bin()
             self.improvement = True
-            self.top = self.score
             self.elapsed_steps = 0
-            #self.maintain_integrity()
+
+        if self.improved_abs():
+            self.top = self.score
 
     def improved_abs(self):
         """Calculate whether the score has satisfactorily improved or not based
@@ -73,9 +78,9 @@ class Analysis(object):
         # Make sure we are not in the very first iteration
         if self.step>0:
             if self.hp.minimizing:
-                return self.score <= self.top
+                return self.score < self.top
             else:
-                return self.score >= self.top
+                return self.score > self.top
         else:
             # Improved over the initial score
             return True

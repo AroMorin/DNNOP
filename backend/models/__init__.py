@@ -34,7 +34,7 @@ def make_pool(name, model_params={}):
     pool = []
     for _ in range(model_params["pool size"]):
         with torch.no_grad():
-            model = pick_model(name)
+            model = pick_model(name, model_params)
             model.cuda().to(model_params["precision"])
             init_weights(model, model_params["weight initialization scheme"])
             pool.append(model)

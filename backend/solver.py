@@ -29,7 +29,7 @@ class Solver(object):
         """In cases where training is needed."""
         print("Training regular solver \n")
         for iteration in range(iterations):
-            print("Iteration: %d\n" %iteration)
+            print("Iteration: %d" %iteration)
             self.alg.env.step()
             self.alg.optimize()
             self.current_iteration +=1

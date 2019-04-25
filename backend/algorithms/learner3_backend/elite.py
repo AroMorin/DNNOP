@@ -18,12 +18,10 @@ class Elite(object):
         self.replaced_elite = False  # Operating assumption
         if self.replace(score):
             self.replaced_elite = True
-            print ("------Setting new Elite-------")
             self.clone_model(model)
-            self.vector = vector
+            self.vector = vector.clone()
             self.inference = inference
             self.elite_score = score
-        print ("Elite Score: %f" %self.elite_score)
 
     def replace(self, score):
         """Assesses whether a new elite will replace the current one or not."""
@@ -38,7 +36,6 @@ class Elite(object):
         keep the elite outside of the pool. Only when backtracking do we insert
         the elite into the pool.
         """
-        print("Cloning elite model")
         self.model = copy.deepcopy(model)
 
     def get_elite(self, observation):

@@ -41,11 +41,11 @@ def main():
                     "minimum entropy": 0.1,
                     "patience": 3000,
                     "tolerance": 0.01,
-                    "learning rate": 0.05,
+                    "learning rate": 0.2,
                     "lambda": 5,
-                    "alpha": 0.05,
+                    "alpha": 0.0005,
                     "beta": 0.29,
-                    "step size": 0.2
+                    "step size": 0.1
                     }
     alg = algorithm_factory.make_alg("learner3", model, alg_params)
 

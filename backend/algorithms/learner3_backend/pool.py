@@ -78,7 +78,7 @@ class Pool(object):
         self.perturb.update_state(self.analyzer)
 
     def generate(self):
-        self.probes.generate(self.vector, self.perturb)
+        self.probes.generate(self.elite.vector, self.perturb)
         self.vector = self.probes.vector
         self.update_model(self.vector)
         #time.sleep(0.5)
@@ -128,6 +128,9 @@ class Pool(object):
             self.state_dict[key] = param_list[i]
 
     def print_state(self):
+        if self.elite.replace:
+            print ("------Setting new Elite-------")
+        print ("Elite Score: %f" %self.elite_score)
         print("Integrity: %f" %self.analyzer.integrity)
         print("Steps to Backtrack: %d" %(self.hp.patience-self.analyzer.elapsed_steps+2))
         print(self.analyzer.bin)

@@ -10,9 +10,9 @@ The optimizer object will own the pool.?
 from __future__ import division
 import torch
 import numpy as np
-from .learner2_backend.hyper_parameters import Hyper_Parameters
-from .learner2_backend.pool import Pool
-from .learner2_backend.optimizer import Optimizer
+from .learner3_backend.hyper_parameters import Hyper_Parameters
+from .learner3_backend.pool import Pool
+from .learner3_backend.optimizer import Optimizer
 import time
 
 class LEARNER3(object):
@@ -24,6 +24,8 @@ class LEARNER3(object):
         self.inference = None
         self.correct_test_preds = 0
         self.populations = False
+
+
 
     def set_environment(self, env):
         """Sets the environment attribute."""

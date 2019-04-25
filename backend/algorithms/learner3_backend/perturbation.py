@@ -23,9 +23,8 @@ class Perturbation(object):
         self.device = torch.device('cuda')
         self.p_vec = None
         self.p = None  # Index choice probability vector (P dist)
-        self.p_counter = 0
-        self.decr = 0.01  # decrease is 10% of probability value
-        self.incr = 0.1  # increase is 20% of probability value
+        self.decr = 0.1  # decrease is 10% of probability value
+        self.incr = 0.5  # increase is 20% of probability value
         self.variance = 0
 
     def init_perturbation(self, vec):
@@ -43,13 +42,9 @@ class Perturbation(object):
         self.size = int(analyzer.num_selections*self.vec_length)
         self.set_noise_dist(analyzer.search_radius)
         self.set_choices()
-        if 0 < self.p_counter:  # Reset p every 100 iterations
-            self.score = analyzer.score  # Acquire new state
-            self.update_p()
-            self.prev_score = self.score  # Update state
-            self.p_counter+=1
-        elif self.p_counter == 0:
-            self.p_counter+=1  # Need to step at least once
+        self.score = analyzer.score  # Acquire new state
+        self.update_p()
+        self.prev_score = self.score  # Update state
 
     def set_noise_dist(self, limit):
         """Determines the shape and magnitude of the noise."""

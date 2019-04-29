@@ -10,46 +10,46 @@ The pool object will contain the models under optimization.
 """
 from .elite import Elite
 from .probes import Probes
-from .analysis import Analysis
 from .memory import Memory
+from .analysis import Analysis
 from .perturbation import Perturbation
 
 import time
 import torch
 
-class Pool(object):
-    def __init__(self, model, hyper_params):
+class Converter(object):
+    def __init__(self, weights):
         self.model = model
         self.hp = hyper_params
-        self.analyzer = Analysis(hyper_params)
-        self.elite = Elite(hyper_params)
-        self.perturb = Perturbation(hyper_params)
-        self.probes = Probes(hyper_params)
-        self.mem = Memory(hyper_params)
         self.state_dict = {} # Weights dictionary
         self.vector = None # Parameter vector
         self.nb_layers = 0
         self.shapes = []
         self.num_elems = []
         self.keys = []
-        self.score = self.hp.initial_score
         self.set_state_dict()
         self.set_shapes(self.state_dict)
         self.set_vector()
-        self.perturb.init_perturbation(self.vector)
 
-    def set_state_dict(self):
-        """This method takes in the list of models, i.e. pool, and produces
-        a list of weight dictionaries.
+    def convert(self, weights, mode):
+        """It is always assumed that the dict and the vector belong to the same
+        model.
         """
-        self.state_dict = self.model.state_dict()
-        self.nb_layers = len(self.state_dict)
+        if mode == 'dict2vec':
+            self.set_shapes(weights)
+            self.set_vector()
+        elif mode == 'vec2dict':
+            pass
+        else:
+            print("Unknown conversion mode, exiting!")
+            exit()
 
     def set_shapes(self, dict):
         """We only call this method once since all the pool models are the same
         shape.
         Traverse the dictionary and acquire the shapes.
         """
+        self.nb_layers = len(dict)
         for i, key in enumerate(dict):
             x = dict[key]  # Get tensor of parameters
             self.shapes.append(x.size())
@@ -64,48 +64,6 @@ class Pool(object):
             x = dict[key]  # Get tensor of parameters
             mylist.append(x.reshape(x.numel()))  # Flatten tensor
         self.vector = torch.cat(mylist)  # Flatten all tensors in model
-
-    def prep_new_model(self, observation, label, inference, score):
-        """Prepares the new pool based on the scores of the current generation
-        and the results of the analysis (such as value of intergrity).
-        """
-        self.inference = inference
-        #self.mem.update_state(observation, label, inference, score)
-        self.analyzer.analyze(score)
-        self.score = self.analyzer.score
-        self.elite.set_elite(self.model, self.vector, self.inference, self.score)
-        # Define noise magnitude and scale
-        self.perturb.update_state(self.analyzer)
-
-    def generate(self):
-        self.probes.generate(self.elite.vector, self.perturb)
-        self.vector = self.probes.vector
-        self.update_model(self.vector)
-        #time.sleep(0.5)
-
-    def evaluate(self):
-        self.mem.evaluate_model(self.model)
-        if not self.mem.desirable:
-            self.analyzer.suspend_reality()
-            self.perturb.suspend_reality()
-        for i in range(100):
-            if not self.mem.desirable:
-                eval = torch.tensor(self.mem.eval, device='cuda', dtype=torch.float)
-                self.analyzer.analyze(eval)
-                #self.perturb.update_state(self.analyzer)
-                self.generate()
-                self.mem.evaluate_model(self.model)
-            else:
-                print("Expected: %f------------------------" %self.mem.eval)
-                return
-        self.analyzer.restore_reality()
-        self.perturb.restore_reality()
-
-    def prep_new_hypothesis(self, score):
-        self.analyzer.analyze(score)
-        # Define noise magnitude and scale
-        self.perturb.update_state(self.analyzer)
-
 
     def update_model(self, vector):
         """Updates the weight dictionaries of the models."""

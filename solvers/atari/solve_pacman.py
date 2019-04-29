@@ -53,7 +53,7 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.solve_env(iterations=120)
+    slv.solve_env(iterations=500)
     slv.save()
     slv.demonstrate_env()
 

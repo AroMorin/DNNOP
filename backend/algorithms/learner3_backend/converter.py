@@ -1,20 +1,6 @@
 """base class for pool
-Its functions are:
-1) Initializing the pool with the given random conditions
-2) Returning/Setting the pool
-3) Sorting the pool members according to their performance
-4) Maintain the pool composition of Elite, Anchors and Probes
-
-
 The pool object will contain the models under optimization.
 """
-from .elite import Elite
-from .probes import Probes
-from .memory import Memory
-from .analysis import Analysis
-from .perturbation import Perturbation
-
-import time
 import torch
 
 class Converter(object):
@@ -84,21 +70,6 @@ class Converter(object):
         """Updates the state dictionary class attribute."""
         for i, key in enumerate(self.keys):
             self.state_dict[key] = param_list[i]
-
-    def print_state(self):
-        if self.elite.replace:
-            print ("------Setting new Elite-------")
-        print ("Elite Score: %f" %self.elite_score)
-        print("Integrity: %f" %self.analyzer.integrity)
-        print("Steps to Backtrack: %d" %(self.hp.patience-self.analyzer.elapsed_steps+2))
-        print(self.analyzer.bin)
-        print(self.analyzer.step_size)
-        print("SR: %f" %self.analyzer.search_radius)
-        print("Selections(%%): %f" %self.analyzer.num_selections)
-        print("Selections: %d" %self.perturb.size)
-        print("P: ", self.perturb.p[0:10])
-        print("Variance(P): %f" %self.perturb.variance)
-
 
 
 

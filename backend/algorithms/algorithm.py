@@ -6,18 +6,16 @@ that is shared among all algorithms to justify having a class.
 
 Candidate for removal.
 """
+from .interrogator import Interrogator
+from .evaluator import Evaluator
 
-class Algorithm:
-    def __init__(self, params):
-        self.params = params
+class Algorithm(object):
+    def __init__(self):
+        self.interrogator = Interrogator()
+        self.evaluator = Evaluator(alg_params)
 
     def optimize(self):
         """Placeholder method for performing an optimization step."""
-        pass
-
-    def test(self):
-        """Placeholder method to perform tests/validation.
-        """
         pass
 
     def reset_state(self):
@@ -25,3 +23,27 @@ class Algorithm:
         state.
         """
         pass
+
+    def save_weights(self, models, path):
+        for i, model in enumerate(models):
+            fn = path+"model_"+str(i)+".pth"
+            torch.save(model.state_dict(), fn)
+
+    def save_elite_weights(self, model, path):
+        fn = path+"model_elite.pth"
+        torch.save(model.state_dict(), fn)
+
+    def achieved_target(self):
+        """Determines whether the algorithm achieved its target or not."""
+        best = self.optim.pool.elite.elite_score
+        if self.hyper_params.minimizing:
+            return best <= (self.hyper_params.target + self.hyper_params.tolerance)
+        else:
+            return best >= (self.hyper_params.target - self.hyper_params.tolerance)
+
+
+
+
+
+
+#

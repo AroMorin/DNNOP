@@ -34,12 +34,12 @@ class LEARNER3(Algorithm):
 
     def test(self):
         """This is a method for testing."""
-        assert self.env.test_data is not None  # Sanity check
         self.interrogator.get_inference(self.model, test=True)
-        self.evaluator.calculate_correct_predictions(self.interrogator.inference,
-                                                    test=True, acc=True)
-        if self.env.loss:
-            self.evaluator.calculate_loss(self.interrogator.inference, test=True)
+        self.evaluator.evaluate(self.interrogator.inference, test=True)
+        #self.evaluator.calculate_correct_predictions(self.interrogator.inference,
+        #                                            test=True, acc=True)
+        #if self.env.loss:
+        #    self.evaluator.calculate_loss(self.interrogator.inference, test=True)
 
 
     def print_test_accuracy(self):

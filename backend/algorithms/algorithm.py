@@ -7,12 +7,10 @@ that is shared among all algorithms to justify having a class.
 Candidate for removal.
 """
 from .interrogator import Interrogator
-from .evaluator import Evaluator
 
 class Algorithm(object):
     def __init__(self):
         self.interrogator = Interrogator()
-        self.evaluator = Evaluator()
 
     def optimize(self):
         """Placeholder method for performing an optimization step."""

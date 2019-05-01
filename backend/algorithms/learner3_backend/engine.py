@@ -76,32 +76,7 @@ class Engine(object):
         # Define noise magnitude and scale
         self.perturb.update_state(self.analyzer)
 
-    def update_model(self, vector):
-        """Updates the weight dictionaries of the models."""
-        param_list = self.vec_to_tensor(vector)  # Restore shape
-        self.update_dict(param_list)
-        # Update model's state dictionary
-        self.model.load_state_dict(self.state_dict)
 
-    def update_dict(self, param_list):
-        """Updates the state dictionary class attribute."""
-        for i, key in enumerate(self.keys):
-            self.state_dict[key] = param_list[i]
-
-    def print_state(self):
-        print("Score: %f" %self.score.item())
-        if self.elite.replace:
-            print ("------Setting new Elite-------")
-        print ("Elite Score: %f" %self.elite_score)
-        print("Integrity: %f" %self.analyzer.integrity)
-        print("Steps to Backtrack: %d" %(self.hp.patience-self.analyzer.elapsed_steps+2))
-        print(self.analyzer.bin)
-        print(self.analyzer.step_size)
-        print("SR: %f" %self.analyzer.search_radius)
-        print("Selections(%%): %f" %self.analyzer.num_selections)
-        print("Selections: %d" %self.perturb.size)
-        print("P: ", self.perturb.p[0:10])
-        print("Variance(P): %f" %self.perturb.variance)
 
 
 

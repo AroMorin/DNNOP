@@ -36,22 +36,3 @@ class Interrogator(object):
         else:
             x = [a.item() for a in self.inference]
         print("Inference: ", x)
-
-    def test(self):
-        """This is a method for testing."""
-        assert self.env.test_data is not None  # Sanity check
-        self.get_inference(test=True)
-        self.optim.calculate_correct_predictions(self.inference, test=True, acc=True)
-        if self.env.loss:
-            self.optim.calculate_loss(self.inference, test=True)
-
-    def print_test_accuracy(self):
-        """Prints the accuracy figure for the test/validation case/set."""
-        test_acc = self.optim.test_acc
-        if self.env.loss:
-            test_loss = self.optim.test_loss  # Assuming minizming loss
-            test_loss /= len(self.env.test_data)
-            print('Test set: Loss: {:.4f}, Accuracy: ({:.0f}%)\n'.format(test_loss,
-                                                                test_acc))
-        else:
-            print('Test set: Accuracy: ({:.0f}%)\n'.format(test_acc))

@@ -34,6 +34,8 @@ class Evaluator(object):
             exit()
 
     def evaluate(self, inference, test=False):
+        if test:
+            assert self.env.test_data is not None  # Sanity check
         if self.scoring == "loss":
             self.calculate_loss(inference, test)
         elif self.scoring == "accuracy":
@@ -45,7 +47,6 @@ class Evaluator(object):
 
     def calculate_loss(self, inference, test=False):
         """This method calculates the loss."""
-        self.inference = inference
         if self.env.loss_type == 'NLL loss':
             if not test:
                 self.train_loss = F.nll_loss(inference, self.env.labels)
@@ -61,7 +62,6 @@ class Evaluator(object):
         """Calculates the number of correct predictions/inferences made by the
         neural network.
         """
-        self.inference = inference
         if not test:
             # Training
             # Correct predictions on all test data for a single model
@@ -93,7 +93,6 @@ class Evaluator(object):
 
     def calculate_score(self, inference):
         """Calculates the scores given the network inferences."""
-        self.inference = inference
         self.score = self.env.evaluate(inference)
 
     def set_score(self, score):

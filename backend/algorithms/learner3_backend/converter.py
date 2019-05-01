@@ -6,7 +6,6 @@ import torch
 class Weights(object):
     def __init__(self, weights):
         self.current = weights # Weights dictionary
-        self.new = weights # Weights dictionary
         self.nb_layers = 0
         self.shapes = []
         self.num_elems = []

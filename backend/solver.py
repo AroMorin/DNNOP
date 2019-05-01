@@ -9,6 +9,7 @@ I'm still torn between using a class or just using a script.
 
 import torch
 import time
+from .evaluator import Evaluator
 
 class Solver(object):
     """This class makes absolute sense because there are many types of training
@@ -20,6 +21,7 @@ class Solver(object):
         print("Creating Solver")
         self.env = env
         self.alg = algorithm
+        self.evaluator = Evaluator()
         self.current_iteration = 0
         self.current_batch = 0
         self.current_step = 0

@@ -29,16 +29,19 @@ class Evaluator(object):
             self.scoring = "score"
         elif self.env.error:
             self.scoring = "error"
-
-    def evaluate(self):
-        if self.scoring == "loss":
-            self.optim.calculate_loss(self.inference)
-        elif self.scoring == "accuracy":
-            self.optim.calculate_correct_predictions(self.inference, acc=True)
-        elif self.scoring == "score" or self.scoring == "error":
-            self.optim.calculate_score(self.inference)
         else:
-            self.optim.set_score(self.inference)
+            print("Unknown scoring method, exiting!")
+            exit()
+
+    def evaluate(self, inference, test=False):
+        if self.scoring == "loss":
+            self.calculate_loss(inference, test)
+        elif self.scoring == "accuracy":
+            self.calculate_correct_predictions(inference, test, acc=True)
+        elif self.scoring == "score" or self.scoring == "error":
+            self.calculate_score(inference, test)
+        else:
+            self.set_score(inference, test)
 
     def calculate_loss(self, inference, test=False):
         """This method calculates the loss."""
@@ -102,13 +105,6 @@ class Evaluator(object):
         self.train_acc = 0
         self.test_loss = 1
         self.test_acc = 0
-
-    def print_score(self):
-        """This method takes in the scores, feeds it to the pool so that the
-        selection and update process can occur.
-        The pool thus updates itself.
-        """
-        print("Score: %f" %self.score.item())
 
 
 

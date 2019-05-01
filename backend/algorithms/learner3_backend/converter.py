@@ -3,29 +3,24 @@ The pool object will contain the models under optimization.
 """
 import torch
 
-class Converter(object):
+class Weights(object):
     def __init__(self, weights):
-        self.model = model
-        self.hp = hyper_params
-        self.state_dict = {} # Weights dictionary
-        self.vector = None # Parameter vector
+        self.current = weights # Weights dictionary
+        self.new = weights # Weights dictionary
         self.nb_layers = 0
         self.shapes = []
         self.num_elems = []
         self.keys = []
-        self.set_state_dict()
+        self.vector = None
         self.set_shapes(self.state_dict)
         self.set_vector()
 
-    def convert(self, weights, mode):
+    def update(self, weights, mode='vec2dict'):
         """It is always assumed that the dict and the vector belong to the same
         model.
         """
-        if mode == 'dict2vec':
-            self.set_shapes(weights)
-            self.set_vector()
-        elif mode == 'vec2dict':
-            pass
+        if mode == 'vec2dict':
+            self.vec_to_dict(weights)
         else:
             print("Unknown conversion mode, exiting!")
             exit()
@@ -58,7 +53,12 @@ class Converter(object):
         # Update model's state dictionary
         self.model.load_state_dict(self.state_dict)
 
-    def vec_to_tensor(self, vec):
+    def vec_to_dict(self, vector):
+        """Updates the weight dictionaries of the models."""
+        param_list = self.vec_to_list(vector)  # Restore shape
+        self.update_dict(param_list)
+
+    def vec_to_list(self, vec):
         """Changes a vector into a tensor using the original network shapes."""
         a = vec.split(self.num_elems)  # Split parameter tensors
         b = [None]*self.nb_layers

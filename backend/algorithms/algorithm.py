@@ -12,7 +12,7 @@ from .evaluator import Evaluator
 class Algorithm(object):
     def __init__(self):
         self.interrogator = Interrogator()
-        self.evaluator = Evaluator(alg_params)
+        self.evaluator = Evaluator()
 
     def optimize(self):
         """Placeholder method for performing an optimization step."""

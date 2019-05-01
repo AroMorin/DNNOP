@@ -34,15 +34,6 @@ class LEARNER3(Algorithm):
         self.evaluator.print_score()
         self.optim.step()
 
-    def step(self):
-        self.pool.prep_new_model(self.env.observation, self.env.labels,
-                                    self.inference, self.score)
-        self.pool.generate()
-        #self.pool.evaluate()
-        #self.pool.print_state()
-
-
-
 
 
 

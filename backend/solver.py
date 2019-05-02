@@ -12,6 +12,8 @@ import time
 from .evaluator import Evaluator
 from .interrogator import Interrogator
 from solvers.rl_solvers import RL_Solver
+from solvers.dataset_solvers import Dataset_Solver
+from solvers.func_solvers import Func_Solver
 
 class Solver(object):
     """This class makes absolute sense because there are many types of training
@@ -21,115 +23,14 @@ class Solver(object):
     """
     def __init__(self, env, algorithm):
         print("Creating Solver")
-        self.rl_solver = RL_Solver()
         self.env = env
         self.alg = algorithm
         self.evaluator = Evaluator()
         self.interrogator = Interrogator()
+        self.rl_solver = RL_Solver()
         self.current_iteration = 0
         self.current_batch = 0
-        self.current_step = 0
         self.alg.set_environment(self.env)
-
-    def solve(self, iterations):
-        """In cases where training is needed."""
-        print("Training regular solver \n")
-        for iteration in range(iterations):
-            print("Iteration: %d" %iteration)
-            self.env.step()
-            self.interrogator.set_inference(self.alg.model)
-            self.evaluator.evaluate(self.interrogator.inference)
-            self.alg.step(self.evaluator.score)
-            self.current_iteration +=1
-            print("\n")
-            if self.alg.achieved_target():
-                print ("Achieved/exceeded target")
-                break # Terminate optimization
-
-    def solve_and_plot(self, iterations):
-        """In cases where training is needed."""
-        print("Training regular solver \n")
-        for iteration in range(iterations):
-            print("Iteration: %d\n" %iteration)
-            self.env.step()
-            self.alg.optimize()
-            if self.env.plot:
-                self.env.make_plot(self.alg)
-            self.current_iteration +=1
-            print("\n")
-            if self.alg.achieved_target():
-                print ("Achieved/exceeded target")
-                break # Terminate optimization
-
-    def batch_training(self, iterations):
-        """In cases where batch training is needed."""
-        batches = self.env.nb_batches
-        self.reset_state()
-        for _ in range(iterations):
-            for __ in range(batches):
-                self.env.step()
-                self.alg.optimize()
-                self.current_iteration +=1
-
-    def train_dataset_with_validation(self, iterations):
-        """In cases where a dataset is being trained with a validation component
-        such as MNIST.
-        Note: the names of the functions called here have to be universal among
-        algorithms. This ensures the desired "plug n play" functionality.
-        """
-        print("Training model(s) on a dataset w/ validation")
-        self.env.step()
-        for _ in range(iterations):
-            self.current_iteration += 1
-            print ("Iteration %d" %self.current_iteration)
-            self.alg.optimize()
-            if self.alg.achieved_target():
-                print ("Achieved/exceeded target")
-                break # Terminate optimization
-        self.alg.test()
-        self.alg.print_test_accuracy()
-
-    def batch_train_dataset_with_validation(self, iterations):
-        """In cases where a dataset is being trained with a validation component
-        such as MNIST.
-        """
-        print("Mini-batch training model(s) on a dataset w/ validation")
-        # Local variable definition
-        batches = self.env.nb_batches
-
-        # Process
-        for _ in range(iterations):
-            print ("Iteration %d" %self.current_iteration)
-            print("Batch %d" %self.current_batch)
-            self.env.step()
-            self.alg.optimize()
-            self.current_batch +=1
-            self.current_iteration += 1
-        self.alg.test()
-        self.alg.print_test_accuracy()
-
-    def repeated_batch_train_dataset_with_validation(self, iterations, reps):
-        """In cases where a dataset is being trained with a validation component
-        such as MNIST.
-        """
-        print("Mini-batch training model(s) on a dataset w/ validation")
-        # Local variable definition
-        batches = self.env.nb_batches
-        self.reset_state()
-        # Process
-        for _ in range(iterations):
-            print ("Iteration %d" %self.current_iteration)
-            self.env.step()
-            self.current_step = 0  # Reset step count
-            for ___ in range(reps):
-                print("Step %d" %self.current_step)
-                self.alg.optimize()
-                self.current_step += 1
-            self.alg.pool.elite.reset_state()
-            self.alg.pool.analyzer.reset_state()
-            self.current_iteration += 1
-        self.alg.test()
-        self.alg.print_test_accuracy()
 
     def reset_state(self):
         """This is probably in cases of RL and such where an "envrionment"
@@ -137,7 +38,6 @@ class Solver(object):
         """
         self.current_iteration = 0
         self.current_batch = 0
-        self.current_step = 0
 
     def save(self, path=''):
         """Only works with my algorithms, not with SGD."""
@@ -160,3 +60,13 @@ class Solver(object):
             self.alg.env.step(action)
             time.sleep(0.05)
         self.alg.env.close()
+
+
+
+
+
+
+
+
+
+#

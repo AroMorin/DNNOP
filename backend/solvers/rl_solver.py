@@ -9,8 +9,6 @@ I'm still torn between using a class or just using a script.
 
 import torch
 import time
-from .evaluator import Evaluator
-from .interrogator import Interrogator
 
 class RL_Solver(object):
     """This class makes absolute sense because there are many types of training
@@ -23,7 +21,6 @@ class RL_Solver(object):
         self.evaluator = Evaluator()
         self.interrogator = Interrogator()
         self.current_iteration = 0
-        self.current_step = 0
 
     def solve(self, iterations):
         """In cases where training is needed."""
@@ -60,12 +57,12 @@ class RL_Solver(object):
         while not self.env.done:
             self.forward()
 
-    def roll_and_render(self):
+    def roll_and_render(self, delay=0.05):
         self.env.reset_state()
         while not self.env.done:
-            if self.env.rendering:
-                self.env.render()
+            self.env.render()
             self.forward()
+            time.sleep(delay)
 
     def forward(self):
         self.interrogator.set_inference(self.alg.model)
@@ -73,35 +70,17 @@ class RL_Solver(object):
         self.env.step(action)
 
     def backward(self):
-        self.evaluator.evaluate()
+        self.evaluator.evaluate(self.env, self.interrogator.inference)
         self.alg.step()
-
 
     def reset_state(self):
         """This is probably in cases of RL and such where an "envrionment"
         can be reset.
         """
         self.current_iteration = 0
-        self.current_step = 0
-
-    def save(self, path=''):
-        """Only works with my algorithms, not with SGD."""
-        fn = path+"model_elite.pth"
-        torch.save(self.alg.pool.elite.model.state_dict(), fn)
-
-    def load(self, path):
-        """Only works with my algorithms, not with SGD."""
-        fn = path+"model_elite.pth"
-        self.alg.pool.elite.model.load_state_dict(torch.load(fn))
 
     def demonstrate_env(self):
         """In cases where training is needed."""
-        self.alg.env.reset_state()
         self.alg.pool.model = self.alg.pool.elite.model
-        while not self.alg.env.done:
-            self.alg.env.render()
-            self.alg.get_inference()
-            action = self.alg.inference
-            self.alg.env.step(action)
-            time.sleep(0.05)
-        self.alg.env.close()
+        self.roll_and_render()
+        self.env.close()

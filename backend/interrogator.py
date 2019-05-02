@@ -10,7 +10,7 @@ class Interrogator(object):
     def __init__(self):
         self.inference = None
 
-    def set_inference(self, model, data, test=False):
+    def set_inference(self, model, env, test=False):
         """This method runs inference on the given environment using the models.
         I'm not sure, but I think there could be many ways to run inference. For
         that reason, I designate this function, to be a single point of contact

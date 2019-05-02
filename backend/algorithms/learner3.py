@@ -28,30 +28,7 @@ class LEARNER3(Algorithm):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        self.interrogator.set_inference(self.model)
-        self.evaluator.evaluate(self.interrogator.inference)
         self.optim.step()
-
-    def test(self):
-        """This is a method for testing."""
-        self.interrogator.get_inference(self.model, test=True)
-        self.evaluator.evaluate(self.interrogator.inference, test=True)
-        #self.evaluator.calculate_correct_predictions(self.interrogator.inference,
-        #                                            test=True, acc=True)
-        #if self.env.loss:
-        #    self.evaluator.calculate_loss(self.interrogator.inference, test=True)
-
-
-    def print_test_accuracy(self):
-        """Prints the accuracy figure for the test/validation case/set."""
-        test_acc = self.optim.test_acc
-        if self.env.loss:
-            test_loss = self.optim.test_loss  # Assuming minizming loss
-            test_loss /= len(self.env.test_data)
-            print('Test set: Loss: {:.4f}, Accuracy: ({:.0f}%)\n'.format(test_loss,
-                                                                test_acc))
-        else:
-            print('Test set: Accuracy: ({:.0f}%)\n'.format(test_acc))
 
     def print_state(self):
         print("Score: %f" %self.score.item())

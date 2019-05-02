@@ -50,7 +50,12 @@ def main():
     alg = algorithm_factory.make_alg("learner3", model, alg_params)
 
     # Make a solver using the environment and algorithm objects
-    slv = Solver(env, alg)
+    slv_params = {
+                    "problem type": "RL",
+                    "environment": env,
+                    "algorithm": alg
+                    }
+    slv = Solver(slv_params)
 
     # Use solver to solve the problem
     slv.rl_solvers.solve_env(iterations=500)

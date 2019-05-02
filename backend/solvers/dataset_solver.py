@@ -1,5 +1,8 @@
-"""Base Class for a Solver. This class contains the different methods that
+"""Base Class for a Solver. This class contains the different methods that.
 """
+
+from .evaluator import Evaluator
+from .interrogator import Interrogator
 
 import torch
 import time
@@ -8,15 +11,17 @@ class Dataset_Solver(object):
     """This class makes absolute sense because there are many types of training
     the user -which is the ultimate goal, complete transparency-.
     """
-    def __init__(self, env, algorithm):
+    def __init__(self, slv_params):
         print("Creating Solver")
+        self.env = slv_params['environment']
+        self.alg = slv_params['algorithm']
         self.current_iteration = 0
+        self.evaluator = Evaluator()
+        self.interrogator = Interrogator()
 
     def train_dataset_with_validation(self, iterations):
         """In cases where a dataset is being trained with a validation component
         such as MNIST.
-        Note: the names of the functions called here have to be universal among
-        algorithms. This ensures the desired "plug n play" functionality.
         """
         print("Training model(s) on a dataset w/ validation")
         self.env.step()

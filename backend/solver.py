@@ -9,11 +9,9 @@ I'm still torn between using a class or just using a script.
 
 import torch
 import time
-from .evaluator import Evaluator
-from .interrogator import Interrogator
 from solvers.rl_solvers import RL_Solver
-from solvers.dataset_solvers import Dataset_Solver
 from solvers.func_solvers import Func_Solver
+from solvers.dataset_solvers import Dataset_Solver
 
 class Solver(object):
     """This class makes absolute sense because there are many types of training
@@ -21,45 +19,40 @@ class Solver(object):
     include all instances of such training routines. Of course, transparent to
     the user -which is the ultimate goal, complete transparency-.
     """
-    def __init__(self, env, algorithm):
+    def __init__(self, slv_params):
         print("Creating Solver")
-        self.env = env
-        self.alg = algorithm
-        self.evaluator = Evaluator()
-        self.interrogator = Interrogator()
-        self.rl_solver = RL_Solver()
-        self.current_iteration = 0
-        self.current_batch = 0
-        self.alg.set_environment(self.env)
+        slv_params = self.ingest_params(slv_params)
+        self.init_solver(slv_params)
 
-    def reset_state(self):
-        """This is probably in cases of RL and such where an "envrionment"
-        can be reset.
-        """
-        self.current_iteration = 0
-        self.current_batch = 0
+    def ingest_params(self, slv_params):
+        default_params = {
+                            "problem type": '',
+                            'environment': None,
+                            'algorithm': None
+                            }
+        default_params.update(slv_params)
+        return default_params
+
+    def init_solver(self, slv_params):
+        if slv_params['problem type'] == 'dataset':
+            self.dataset_solver = Dataset_Solver(slv_params)
+        elif slv_params['problem type'] == 'RL':
+            self.rl_solver = RL_Solver(slv_params)
+        elif slv_params['problem type'] == 'function':
+            self.func_solver = Func_Solver(slv_params)
+        else:
+            print("Unknown solver requested, exiting!")
+            exit()
 
     def save(self, path=''):
         """Only works with my algorithms, not with SGD."""
         fn = path+"model_elite.pth"
-        torch.save(self.alg.pool.elite.model.state_dict(), fn)
+        torch.save(self.alg.model.state_dict(), fn)
 
     def load(self, path):
         """Only works with my algorithms, not with SGD."""
         fn = path+"model_elite.pth"
-        self.alg.pool.elite.model.load_state_dict(torch.load(fn))
-
-    def demonstrate_env(self):
-        """In cases where training is needed."""
-        self.alg.env.reset_state()
-        self.alg.pool.model = self.alg.pool.elite.model
-        while not self.alg.env.done:
-            self.alg.env.render()
-            self.alg.get_inference()
-            action = self.alg.inference
-            self.alg.env.step(action)
-            time.sleep(0.05)
-        self.alg.env.close()
+        self.alg.model.load_state_dict(torch.load(fn))
 
 
 

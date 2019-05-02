@@ -7,6 +7,9 @@ and use its methods.
 I'm still torn between using a class or just using a script.
 """
 
+from .evaluator import Evaluator
+from .interrogator import Interrogator
+
 import torch
 import time
 
@@ -16,8 +19,10 @@ class RL_Solver(object):
     include all instances of such training routines. Of course, transparent to
     the user -which is the ultimate goal, complete transparency-.
     """
-    def __init__(self, env, algorithm):
+    def __init__(self, slv_params):
         print("Creating Solver")
+        self.env = slv_params['environment']
+        self.alg = slv_params['algorithm']
         self.evaluator = Evaluator()
         self.interrogator = Interrogator()
         self.current_iteration = 0

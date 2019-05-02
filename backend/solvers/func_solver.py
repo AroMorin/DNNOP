@@ -1,6 +1,9 @@
 """Base Class for a Solver. This class contains the different methods that
 """
 
+from .evaluator import Evaluator
+from .interrogator import Interrogator
+
 import torch
 import time
 
@@ -8,9 +11,13 @@ class Func_Solver(object):
     """This class makes absolute sense because there are many types of training
     the user -which is the ultimate goal, complete transparency-.
     """
-    def __init__(self, env, algorithm):
+    def __init__(self, slv_params):
         print("Creating Solver")
+        self.env = slv_params['environment']
+        self.alg = slv_params['algorithm']
         self.current_iteration = 0
+        self.evaluator = Evaluator()
+        self.interrogator = Interrogator()
 
     def solve(self, iterations):
         """In cases where training is needed."""

@@ -24,11 +24,13 @@ class LEARNER3(Algorithm):
         self.populations = False
         self.model = model
 
-    def optimize(self):
+    def optimize(self, observation, inference, score):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        self.optim.step()
+        self.engine.elite.set_elite(self.model, self.engine.weights.vector, inference, score)
+        self.engine.prep_new_model(observation, inference, score)
+        self.engine.generate()
 
     def print_state(self):
         print("Score: %f" %self.score.item())

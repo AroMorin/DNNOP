@@ -29,29 +29,19 @@ class Engine(object):
         self.weights = Weights(self.model.state_dict())
         self.perturb.init_perturbation(self.vector)
 
-    def step(self):
-        self.prep_new_model(self.env.observation, self.env.labels,
-                                    self.inference, self.score)
-        self.generate()
-        #self.mem()
-
-    def prep_new_model(self, observation, label, inference, score):
+    def prep_new_model(self, observation, inference, score):
         """Prepares the new pool based on the scores of the current generation
         and the results of the analysis (such as value of intergrity).
         """
-        self.inference = inference
         #self.mem.update_state(observation, label, inference, score)
         self.analyzer.analyze(score)
-        self.score = self.analyzer.score
-        self.elite.set_elite(self.model, self.vector, self.inference, self.score)
         # Define noise magnitude and scale
         self.perturb.update_state(self.analyzer)
 
     def generate(self):
         self.probes.generate(self.elite.vector, self.perturb)
-        self.vector = self.probes.vector
-        self.update_model(self.vector)
-        #time.sleep(0.5)
+        self.weights.set_vector(self.probes.vector)
+        self.weights.update_model()
 
     def evaluate(self):
         self.mem.evaluate_model(self.model)

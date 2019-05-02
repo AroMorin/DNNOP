@@ -20,9 +20,6 @@ def main():
                     "render": False,
                     "RAM": False
                     }
-    env = env_factory.make_env("openai", game, env_params)
-
-    # Make a model
     model_params = {
                     "precision": precision,
                     "weight initialization scheme": "Default",
@@ -32,9 +29,6 @@ def main():
                     "in features": 128,
                     "in channels": 3
                     }
-    model = model_factory.make_model("DQN model", model_params)
-
-    # Make an algorithm --algorithm needs to take charge of the pool--
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
@@ -47,14 +41,15 @@ def main():
                     "beta": 0.29,
                     "step size": 0.1
                     }
-    alg = algorithm_factory.make_alg("learner3", model, alg_params)
-
-    # Make a solver using the environment and algorithm objects
     slv_params = {
                     "problem type": "RL",
                     "environment": env,
                     "algorithm": alg
                     }
+
+    env = env_factory.make_env("openai", game, env_params)
+    model = model_factory.make_model("DQN model", model_params)
+    alg = algorithm_factory.make_alg("learner3", model, alg_params)
     slv = Solver(slv_params)
 
     # Use solver to solve the problem

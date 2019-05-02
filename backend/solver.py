@@ -10,6 +10,8 @@ I'm still torn between using a class or just using a script.
 import torch
 import time
 from .evaluator import Evaluator
+from .interrogator import Interrogator
+from solvers.rl_solvers import RL_Solver
 
 class Solver(object):
     """This class makes absolute sense because there are many types of training
@@ -19,9 +21,11 @@ class Solver(object):
     """
     def __init__(self, env, algorithm):
         print("Creating Solver")
+        self.rl_solver = RL_Solver()
         self.env = env
         self.alg = algorithm
         self.evaluator = Evaluator()
+        self.interrogator = Interrogator()
         self.current_iteration = 0
         self.current_batch = 0
         self.current_step = 0
@@ -32,34 +36,15 @@ class Solver(object):
         print("Training regular solver \n")
         for iteration in range(iterations):
             print("Iteration: %d" %iteration)
-            self.alg.env.step()
-            self.alg.optimize()
+            self.env.step()
+            self.interrogator.set_inference(self.alg.model)
+            self.evaluator.evaluate(self.interrogator.inference)
+            self.alg.step(self.evaluator.score)
             self.current_iteration +=1
             print("\n")
             if self.alg.achieved_target():
                 print ("Achieved/exceeded target")
                 break # Terminate optimization
-
-    def solve_env(self, iterations):
-        """In cases where training is needed."""
-        print("Training OpenAI environment solver \n")
-        for iteration in range(iterations):
-            print("Iteration: %d\n" %iteration)
-            print("New Episode")
-            self.alg.env.reset_state()
-            while not self.alg.env.done:
-                if self.alg.env.rendering:
-                    self.alg.env.render()
-                self.alg.get_inference()
-                action = self.alg.inference
-                self.alg.env.step(action)
-            self.alg.optimize()
-            self.current_iteration +=1
-            print("\n")
-            if self.alg.achieved_target():
-                print ("Achieved/exceeded target")
-                break # Terminate optimization
-        self.alg.env.close()
 
     def solve_and_plot(self, iterations):
         """In cases where training is needed."""

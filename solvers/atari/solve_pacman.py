@@ -53,9 +53,9 @@ def main():
     slv = Solver(env, alg)
 
     # Use solver to solve the problem
-    slv.solve_env(iterations=500)
+    slv.rl_solvers.solve_env(iterations=500)
     slv.save()
-    slv.demonstrate_env()
+    slv.rl_solvers.demonstrate_env()
 
 if __name__ == '__main__':
     main()

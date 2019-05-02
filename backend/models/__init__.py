@@ -18,7 +18,11 @@ import numpy as np
 def make_model(name, model_params={}):
     """Makes a single model."""
     model_params = ingest_params(model_params)
-    model = pick_model(name, model_params)
+    if model_params["grad"]:
+        model = pick_model(name, model_params)
+    else:
+        with torch.no_grad():
+            model = pick_model(name, model_params)
     model.cuda().to(model_params["precision"])
     init_weights(model, model_params["weight initialization scheme"])
     if model_params["pre-trained"]:
@@ -50,7 +54,8 @@ def ingest_params(user_params):
                     "precision": torch.float,
                     "weight initialization scheme": "Default",
                     "pre-trained": False,
-                    "elite path": 'C:/model_elite.pth'
+                    "elite path": 'C:/model_elite.pth',
+                    "grad": False
                     }
     default_params.update(user_params)  # Override with user choices
     return default_params

@@ -10,7 +10,7 @@ class Interrogator(object):
     def __init__(self):
         self.inference = None
 
-    def set_inference(self, model, test=False):
+    def set_inference(self, model, data, test=False):
         """This method runs inference on the given environment using the models.
         I'm not sure, but I think there could be many ways to run inference. For
         that reason, I designate this function, to be a single point of contact
@@ -19,11 +19,11 @@ class Interrogator(object):
         with torch.no_grad():
             if not test:
                 # Training
-                self.inference = model(self.env.observation)
+                self.inference = model(env.observation)
             else:
                 # Testing
                 model.eval()  # Turn on evaluation mode
-                self.inference = model(self.env.test_data)
+                self.inference = model(env.test_data)
 
     def print_inference(self):
         """Prints the inference of the neural networks. Attempts to extract

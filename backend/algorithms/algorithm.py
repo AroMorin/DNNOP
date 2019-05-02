@@ -6,11 +6,10 @@ that is shared among all algorithms to justify having a class.
 
 Candidate for removal.
 """
-from .interrogator import Interrogator
 
 class Algorithm(object):
     def __init__(self):
-        self.interrogator = Interrogator()
+        pass
 
     def optimize(self):
         """Placeholder method for performing an optimization step."""

@@ -81,10 +81,12 @@ class Dataset_Solver(Solver):
         self.print_test_accuracy()
 
     def test(self):
-        self.interrogator.get_inference(self.alg.model, self.env, test=True)
-        self.evaluator.calculate_correct_predictions(self.interrogator.inference,
+        self.interrogator.set_inference(self.alg.model, self.env, test=True)
+        self.evaluator.calculate_correct_predictions(self.env,
+                                                    self.interrogator.inference,
                                                      test=True, acc=True)
-        self.evaluator.calculate_loss(self.interrogator.inference, test=True)
+        self.evaluator.calculate_loss(self.env, self.interrogator.inference,
+                                    test=True)
 
     def print_test_accuracy(self):
         """Prints the accuracy figure for the test/validation case/set."""

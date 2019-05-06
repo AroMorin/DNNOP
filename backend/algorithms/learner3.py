@@ -33,7 +33,7 @@ class LEARNER3(Algorithm):
         self.top_score = self.engine.elite.elite_score
 
     def print_state(self):
-        if self.engine.elite.replace:
+        if self.engine.elite.replaced_elite:
             print ("------Setting new Elite-------")
         if self.engine.integrity.improvement:
             print("Improved!")
@@ -44,7 +44,7 @@ class LEARNER3(Algorithm):
         print("SR: %f" %self.engine.noise.search_radius)
         print("Selections: %d" %self.engine.noise.num_selections)
         print("P: ", self.engine.selection_p.p[0:10])
-        print("Variance(P): %f" %self.engine.selection_p.variance)
+        print("Variance(P): %f\n" %self.engine.selection_p.variance)
 
 
 

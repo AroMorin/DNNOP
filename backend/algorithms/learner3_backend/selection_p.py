@@ -7,8 +7,6 @@ import torch
 class Selection_P(object):
     def __init__(self, hp, length):
         self.hp = hp
-        self.score = self.hp.initial_score
-        self.prev_score = self.hp.initial_score
         self.decr = 0.1  # decrease is 10% of probability value
         self.incr = 0.5  # increase is 20% of probability value
         self.variance = 0
@@ -18,15 +16,13 @@ class Selection_P(object):
         self.p = torch.nn.functional.softmax(self.uniform_vec, dim=0)
         self.choices = []
 
-    def update_state(self, score, choices):
-        self.score = score  # Acquire new state
+    def update_state(self, improved, choices):
         self.choices = choices
-        self.update_p()
-        self.prev_score = score  # Update state
+        self.update_p(improved)
 
-    def update_p(self):
+    def update_p(self, improved):
         """Updates the probability distribution."""
-        if self.improved():
+        if improved:
             self.increase_p()
         else:
             self.decrease_p()
@@ -34,12 +30,6 @@ class Selection_P(object):
         self.variance = np.var(self.p_vec.cpu().numpy())
         self.check_var()
         self.check_p()
-
-    def improved(self):
-        if self.hp.minimizing:
-            return self.score < self.prev_score
-        else:
-            return self.score > self.prev_score
 
     def increase_p(self):
         """This method decreases p at "choices" locations."""

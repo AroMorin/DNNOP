@@ -24,7 +24,6 @@ def main():
                     }
     env = env_factory.make_env("openai", game, env_params)
 
-
     model_params = {
                     "precision": precision,
                     "weight initialization scheme": "Default",
@@ -36,7 +35,6 @@ def main():
                     }
     model = model_factory.make_model("DQN model", model_params)
 
-
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
@@ -46,7 +44,7 @@ def main():
                     "lambda": 5,
                     "alpha": 0.0005,
                     "beta": 0.29,
-                    "step size": 0.1
+                    "max steps": 50
                     }
     alg = algorithm_factory.make_alg("learner3", model, alg_params)
 

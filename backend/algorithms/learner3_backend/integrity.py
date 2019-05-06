@@ -8,7 +8,7 @@ import time
 class Integrity(object):
     def __init__(self, hyper_params):
         self.hp = hyper_params
-        self.step_size = Step_size()
+        self.step_size = Step_size(hyper_params)
         self.top = torch.tensor(self.hp.initial_score, device='cuda')
         self.score = torch.tensor(self.hp.initial_score, device='cuda')
         self.prev_score = torch.tensor(self.hp.initial_score, device='cuda')
@@ -26,12 +26,12 @@ class Integrity(object):
         if not self.improved():
             self.improvement = False
             self.reduce_integrity()
-            self.step_size.decrease_bin()
+            self.step_size.decrease_bin(self.value)
 
         else:  # Improved
             self.improvement = True
             self.maintain_integrity()
-            self.step_size.increase_bin()
+            self.step_size.increase_bin(self.value)
 
         if self.improved_abs():
             self.top = self.score

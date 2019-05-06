@@ -24,7 +24,7 @@ class Engine(object):
         """Prepares the new pool based on the scores of the current generation
         and the results of the analysis (such as value of intergrity).
         """
-        self.selection_p.update_state(score, self.noise.choices)
+        self.selection_p.update_state(self.elite.replaced_elite, self.noise.choices)
         self.integrity.set_integrity(score)
         # Define noise vector
         self.noise.update_state(self.integrity.value, self.selection_p.p)

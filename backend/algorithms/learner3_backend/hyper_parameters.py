@@ -18,8 +18,7 @@ class Hyper_Parameters(object):
         self.alpha = 0
         self.beta = 0
         self.lambda_ = 0
-        self.step_size = 0
-        self.patience = 0
+        self.max_steps = 0
         self.def_integrity = 0
         self.min_integrity = 0
         self.max_integrity = 0
@@ -47,8 +46,6 @@ class Hyper_Parameters(object):
                                 "beta": 0.29,
                                 "learning rate": 0.04,
                                 "lambda":5,
-                                "step size": 0.1,
-                                "patience": 25,
                                 "default integrity": 0.6,
                                 "initial integrity": 0.6,
                                 "minimum integrity": 0.01,
@@ -56,7 +53,8 @@ class Hyper_Parameters(object):
                                 "minimization mode": True,
                                 "target": 0,
                                 "minimum entropy": -0.01,
-                                "tolerance": 0
+                                "tolerance": 0,
+                                "max steps": 50
                             }
         # Update dictionary if appropriate
         if isinstance(hyper_params, dict):
@@ -70,8 +68,6 @@ class Hyper_Parameters(object):
         self.beta = self.hyper_params["beta"]
         self.lr = self.hyper_params["learning rate"]
         self.lambda_ = self.hyper_params["lambda"]
-        self.step_size = self.hyper_params["step size"]
-        self.patience = self.hyper_params["patience"]
         self.def_integrity = self.hyper_params["default integrity"]
         self.initial_integrity = self.hyper_params["initial integrity"]
         self.min_integrity = self.hyper_params["minimum integrity"]
@@ -80,6 +76,7 @@ class Hyper_Parameters(object):
         self.target = self.hyper_params["target"]
         self.tolerance = self.hyper_params["tolerance"]
         self.min_entropy = self.hyper_params["minimum entropy"]
+        self.max_steps = self.hyper_params["max steps"]
         self.set_initial_score()
 
     def set_initial_score(self):

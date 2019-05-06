@@ -32,7 +32,7 @@ class Evaluator(object):
             self.set_score(inference, test)
         self.clean_score(env)
 
-    def calculate_loss(self, env, inference, test=False):
+    def calculate_loss(self, env, inference, test=False, grad=False):
         """This method calculates the loss."""
         if env.loss_type == 'NLL loss':
             if not test:

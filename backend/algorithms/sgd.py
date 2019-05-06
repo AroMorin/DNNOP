@@ -4,28 +4,24 @@ interface.
 """
 
 from __future__ import division
+from .algorithm import Algorithm
+
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-class SGD(object):
+class SGD(Algorithm):
     def __init__(self, model, alg_params):
         """Model is owned by the class, so it is set as a class attribute.
         Think of the optimizer as the "engine" behind the algorithm.
         """
         print("Using SGD algorithm")
+        super(SGD, self).__init__()
         alg_params = self.ingest_params(alg_params)
         self.hyper_params = alg_params
         self.model = model # Model is set as a class attribute
         self.populations = False
-        self.inference = None
-        self.train_loss = 0.
-        self.test_loss = 0.
-        self.train_acc = 0.
-        self.test_acc = 0.
-        # Number of instances where the model's prediction was correct
-        self.correct_test_preds = 0
-        self.optim = None  # The optimizer object
+        self.engine = None  # The optimizer object
         self.set_optim(alg_params["optimizer"])
 
     def ingest_params(self, alg_params):
@@ -56,21 +52,12 @@ class SGD(object):
     def set_environment(self, env):
         self.env = env
 
-    def optimize(self):
+    def step(self, feedback):
         """Implements the main optimization function of the algorithm."""
-        self.model.train() #Sets behavior to "training" mode
-        self.optim.zero_grad()
-        self.inference = self.model(self.env.observation)
-        self.train_loss = F.nll_loss(self.inference, self.env.labels)
-        self.train_loss.backward()
+        inference, score = feedback
+        score.backward()
         self.optim.step()
-
-    def achieved_target(self):
-        """Determines whether the algorithm achieved its target or not."""
-        if self.env.minimize:
-            return self.train_loss <= self.hyper_params["target loss"]
-        else:
-            return self.train_loss >= self.hyper_params["target loss"]
+        self.optim.zero_grad()
 
     def test(self):
         """Local variables are chosen not to feature here.
@@ -93,7 +80,7 @@ class SGD(object):
         print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
             loss, self.correct_test_preds, test_size, self.test_acc))
 
-    def print_train_accuracy(self):
+    def print_state(self):
         """Prints the accuracy figure for the test/validation case/set."""
         train_size = len(self.env.observation)
         pred = self.inference.max(1, keepdim=True)[1]

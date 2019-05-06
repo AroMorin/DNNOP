@@ -36,3 +36,9 @@ class Interrogator(object):
         else:
             x = [a.item() for a in self.inference]
         print("Inference: ", x)
+
+    def get_inference(self, model, observation):
+        inference = model(observation)
+        return inference
+
+#

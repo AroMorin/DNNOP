@@ -11,7 +11,7 @@ class Algorithm(object):
     def __init__(self):
         pass
 
-    def optimize(self):
+    def step(self):
         """Placeholder method for performing an optimization step."""
         pass
 

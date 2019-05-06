@@ -7,24 +7,19 @@ and use its methods.
 I'm still torn between using a class or just using a script.
 """
 
-from .evaluator import Evaluator
-from .interrogator import Interrogator
+from .solver import Solver
 
 import torch
 import time
 
-class RL_Solver(object):
+class RL_Solver(Solver):
     """This class makes absolute sense because there are many types of training
     depending on the task. For this reason, in the future, this class can easily
     include all instances of such training routines. Of course, transparent to
     the user -which is the ultimate goal, complete transparency-.
     """
     def __init__(self, slv_params):
-        print("Creating Solver")
-        self.env = slv_params['environment']
-        self.alg = slv_params['algorithm']
-        self.evaluator = Evaluator()
-        self.interrogator = Interrogator()
+        super(RL_Solver, self).__init__(slv_params)
         self.current_iteration = 0
 
     def solve(self, iterations):
@@ -73,10 +68,6 @@ class RL_Solver(object):
         self.interrogator.set_inference(self.alg.model)
         action = self.interrogator.inference
         self.env.step(action)
-
-    def backward(self):
-        self.evaluator.evaluate(self.env, self.interrogator.inference)
-        self.alg.step()
 
     def reset_state(self):
         """This is probably in cases of RL and such where an "envrionment"

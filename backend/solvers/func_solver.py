@@ -12,12 +12,8 @@ class Func_Solver(object):
     the user -which is the ultimate goal, complete transparency-.
     """
     def __init__(self, slv_params):
-        print("Creating Solver")
-        self.env = slv_params['environment']
-        self.alg = slv_params['algorithm']
+        super(Func_Solver, self).__init__(slv_params)
         self.current_iteration = 0
-        self.evaluator = Evaluator()
-        self.interrogator = Interrogator()
 
     def solve(self, iterations):
         """In cases where training is needed."""
@@ -47,14 +43,5 @@ class Func_Solver(object):
             if self.alg.achieved_target():
                 print ("Achieved/exceeded target")
                 break # Terminate optimization
-
-    def forward(self):
-        self.interrogator.set_inference(self.alg.model, self.env)
-
-    def backward(self):
-        self.evaluator.evaluate(self.env, self.interrogator.inference)
-        self.alg.step()
-
-
 
 #

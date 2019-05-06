@@ -6,12 +6,10 @@ algorithms would need. Then we can simply call this class in the solver scripts
 and use its methods.
 I'm still torn between using a class or just using a script.
 """
+from .evaluator import Evaluator
+from .interrogator import Interrogator
 
 import torch
-import time
-from solvers.rl_solvers import RL_Solver
-from solvers.func_solvers import Func_Solver
-from solvers.dataset_solvers import Dataset_Solver
 
 class Solver(object):
     """This class makes absolute sense because there are many types of training
@@ -21,28 +19,18 @@ class Solver(object):
     """
     def __init__(self, slv_params):
         print("Creating Solver")
-        slv_params = self.ingest_params(slv_params)
-        self.init_solver(slv_params)
+        self.env = slv_params['environment']
+        self.alg = slv_params['algorithm']
+        self.evaluator = Evaluator()
+        self.interrogator = Interrogator()
 
-    def ingest_params(self, slv_params):
-        default_params = {
-                            "problem type": '',
-                            'environment': None,
-                            'algorithm': None
-                            }
-        default_params.update(slv_params)
-        return default_params
+    def forward(self):
+        self.interrogator.set_inference(self.alg.model, self.env)
 
-    def init_solver(self, slv_params):
-        if slv_params['problem type'] == 'dataset':
-            self.dataset_solver = Dataset_Solver(slv_params)
-        elif slv_params['problem type'] == 'RL':
-            self.rl_solver = RL_Solver(slv_params)
-        elif slv_params['problem type'] == 'function':
-            self.func_solver = Func_Solver(slv_params)
-        else:
-            print("Unknown solver requested, exiting!")
-            exit()
+    def backward(self):
+        self.evaluator.evaluate(self.env, self.interrogator.inference)
+        feedback = (self.interrogator.inference, self.evaluator.score)
+        self.alg.step(feedback)
 
     def save(self, path=''):
         """Only works with my algorithms, not with SGD."""

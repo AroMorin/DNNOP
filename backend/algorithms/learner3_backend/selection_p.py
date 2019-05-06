@@ -16,6 +16,7 @@ class Selection_P(object):
         self.p_vec = torch.full((length,), 0.5, device='cuda')
         self.uniform_vec = torch.full((length,), 0.5, device='cuda')
         self.p = torch.nn.functional.softmax(self.uniform_vec, dim=0)
+        self.choices = []
 
     def update_state(self, score, choices):
         self.score = score  # Acquire new state

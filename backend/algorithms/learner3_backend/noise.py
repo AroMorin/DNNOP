@@ -11,8 +11,6 @@ class Noise(object):
         self.vec_length = torch.numel(vector)
         self.indices = np.arange(self.vec_length)
         self.noise_distribution = "uniform"  # Or "uniform"
-        self.noise_type = "continuous"  # Or "discrete" -- Unimplemented feature
-        self.vec_length = 0
         self.distribution = None
         self.choices = []  # list of indices
         self.num_selections = None

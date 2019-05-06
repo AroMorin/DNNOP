@@ -16,12 +16,13 @@ class Integrity(object):
         self.entropy = 0
         self.improvement = False
 
-    def set_integrity(self):
+    def set_integrity(self, score):
         """Hence, it ensures that integrity restarts with every
         improvement, and only with improvement. If once searching starts, then
         integrity is reduced normally.
         """
-        self.step_size.set_step_size()
+        self.score = score
+        self.step_size.set_step_size(self.value)
         if not self.improved():
             self.improvement = False
             self.reduce_integrity()

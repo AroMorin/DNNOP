@@ -3,6 +3,7 @@
 from __future__ import division
 import numpy as np
 import torch
+import math
 from torch.distributions import uniform, normal
 
 class Noise(object):

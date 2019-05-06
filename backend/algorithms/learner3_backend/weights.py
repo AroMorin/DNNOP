@@ -11,7 +11,7 @@ class Weights(object):
         self.num_elems = []
         self.keys = []
         self.vector = None
-        self.set_shapes(self.state_dict)
+        self.set_shapes(self.current)
         self.set_vector()
 
     def update(self, weights, mode='vec2dict'):

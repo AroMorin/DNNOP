@@ -15,10 +15,10 @@ class Engine(object):
     def __init__(self, model, hyper_params):
         self.model = model
         self.elite = Elite(hyper_params)
-        self.noise = Noise(hyper_params, self.weights.vector)
         self.weights = Weights(self.model.state_dict())
+        self.noise = Noise(hyper_params, self.weights.vector)
         self.integrity = Integrity(hyper_params)
-        self.selection_p = Selection_P(hp, self.noise.vec_length)
+        self.selection_p = Selection_P(hyper_params, self.noise.vec_length)
 
     def analyze(self, score):
         """Prepares the new pool based on the scores of the current generation

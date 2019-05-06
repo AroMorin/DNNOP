@@ -28,7 +28,7 @@ class Elite(object):
         """We clone the elite in order to have our own copy of it, not just a
         pointer to the object.
         """
-        self.weights = vector.clone()
+        self.vector = vector.clone()
 
 
 

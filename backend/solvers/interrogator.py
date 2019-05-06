@@ -6,6 +6,8 @@ that is shared among all algorithms to justify having a class.
 
 Candidate for removal.
 """
+import torch
+
 class Interrogator(object):
     def __init__(self):
         self.inference = None

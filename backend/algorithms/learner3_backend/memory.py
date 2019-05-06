@@ -1,6 +1,5 @@
 """Base class for probes"""
 
-from .perturbation import Perturbation
 import torch
 from scipy import interpolate
 import numpy as np

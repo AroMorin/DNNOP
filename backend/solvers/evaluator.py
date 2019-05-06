@@ -93,7 +93,7 @@ class Evaluator(object):
             a = -float('inf')
         x = self.score
         y = torch.full_like(x, a)
-        self.score = torch.where(torch.isfinite(x), x, y)
+        self.score = torch.where(torch.isfinite(x), x, y).float()
 
     def reset_state(self):
         # Flush values

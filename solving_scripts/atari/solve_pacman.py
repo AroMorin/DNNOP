@@ -6,7 +6,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory
-from backend.solver import Solver
+import backend.solvers as solver_factory
 
 import argparse
 import torch
@@ -52,16 +52,14 @@ def main():
 
 
     slv_params = {
-                    "problem type": "RL",
                     "environment": env,
                     "algorithm": alg
                     }
-    slv = Solver(slv_params)
+    slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.rl_solvers.solve_env(iterations=500)
-    slv.save()
-    slv.rl_solvers.demonstrate_env()
+    slv.solve_env(iterations=500)
+    slv.demonstrate_env()
 
 if __name__ == '__main__':
     main()

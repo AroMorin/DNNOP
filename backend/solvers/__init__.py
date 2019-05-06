@@ -1,10 +1,10 @@
 """This script allows making objects of different solver classes"""
 
-from .rl_solvers import RL_Solver
-from .func_solvers import Func_Solver
-from .dataset_solvers import Dataset_Solver
+from .rl_solver import RL_Solver
+from .func_solver import Func_Solver
+from .dataset_solver import Dataset_Solver
 
-def make_solver(name, slv_params):
+def make_slv(name, slv_params):
     """Class factory method. This method takes the name of the desired
     algorithm and returns an object of the corresponding class.
 

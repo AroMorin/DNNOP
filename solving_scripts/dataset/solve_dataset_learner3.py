@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory
-from backend.solver import Solver
+import backend.solvers as solver_factory
 
 import torch
 
@@ -50,8 +50,11 @@ def main():
                     }
     alg = algorithm_factory.make_alg("learner3", model, alg_params)
 
-    # Make a solver
-    slv = Solver(env, alg)
+    slv_params = {
+                    "environment": env,
+                    "algorithm": alg
+                    }
+    slv = solver_factory.make_slv("dataset", slv_params)
 
     # Use solver to solve the problem
     slv.train_dataset_with_validation(iterations=2500)

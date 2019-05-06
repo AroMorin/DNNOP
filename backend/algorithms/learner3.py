@@ -9,11 +9,8 @@ The optimizer object will own the pool.?
 """
 from __future__ import division
 from .algorithm import Algorithm
-import torch
-import numpy as np
 from .learner3_backend.hyper_parameters import Hyper_Parameters
 from .learner3_backend.engine import Engine
-import time
 
 class LEARNER3(Algorithm):
     def __init__(self, model, alg_params):
@@ -23,34 +20,31 @@ class LEARNER3(Algorithm):
         self.engine = Engine(model, self.hyper_params) # Create a pool object
         self.populations = False
         self.model = model
+        self.top_score = self.hyper_params.initial_score
 
     def step(self, feedback):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
         inference, score = feedback
-        self.engine.elite.set_elite(self.model, self.engine.weights.vector,
-                                    inference, score)
+        self.engine.elite.set_elite(self.engine.weights.vector, score)
         self.engine.analyze(score)
         self.engine.generate()
         self.top_score = self.engine.elite.elite_score
 
     def print_state(self):
-        print("Score: %f" %self.score.item())
-        if self.elite.replace:
+        if self.engine.elite.replace:
             print ("------Setting new Elite-------")
-        if self.integrity.improvement:
+        if self.engine.integrity.improvement:
             print("Improved!")
-        print ("Elite Score: %f" %self.elite_score)
-        print("Integrity: %f" %self.analyzer.integrity)
-        print("Steps to Backtrack: %d" %(self.hp.patience-self.analyzer.elapsed_steps+2))
-        print(self.analyzer.bin)
-        print(self.analyzer.step_size)
-        print("SR: %f" %self.analyzer.search_radius)
-        print("Selections(%%): %f" %self.analyzer.num_selections)
-        print("Selections: %d" %self.perturb.size)
-        print("P: ", self.perturb.p[0:10])
-        print("Variance(P): %f" %self.perturb.variance)
+        print ("Elite Score: %f" %self.engine.elite.elite_score)
+        print("Integrity: %f" %self.engine.integrity.value)
+        print("Bin: ", self.engine.integrity.step_size.bin)
+        print("Step size: %f" %self.engine.integrity.step_size.value)
+        print("SR: %f" %self.engine.noise.search_radius)
+        print("Selections: %d" %self.engine.noise.num_selections)
+        print("P: ", self.engine.selection_p.p[0:10])
+        print("Variance(P): %f" %self.engine.selection_p.variance)
 
 
 

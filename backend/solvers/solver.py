@@ -31,17 +31,26 @@ class Solver(object):
         self.evaluator.evaluate(self.env, self.interrogator.inference)
         feedback = (self.interrogator.inference, self.evaluator.score)
         self.alg.step(feedback)
+        self.alg.print_state()
 
     def save(self, path=''):
         """Only works with my algorithms, not with SGD."""
         fn = path+"model_elite.pth"
         torch.save(self.alg.model.state_dict(), fn)
 
+    def save_pool_weights(self, models, path):
+        for i, model in enumerate(models):
+            fn = path+"model_"+str(i)+".pth"
+            torch.save(model.state_dict(), fn)
+
+    def save_elite_weights(self, model, path):
+        fn = path+"model_elite.pth"
+        torch.save(model.state_dict(), fn)
+
     def load(self, path):
         """Only works with my algorithms, not with SGD."""
         fn = path+"model_elite.pth"
         self.alg.model.load_state_dict(torch.load(fn))
-
 
 
 

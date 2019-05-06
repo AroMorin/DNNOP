@@ -12,14 +12,19 @@ import argparse
 import torch
 
 def main():
-    precision = torch.float
-    # Make a function environment
+    # Variable definition
+    precision = torch.half
     game = "MsPacman"
+
+    # Parameter and Object declarations
     env_params = {
                     "score type": "score",  # Function evaluation
                     "render": False,
                     "RAM": False
                     }
+    env = env_factory.make_env("openai", game, env_params)
+
+
     model_params = {
                     "precision": precision,
                     "weight initialization scheme": "Default",
@@ -29,11 +34,13 @@ def main():
                     "in features": 128,
                     "in channels": 3
                     }
+    model = model_factory.make_model("DQN model", model_params)
+
+
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum entropy": 0.1,
-                    "patience": 3000,
                     "tolerance": 0.01,
                     "learning rate": 0.2,
                     "lambda": 5,
@@ -41,15 +48,14 @@ def main():
                     "beta": 0.29,
                     "step size": 0.1
                     }
+    alg = algorithm_factory.make_alg("learner3", model, alg_params)
+
+
     slv_params = {
                     "problem type": "RL",
                     "environment": env,
                     "algorithm": alg
                     }
-
-    env = env_factory.make_env("openai", game, env_params)
-    model = model_factory.make_model("DQN model", model_params)
-    alg = algorithm_factory.make_alg("learner3", model, alg_params)
     slv = Solver(slv_params)
 
     # Use solver to solve the problem

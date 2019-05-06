@@ -36,6 +36,8 @@ class LEARNER3(Algorithm):
         print("Score: %f" %self.score.item())
         if self.elite.replace:
             print ("------Setting new Elite-------")
+        if self.integrity.improvement:
+            print("Improved!")
         print ("Elite Score: %f" %self.elite_score)
         print("Integrity: %f" %self.analyzer.integrity)
         print("Steps to Backtrack: %d" %(self.hp.patience-self.analyzer.elapsed_steps+2))

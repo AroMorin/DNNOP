@@ -11,6 +11,7 @@ import torch.nn.functional as F
 
 class Evaluator(object):
     def __init__(self):
+        # It is assumed we always want to maximize
         self.score = None
         # Will only be used if the appropriate score type is selected
         self.train_loss = 10.
@@ -29,6 +30,7 @@ class Evaluator(object):
             self.calculate_score(env, inference, test)
         else:
             self.set_score(inference, test)
+        self.clean_score(env)
 
     def calculate_loss(self, env, inference, test=False):
         """This method calculates the loss."""
@@ -82,6 +84,16 @@ class Evaluator(object):
 
     def set_score(self, score):
         self.score = score
+
+    def clean_score(self, env):
+        """Removes deformities in the score list such as NaNs."""
+        if env.minimize:
+            a = float('inf')  # Initial score
+        else:
+            a = -float('inf')
+        x = self.score
+        y = torch.full_like(x, a)
+        self.score = torch.where(torch.isfinite(x), x, y)
 
     def reset_state(self):
         # Flush values

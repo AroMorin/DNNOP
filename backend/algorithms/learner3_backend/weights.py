@@ -18,11 +18,8 @@ class Weights(object):
         """It is always assumed that the dict and the vector belong to the same
         model.
         """
-        if mode == 'vec2dict':
-            self.vec_to_dict(weights)
-        else:
-            print("Unknown conversion mode, exiting!")
-            exit()
+        self.vector = weights
+        self.vec_to_dict()
 
     def set_shapes(self, dict):
         """We only call this method once since all the pool models are the same
@@ -38,28 +35,21 @@ class Weights(object):
 
     def set_vector(self):
         """Changes the dictionary of weights into a vector."""
-        dict = self.state_dict
+        dict = self.current
         mylist = []
         for i, key in enumerate(dict):
             x = dict[key]  # Get tensor of parameters
             mylist.append(x.reshape(x.numel()))  # Flatten tensor
         self.vector = torch.cat(mylist)  # Flatten all tensors in model
 
-    def update_model(self, vector):
+    def vec_to_dict(self):
         """Updates the weight dictionaries of the models."""
-        param_list = self.vec_to_tensor(vector)  # Restore shape
-        self.update_dict(param_list)
-        # Update model's state dictionary
-        self.model.load_state_dict(self.state_dict)
-
-    def vec_to_dict(self, vector):
-        """Updates the weight dictionaries of the models."""
-        param_list = self.vec_to_list(vector)  # Restore shape
+        param_list = self.vec_to_list()  # Restore shape
         self.update_dict(param_list)
 
-    def vec_to_list(self, vec):
+    def vec_to_list(self):
         """Changes a vector into a tensor using the original network shapes."""
-        a = vec.split(self.num_elems)  # Split parameter tensors
+        a = self.vector.split(self.num_elems)  # Split parameter tensors
         b = [None]*self.nb_layers
         for i in range(self.nb_layers):
             b[i] = a[i].reshape(self.shapes[i])  # Reconstruct tensor shape
@@ -68,11 +58,7 @@ class Weights(object):
     def update_dict(self, param_list):
         """Updates the state dictionary class attribute."""
         for i, key in enumerate(self.keys):
-            self.state_dict[key] = param_list[i]
-
-
-
-
+            self.current[key] = param_list[i]
 
 
 #

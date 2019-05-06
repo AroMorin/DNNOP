@@ -1,28 +1,20 @@
 """Class for analysis operations on the scores."""
-
 from __future__ import division
+from .step_size import Step_size
 import torch
 import math
 import time
 
 class Integrity(object):
     def __init__(self, hyper_params):
-        self.step_size = Step_size(hyper_params)
         self.hp = hyper_params
-        self.prev_score = torch.tensor(self.hp.initial_score, device='cuda')
+        self.step_size = Step_size()
+        self.top = torch.tensor(self.hp.initial_score, device='cuda')
         self.score = torch.tensor(self.hp.initial_score, device='cuda')
-        self.top = torch.tensor(self.hp.initial_score, device='cuda')
+        self.prev_score = torch.tensor(self.hp.initial_score, device='cuda')
         self.value = self.hp.initial_integrity
-        self.step = 0  # State
-        self.improvement = False
         self.entropy = 0
-
-    def update_state(self):
-        self.step +=1
-
-    def reset_state(self):
-        self.step = 0
-        self.top = torch.tensor(self.hp.initial_score, device='cuda')
+        self.improvement = False
 
     def set_integrity(self):
         """Hence, it ensures that integrity restarts with every
@@ -31,15 +23,14 @@ class Integrity(object):
         """
         self.step_size.set_step_size()
         if not self.improved():
-            self.reduce_integrity()
             self.improvement = False
+            self.reduce_integrity()
             self.step_size.decrease_bin()
 
         else:  # Improved
-            self.maintain_integrity()
             self.improvement = True
+            self.maintain_integrity()
             self.step_size.increase_bin()
-
 
         if self.improved_abs():
             self.top = self.score
@@ -49,27 +40,20 @@ class Integrity(object):
         on the pre-defined hyper parameters.
         """
         # Make sure we are not in the very first iteration
-        if self.step>0:
-            if self.hp.minimizing:
-                return self.score < self.top
-            else:
-                return self.score > self.top
+        if self.hp.minimizing:
+            return self.score < self.top
         else:
-            # Improved over the initial score
-            return True
+            return self.score > self.top
 
     def improved(self):
         """Calculate whether the score has satisfactorily improved or not based
         on the pre-defined hyper parameters.
         """
-        if self.step>0:
-            self.set_entropy()
-            if self.hp.minimizing:
-                return self.entropy <= self.hp.min_entropy
-            else:
-                return self.entropy >= self.hp.min_entropy
+        self.set_entropy()
+        if self.hp.minimizing:
+            return self.entropy <= self.hp.min_entropy
         else:
-            return True  # Improved over the initial score
+            return self.entropy >= self.hp.min_entropy
 
     def set_entropy(self):
         """Function is constructed such that the conditional will evaluate to
@@ -89,8 +73,9 @@ class Integrity(object):
             i = torch.mul(i, 100)
             self.entropy = i
 
-    def reduce_integrity(self, step_size):
+    def reduce_integrity(self):
         # Reduce integrity, but not below the minimum allowed level
+        step_size = self.step_size.value
         a = self.value-step_size  # Decrease integrity
         if a <= self.hp.min_integrity:
             self.value = self.hp.max_integrity  # Reset integrity

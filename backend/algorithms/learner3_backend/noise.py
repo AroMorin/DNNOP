@@ -5,113 +5,83 @@ import numpy as np
 import torch
 from torch.distributions import uniform, normal
 
-class Perturbation(object):
-    def __init__(self, hp):
+class Noise(object):
+    def __init__(self, hp, vector):
         self.hp = hp
+        self.vec_length = torch.numel(vector)
+        self.indices = np.arange(self.vec_length)
         self.noise_distribution = "uniform"  # Or "uniform"
         self.noise_type = "continuous"  # Or "discrete" -- Unimplemented feature
         self.vec_length = 0
-        self.indices = []
-        self.size = 0
-        self.score = self.hp.initial_score
-        self.prev_score = self.hp.initial_score
         self.distribution = None
-        self.precision = None
         self.choices = []  # list of indices
-        self.vd = 0  # p value for uniform distribution
-        self.unifrom_p = None
-        self.device = torch.device('cuda')
-        self.p_vec = None
-        self.p = None  # Index choice probability vector (P dist)
-        self.decr = 0.1  # decrease is 10% of probability value
-        self.incr = 0.5  # increase is 20% of probability value
-        self.variance = 0
+        self.num_selections = None
+        self.search_radius = None
+        self.precision = vector.dtype
+        self.vector = None
 
-    def init_perturbation(self, vec):
-        """Initialize state and some variables."""
-        self.precision = vec.dtype
-        self.vec_length = torch.numel(vec)
-        self.indices = np.arange(self.vec_length)
-        self.p_vec = torch.full((self.vec_length,), 0.5, device=self.device)
-        self.uniform_vec = torch.full((self.vec_length,), 0.5, device=self.device)
-        self.p = torch.nn.functional.softmax(self.uniform_vec, dim=0)
-
-    def update_state(self, analyzer):
+    def update_state(self, integrity, p):
         # Set noise size (scope)
         self.choices = []
-        self.size = int(analyzer.num_selections*self.vec_length)
-        self.set_noise_dist(analyzer.search_radius)
-        self.set_choices()
-        self.score = analyzer.score  # Acquire new state
-        self.update_p()
-        self.prev_score = self.score  # Update state
+        self.set_num_selections(integrity)
+        self.set_search_radius(integrity)
+        self.set_noise_dist()
+        self.set_choices(p)
+        self.set_vector()
 
-    def set_noise_dist(self, limit):
+    def set_num_selections(self, integrity):
+        """Sets the number of selected neurons based on the integrity and
+        hyperparameters."""
+        #p = 1-self.integrity
+        p = integrity
+        numerator = self.hp.alpha
+        denominator = 1+(self.hp.beta/p)
+        num_selections = numerator/denominator
+        self.num_selections = int(num_selections*self.vec_length)
+
+    def set_search_radius(self, integrity):
+        """Sets the search radius (noise magnitude) based on the integrity and
+        hyperparameters."""
+        p = 1.-integrity
+        argument = (self.hp.lambda_*p)-2.5
+        exp1 = math.tanh(argument)+1
+        self.search_radius = exp1*self.hp.lr
+
+    def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""
-        a = -limit
-        b = limit
+        a = -self.search_radius
+        b = self.search_radius
         if self.noise_distribution == "uniform":
             self.distribution = uniform.Uniform(torch.Tensor([a]), torch.Tensor([b]))
         elif self.noise_distribution == "normal":
-            self.distribution = normal.Normal(torch.Tensor([0]), torch.Tensor([b]))
+            self.distribution = normal.Normal(torch.Tensor([0.]), torch.Tensor([b]))
         else:
-            print("Unknown precision type")
+            print("Unknown distribution type")
             exit()
 
-    def set_choices(self):
+    def set_choices(self, p):
         """Use the numpy choices function (which has no equivalent in Pytorch)
         to generate a sample from the array of indices. The sample size and
         distribution are dynamically updated by the algorithm's state.
         """
+        p = p.cpu().numpy()  # Casting
         np.random.seed()
-        if len((self.p == 0).nonzero())>0:
-            nb_zeros = len((self.p == 0).nonzero())
-            print("Error: %d Zero elements in self.p" %nb_zeros)
-            exit()
-        self.choices = np.random.choice(self.indices, self.size, replace=False, p=self.p.cpu().numpy())
+        self.choices = np.random.choice(self.indices, self.num_selections,
+                                        replace=False, p=p)
 
-    def update_p(self):
-        """Updates the probability distribution."""
-        if self.improved():
-            self.increase_p()
-        else:
-            self.decrease_p()
-        self.p = torch.nn.functional.softmax(self.p_vec, dim=0)  # Normalize
-        self.variance = np.var(self.p_vec.cpu().numpy())
-        self.check_var()
-
-    def improved(self):
-        if self.hp.minimizing:
-            return self.score < self.prev_score
-        else:
-            return self.score > self.prev_score
-
-    def increase_p(self):
-        """This method decreases p at "choices" locations."""
-        # Pull up "choices"
-        dt = torch.full((self.size,), self.incr, device=self.device)  # Delta tensor
-        self.p_vec[self.choices] = torch.add(self.p_vec[self.choices], dt)
-
-    def decrease_p(self):
-        """This method decreases p at "choices" locations."""
-        # Push down "choices"
-        dt = torch.full((self.size,), self.decr, device=self.device)
-        self.p_vec[self.choices] = torch.sub(self.p_vec[self.choices], dt)
-
-    def check_var(self):
-        if self.variance>3.9:
-            self.p_vec = self.uniform_vec.clone()
-            self.p = torch.nn.functional.softmax(self.p_vec, dim=0)  # Normalize
-
-    def suspend_reality(self):
-        self.real_p = self.p
-        self.real_p_vec = self.p_vec
-        self.real_variance = self.variance
-
-    def restore_reality(self):
-        self.p = self.real_p
-        self.p_vec = self.real_p_vec
-        self.variance = self.real_variance
+    def set_vector(self):
+        """ This function defines a noise tensor, and returns it. The noise
+        tensor needs to be the same shape as our originial vecotr. Hence, a
+        "basis" tensor is created with zeros, then the chosen indices are
+        modified.
+        """
+        noise = self.distribution.sample(torch.Size([self.num_selections]))
+        # Cast to precision and CUDA, and edit shape
+        noise = noise.to(dtype=self.precision, device='cuda').squeeze()
+        noise_vector = torch.zeros(self.vec_length, dtype=self.precision,
+                                    device='cuda')
+        noise_vector[self.choices] = noise
+        self.vector = noise_vector
 
 
 

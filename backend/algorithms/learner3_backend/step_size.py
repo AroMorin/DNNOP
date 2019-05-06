@@ -3,12 +3,12 @@
 from __future__ import division
 
 class Step_size(object):
-    def __init__(self, hyper_params):
-        self.hp = hyper_params
-        self.value = self.hp.step_size
-        self.bin = [1, 1, 1, 1]  # Uniform distribution
-        self.real_bin = [1, 1, 1, 1]
-        self.max_steps = 20  # Max number of iterations to spend in one bin
+    def __init__(self):
+        self.value = 0.1
+        self.min_steps = 3
+        self.bin = [self.min_steps]*4  # Uniform distribution
+        self.real_bin = [self.min_steps]*4
+        self.max_steps = 25  # Max number of iterations to spend in one bin
 
     def set_step_size(self, integrity):
         if  0. < integrity <= 0.25:
@@ -36,13 +36,13 @@ class Step_size(object):
 
     def decrease_bin(self):
         if  0. < self.value <= 0.25:
-            self.bin[0] = max(1, self.bin[0]-1)
+            self.bin[0] = max(self.min_steps, self.bin[0]-1)
         elif  0.25 < self.value <= 0.5:
-            self.bin[1] = max(1, self.bin[1]-1)
+            self.bin[1] = max(self.min_steps, self.bin[1]-1)
         elif  0.5 < self.value <= 0.75:
-            self.bin[2] = max(1, self.bin[2]-1)
+            self.bin[2] = max(self.min_steps, self.bin[2]-1)
         elif  0.75 < self.value <= 1.:
-            self.bin[3] = max(1, self.bin[3]-1)
+            self.bin[3] = max(self.min_steps, self.bin[3]-1)
 
     def suspend_reality(self):
         self.real_bin = self.bin

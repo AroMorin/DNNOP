@@ -3,7 +3,7 @@ The pool object will contain the models under optimization.
 """
 from .elite import Elite
 from .noise import Noise
-from .memory import Memory
+from .novelty import Novelty
 from .weights import Weights
 from .integrity import Integrity
 from .selection_p import Selection_P
@@ -16,6 +16,7 @@ class Engine(object):
         self.model = model
         self.elite = Elite(hyper_params)
         self.weights = Weights(self.model.state_dict())
+        self.ns = Novelty(hyper_params)
         self.noise = Noise(hyper_params, self.weights.vector)
         self.integrity = Integrity(hyper_params)
         self.selection_p = Selection_P(hyper_params, self.noise.vec_length)

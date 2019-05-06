@@ -32,6 +32,10 @@ class LEARNER3(Algorithm):
         obtains the scores and accordingly updates the models.
         """
         inference, score = feedback
+        print(score)
+        self.engine.ns.update(score)
+        score = score+self.engine.ns.value
+        print(score)
         self.engine.elite.set_elite(self.engine.weights.vector, score)
         self.engine.analyze(score)
         self.engine.generate()

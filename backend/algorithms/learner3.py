@@ -20,6 +20,11 @@ class LEARNER3(Algorithm):
         self.engine = Engine(model, self.hyper_params) # Create a pool object
         self.populations = False
         self.model = model
+        self.minimizing = self.hyper_params.minimizing
+        if self.minimizing:
+            self.target = self.hyper_params.target + self.hyper_params.tolerance
+        else:
+            self.target = self.hyper_params.target - self.hyper_params.tolerance
         self.top_score = self.hyper_params.initial_score
 
     def step(self, feedback):

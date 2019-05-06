@@ -18,14 +18,13 @@ class Interrogator(object):
         that reason, I designate this function, to be a single point of contact
         for running inference, in whatever way the user/problem requires.
         """
-        with torch.no_grad():
-            if not test:
-                # Training
-                self.inference = model(env.observation)
-            else:
-                # Testing
-                model.eval()  # Turn on evaluation mode
-                self.inference = model(env.test_data)
+        if not test:
+            # Training
+            self.inference = model(env.observation)
+        else:
+            # Testing
+            model.eval()  # Turn on evaluation mode
+            self.inference = model(env.test_data)
 
     def print_inference(self):
         """Prints the inference of the neural networks. Attempts to extract

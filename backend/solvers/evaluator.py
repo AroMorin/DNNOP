@@ -39,8 +39,9 @@ class Evaluator(object):
                 self.train_loss = F.nll_loss(inference, env.labels)
                 self.score = self.train_loss
             else:
-                loss = F.nll_loss(inference, env.test_labels, reduction='sum').item()
-                self.test_loss = loss
+                with torch.no_grad():
+                    loss = F.nll_loss(inference, env.test_labels, reduction='sum').item()
+                    self.test_loss = loss
         else:
             print("Unknown loss type")
             exit()
@@ -61,6 +62,7 @@ class Evaluator(object):
         else:
             # Testing
             pred = inference.argmax(dim=1, keepdim=True)
+            #pred = inference.argmax(dim=1, keepdim=True)[1]
             correct = pred.eq(env.test_labels.view_as(pred)).sum().float()
             if acc:
                 self.abs_to_acc(env, correct, test=test)

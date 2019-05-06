@@ -22,13 +22,17 @@ class Algorithm(object):
         """
         pass
 
+    def print_state(self):
+        """Placeholder method for performing an optimization step."""
+        pass
+
     def achieved_target(self):
         """Determines whether the algorithm achieved its target or not."""
         best = self.top_score
-        if self.hyper_params.minimizing:
-            return best <= (self.hyper_params.target + self.hyper_params.tolerance)
+        if self.minimizing:
+            return best <= self.target
         else:
-            return best >= (self.hyper_params.target - self.hyper_params.tolerance)
+            return best >= self.target
 
 
 

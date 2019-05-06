@@ -21,7 +21,7 @@ class Dataset_Solver(Solver):
         self.env.step()
         for _ in range(iterations):
             self.current_iteration += 1
-            print ("Iteration %d" %self.current_iteration)
+            print ("\nIteration %d" %self.current_iteration)
             self.forward()
             self.backward()
             if self.alg.achieved_target():
@@ -35,7 +35,7 @@ class Dataset_Solver(Solver):
         batches = self.env.nb_batches
         for _ in range(iterations):
             self.reset_state()
-            print ("Iteration %d" %self.current_iteration)
+            print ("\nIteration %d" %self.current_iteration)
             for __ in range(batches):
                 self.env.step()
                 self.forward()
@@ -50,7 +50,7 @@ class Dataset_Solver(Solver):
         print("Mini-batch training model(s) on a dataset w/ validation")
         batches = self.env.nb_batches
         for _ in range(iterations):
-            print ("Iteration %d" %self.current_iteration)
+            print ("\nIteration %d" %self.current_iteration)
             for __ in range(batches):
                 self.env.step()
                 self.forward()
@@ -70,7 +70,7 @@ class Dataset_Solver(Solver):
         self.reset_state()
         # Process
         for _ in range(iterations):
-            print ("Iteration %d" %self.current_iteration)
+            print ("\nIteration %d" %self.current_iteration)
             self.env.step()
             for ___ in range(reps):
                 self.forward()
@@ -82,11 +82,11 @@ class Dataset_Solver(Solver):
 
     def test(self):
         self.interrogator.set_inference(self.alg.model, self.env, test=True)
+        self.evaluator.calculate_loss(self.env, self.interrogator.inference,
+        test=True)
         self.evaluator.calculate_correct_predictions(self.env,
                                                     self.interrogator.inference,
                                                      test=True, acc=True)
-        self.evaluator.calculate_loss(self.env, self.interrogator.inference,
-                                    test=True)
 
     def print_test_accuracy(self):
         """Prints the accuracy figure for the test/validation case/set."""

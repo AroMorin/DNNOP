@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath('../..'))
 import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory
-from backend.solver import Solver
+import backend.solvers as solver_factory
 
 import torch
 
@@ -22,7 +22,7 @@ def main():
                     "precision": precision,
                     "score type": "loss",
                     "loss type": "NLL loss",
-                    "batch size": 32  # Entire set
+                    "batch size": 10000  # Entire set
                     }
     env = env_factory.make_env("dataset", "fashion mnist", env_params)
 
@@ -40,11 +40,15 @@ def main():
     alg = algorithm_factory.make_alg("sgd", model, alg_params)
 
     # Make a solver
-    slv = Solver(env, alg)
+    slv_params = {
+                    "environment": env,
+                    "algorithm": alg
+                    }
+    slv = solver_factory.make_slv("dataset", slv_params)
 
     # Use solver to solve the problem
-    #slv.train_dataset_with_validation(iterations=2500)
-    slv.batch_train_dataset_with_validation(iterations=62)
+    slv.train_dataset_with_validation(iterations=2500)
+    #slv.batch_train_dataset_with_validation(iterations=62)
 
 if __name__ == '__main__':
     main()

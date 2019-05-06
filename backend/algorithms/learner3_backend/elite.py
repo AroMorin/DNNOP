@@ -7,12 +7,12 @@ class Elite(object):
         self.elite_score = hp.initial_score
         self.replaced_elite = False  # State
 
-    def set_elite(self, vector, score):
+    def set_elite(self, vector, score, agg_score):
         """Checks current top score and determines if there's a new elite. The
         elite is then either updated or set as is.
         """
         self.replaced_elite = False  # Operating assumption
-        if self.replace(score):
+        if self.replace(agg_score):
             self.replaced_elite = True
             self.elite_score = score
             self.preserve(vector)

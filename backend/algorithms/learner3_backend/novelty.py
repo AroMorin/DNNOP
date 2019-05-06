@@ -17,8 +17,14 @@ class Novelty(object):
         if self.in_table(item):
             self.set_penalty(item)
         else:
-            self.value = 0.
+            self.set_score(item)
             self.append_table(item)
+
+    def set_score(self, item):
+        if self.hp.minimizing:
+            self.value = -item*self.factor
+        else:
+            self.value = item*self.factor
 
     def set_penalty(self, item):
         if self.hp.minimizing:

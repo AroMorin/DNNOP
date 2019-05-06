@@ -16,7 +16,7 @@ class Integrity(object):
         self.entropy = 0
         self.improvement = False
 
-    def set_integrity(self, score):
+    def set_integrity(self, improved, score):
         """Hence, it ensures that integrity restarts with every
         improvement, and only with improvement. If once searching starts, then
         integrity is reduced normally.
@@ -33,18 +33,8 @@ class Integrity(object):
             self.maintain_integrity()
             self.step_size.increase_bin(self.value)
 
-        if self.improved_abs():
+        if improved:
             self.top = self.score
-
-    def improved_abs(self):
-        """Calculate whether the score has satisfactorily improved or not based
-        on the pre-defined hyper parameters.
-        """
-        # Make sure we are not in the very first iteration
-        if self.hp.minimizing:
-            return self.score < self.top
-        else:
-            return self.score > self.top
 
     def improved(self):
         """Calculate whether the score has satisfactorily improved or not based
@@ -60,19 +50,15 @@ class Integrity(object):
         """Function is constructed such that the conditional will evaluate to
         True most of the time.
         """
-        eps = self.top.ne(0)
-        if eps:
-            # Percentage change
-            i = torch.sub(self.score, self.top)
+        normal = self.top.ne(0)
+        i = torch.sub(self.score, self.top)
+        if normal:
             i = torch.div(i, self.top.abs())
-            i = torch.mul(i, 100)
-            self.entropy = i
         else:
             # Prevent division by zero
-            i = torch.sub(self.score, self.top)
             i = torch.div(i, self.hp.epsilon)
-            i = torch.mul(i, 100)
-            self.entropy = i
+        i = torch.mul(i, 100)
+        self.entropy = i
 
     def reduce_integrity(self):
         # Reduce integrity, but not below the minimum allowed level

@@ -34,10 +34,10 @@ class LEARNER3(Algorithm):
         inference, score = feedback
         print(score)
         self.engine.ns.update(score)
-        score = score+self.engine.ns.value
-        print(score)
-        self.engine.elite.set_elite(self.engine.weights.vector, score)
-        self.engine.analyze(score)
+        agg_score = score+self.engine.ns.value
+        print(agg_score)
+        self.engine.elite.set_elite(self.engine.weights.vector, score, agg_score)
+        self.engine.analyze(agg_score)
         self.engine.generate()
         self.top_score = self.engine.elite.elite_score
 

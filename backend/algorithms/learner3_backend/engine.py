@@ -26,7 +26,7 @@ class Engine(object):
         and the results of the analysis (such as value of intergrity).
         """
         self.selection_p.update_state(self.elite.replaced_elite, self.noise.choices)
-        self.integrity.set_integrity(score)
+        self.integrity.set_integrity(self.elite.replaced_elite, score)
         # Define noise vector
         self.noise.update_state(self.integrity.value, self.selection_p.p)
 

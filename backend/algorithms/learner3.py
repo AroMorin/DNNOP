@@ -48,7 +48,6 @@ class LEARNER3(Algorithm):
         initial condition.
         """
         agg_score  = self.engine.get_novelty(score)
-        self.engine.ns.append_table(score)
         top_score  = self.engine.elite_novelty(self.top_score)
         self.engine.analyzer.analyze(agg_score, top_score)
         if self.engine.analyzer.replace:

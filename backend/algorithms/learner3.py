@@ -21,32 +21,44 @@ class LEARNER3(Algorithm):
         self.populations = False
         self.model = model
         self.minimizing = self.hyper_params.minimizing
+        self.target = None
+        self.top_score = self.hyper_params.initial_score
+        self.set_target()
+
+    def set_target(self):
         if self.minimizing:
             self.target = self.hyper_params.target + self.hyper_params.tolerance
         else:
             self.target = self.hyper_params.target - self.hyper_params.tolerance
-        self.top_score = self.hyper_params.initial_score
 
     def step(self, feedback):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
         inference, score = feedback
-        print(score)
-        self.engine.ns.update(score)
-        agg_score = score+self.engine.ns.value
-        print(agg_score)
-        self.engine.elite.set_elite(self.engine.weights.vector, score, agg_score)
-        self.engine.analyze(agg_score)
+        self.update_scores(score)
+        self.engine.update_state(improved)
         self.engine.generate()
-        self.top_score = self.engine.elite.elite_score
+
+    def update_scores(self, score):
+        """Analysis is still needed even if there's no improvement,
+        so other modules know that this as well. Hence, can't "return" after
+        initial condition.
+        """
+        agg_score  = self.engine.get_novelty(score)
+        if score == self.top_score:
+            # Same score means no improvement, hence penalize top score
+            self.top_score = agg_score
+        self.engine.analyzer.analyze(agg_score, self.top_score)
+        if self.engine.analyzer.replace:
+            self.top_score = agg_score
 
     def print_state(self):
-        if self.engine.elite.replaced_elite:
+        if self.engine.analyzer.replace:
             print ("------Setting new Elite-------")
         if self.engine.integrity.improvement:
             print("Improved!")
-        print ("Elite Score: %f" %self.engine.elite.elite_score)
+        print ("Top Score: %f" %self.top_score)
         print("Integrity: %f" %self.engine.integrity.value)
         print("Bin: ", self.engine.integrity.step_size.bin)
         print("Step size: %f" %self.engine.integrity.step_size.value)

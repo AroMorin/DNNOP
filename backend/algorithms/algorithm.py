@@ -28,11 +28,10 @@ class Algorithm(object):
 
     def achieved_target(self):
         """Determines whether the algorithm achieved its target or not."""
-        best = self.top_score
         if self.minimizing:
-            return best <= self.target
+            return self.top_score <= self.target
         else:
-            return best >= self.target
+            return self.top_score >= self.target
 
 
 

@@ -9,56 +9,23 @@ class Integrity(object):
     def __init__(self, hyper_params):
         self.hp = hyper_params
         self.step_size = Step_size(hyper_params)
-        self.top = torch.tensor(self.hp.initial_score, device='cuda')
-        self.score = torch.tensor(self.hp.initial_score, device='cuda')
-        self.prev_score = torch.tensor(self.hp.initial_score, device='cuda')
         self.value = self.hp.initial_integrity
         self.entropy = 0
         self.improvement = False
 
-    def set_integrity(self, improved, score):
+    def set_integrity(self, improved):
         """Hence, it ensures that integrity restarts with every
         improvement, and only with improvement. If once searching starts, then
         integrity is reduced normally.
         """
-        self.score = score
         self.step_size.set_step_size(self.value)
-        if not self.improved():
-            self.improvement = False
+        if not improved:
             self.reduce_integrity()
             self.step_size.decrease_bin(self.value)
 
-        else:  # Improved
-            self.improvement = True
+        else:
             self.maintain_integrity()
             self.step_size.increase_bin(self.value)
-
-        if improved:
-            self.top = self.score
-
-    def improved(self):
-        """Calculate whether the score has satisfactorily improved or not based
-        on the pre-defined hyper parameters.
-        """
-        self.set_entropy()
-        if self.hp.minimizing:
-            return self.entropy <= self.hp.min_entropy
-        else:
-            return self.entropy >= self.hp.min_entropy
-
-    def set_entropy(self):
-        """Function is constructed such that the conditional will evaluate to
-        True most of the time.
-        """
-        normal = self.top.ne(0)
-        i = torch.sub(self.score, self.top)
-        if normal:
-            i = torch.div(i, self.top.abs())
-        else:
-            # Prevent division by zero
-            i = torch.div(i, self.hp.epsilon)
-        i = torch.mul(i, 100)
-        self.entropy = i
 
     def reduce_integrity(self):
         # Reduce integrity, but not below the minimum allowed level
@@ -76,11 +43,9 @@ class Integrity(object):
 
     def suspend_reality(self):
         self.real_value = self.value
-        self.real_score = self.score
 
     def restore_reality(self):
         self.value = self.real_integrity
-        self.score = self.real_score
 
 
 #

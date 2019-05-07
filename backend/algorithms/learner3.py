@@ -11,6 +11,7 @@ from __future__ import division
 from .algorithm import Algorithm
 from .learner3_backend.hyper_parameters import Hyper_Parameters
 from .learner3_backend.engine import Engine
+import torch
 
 class LEARNER3(Algorithm):
     def __init__(self, model, alg_params):
@@ -21,8 +22,9 @@ class LEARNER3(Algorithm):
         self.populations = False
         self.model = model
         self.minimizing = self.hyper_params.minimizing
+        self.top_score = torch.tensor(self.hyper_params.initial_score,
+                                            device='cuda')
         self.target = None
-        self.top_score = self.hyper_params.initial_score
         self.set_target()
 
     def set_target(self):
@@ -37,7 +39,7 @@ class LEARNER3(Algorithm):
         """
         inference, score = feedback
         self.update_scores(score)
-        self.engine.update_state(improved)
+        self.engine.update_state()
         self.engine.generate()
 
     def update_scores(self, score):
@@ -46,17 +48,16 @@ class LEARNER3(Algorithm):
         initial condition.
         """
         agg_score  = self.engine.get_novelty(score)
-        if score == self.top_score:
-            # Same score means no improvement, hence penalize top score
-            self.top_score = agg_score
-        self.engine.analyzer.analyze(agg_score, self.top_score)
+        self.engine.ns.append_table(score)
+        top_score  = self.engine.elite_novelty(self.top_score)
+        self.engine.analyzer.analyze(agg_score, top_score)
         if self.engine.analyzer.replace:
-            self.top_score = agg_score
+            self.top_score = score
 
     def print_state(self):
         if self.engine.analyzer.replace:
             print ("------Setting new Elite-------")
-        if self.engine.integrity.improvement:
+        if self.engine.analyzer.improved:
             print("Improved!")
         print ("Top Score: %f" %self.top_score)
         print("Integrity: %f" %self.engine.integrity.value)

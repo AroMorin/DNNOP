@@ -1,4 +1,5 @@
 """Base class for elite."""
+import torch
 
 class Analysis(object):
     def __init__(self, hp):

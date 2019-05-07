@@ -14,9 +14,9 @@ import torch
 class Engine(object):
     def __init__(self, model, hyper_params):
         self.model = model
-        self.elite = None
         self.analyzer = Analysis(hyper_params)
         self.weights = Weights(self.model.state_dict())
+        self.elite = self.weights.vector
         self.ns = Novelty(hyper_params)
         self.noise = Noise(hyper_params, self.weights.vector)
         self.integrity = Integrity(hyper_params)
@@ -28,12 +28,19 @@ class Engine(object):
 
     def get_novelty(self, score):
         print(score)
-        self.engine.ns.update(score)
-        agg_score = score+self.engine.ns.value
+        self.ns.update(score)
+        agg_score = score+self.ns.value
         print(agg_score)
         return agg_score
 
-    def update_state(self, improved):
+    def elite_novelty(self, top_score):
+        print(top_score)
+        self.ns.set(top_score)
+        agg_score = top_score+self.ns.value
+        print(agg_score)
+        return agg_score
+
+    def update_state(self):
         """Prepares the new pool based on the scores of the current generation
         and the results of the analysis (such as value of intergrity).
         """

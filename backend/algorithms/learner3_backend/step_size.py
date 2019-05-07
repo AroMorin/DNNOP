@@ -5,7 +5,7 @@ from __future__ import division
 class Step_size(object):
     def __init__(self, hp):
         self.value = 0.
-        self.increment = 10
+        self.increment = 1
         self.decrement = 1
         self.min_steps = 3.
         self.bin = [self.min_steps]*4  # Uniform distribution

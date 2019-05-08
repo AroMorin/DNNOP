@@ -49,7 +49,7 @@ class LEARNER3(Algorithm):
         """
         agg_score  = self.engine.get_novelty(score)
         top_score  = self.engine.elite_novelty(self.top_score)
-        self.engine.analyzer.analyze(agg_score, top_score)
+        self.engine.analyzer.analyze(score, agg_score, self.top_score, top_score)
         if self.engine.analyzer.replace:
             self.top_score = score
 

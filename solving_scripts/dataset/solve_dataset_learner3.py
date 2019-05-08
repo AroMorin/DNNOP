@@ -42,7 +42,7 @@ def main():
                     "tolerance": 0.01,
                     "learning rate": 0.05,
                     "lambda": 5,
-                    "alpha": 0.05,
+                    "alpha": 0.02,
                     "beta": 0.29,
                     "minimum entropy": -0.1,
                     "max steps": 50
@@ -56,7 +56,7 @@ def main():
     slv = solver_factory.make_slv("dataset", slv_params)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=5000)
+    slv.train_dataset_with_validation(iterations=9000)
     #slv.batch_train_dataset_with_validation(iterations=2500)
     #slv.repeated_batch_train_dataset_with_validation(iterations=5, reps=500)
 

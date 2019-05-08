@@ -43,7 +43,7 @@ def main():
                     "learning rate": 0.35,
                     "alpha": 0.3,
                     "beta": 0.29,
-                    "max steps": 50
+                    "max steps": 25
                     }
     alg = algorithm_factory.make_alg("learner3", model, alg_params)
 
@@ -54,7 +54,7 @@ def main():
     slv = solver_factory.make_slv("function", slv_params)
 
     # Use solver to solve the problem
-    slv.solve(iterations=5000)
+    slv.solve(iterations=50000)
     #slv.solve_and_plot(iterations=5000)
 
 if __name__ == '__main__':

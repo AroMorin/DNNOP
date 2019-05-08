@@ -1,13 +1,9 @@
 """Base Class for a Solver. This class contains the different methods that
 """
 
-from .evaluator import Evaluator
-from .interrogator import Interrogator
+from .solver import Solver
 
-import torch
-import time
-
-class Func_Solver(object):
+class Func_Solver(Solver):
     """This class makes absolute sense because there are many types of training
     the user -which is the ultimate goal, complete transparency-.
     """

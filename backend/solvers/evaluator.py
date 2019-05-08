@@ -26,10 +26,10 @@ class Evaluator(object):
             self.calculate_loss(env, inference, test)
         elif env.score_type == "accuracy":
             self.calculate_correct_predictions(env, inference, test, acc=True)
-        elif env.score_type == "score" or self.scoring == "error":
-            self.calculate_score(env, inference, test)
+        elif env.score_type == "score" or env.score_type == "error":
+            self.calculate_score(env, inference)
         else:
-            self.set_score(inference, test)
+            self.set_score(inference)
         self.clean_score(env)
 
     def calculate_loss(self, env, inference, test=False, grad=False):

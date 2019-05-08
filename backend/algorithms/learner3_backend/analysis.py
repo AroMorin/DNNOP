@@ -10,12 +10,12 @@ class Analysis(object):
         self.top_score = self.hp.initial_score
         self.entropy = 0.
 
-    def analyze(self, score, top_score):
+    def analyze(self, score, agg_score, top_score, agg_top_score):
         self.update_state(score, top_score)
         self.improved = self.better_entropy()
-        if self.better_abs():
-            self.replace = True
-            self.top_score = self.score
+        self.score = agg_score
+        self.top_score = agg_top_score
+        self.replace = self.better_abs()
 
     def update_state(self, score, top_score):
         self.score = score
@@ -44,6 +44,7 @@ class Analysis(object):
         """Function is constructed such that the conditional will evaluate to
         True most of the time.
         """
+        print("entropy: ", self.score, self.top_score)
         normal = self.top_score.ne(0)
         i = torch.sub(self.score, self.top_score)
         if normal:

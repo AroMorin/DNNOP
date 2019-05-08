@@ -2,7 +2,7 @@
 The pool object will contain the models under optimization.
 """
 from .noise import Noise
-from .novelty import Novelty
+from .novelty2 import Novelty
 from .weights import Weights
 from .analysis import Analysis
 from .integrity import Integrity
@@ -26,17 +26,13 @@ class Engine(object):
         if self.analyzer.replace:
             self.elite = self.weights.vector.clone()
 
+    def set_novelty(self, score):
+        self.ns.update(score)
+
     def get_novelty(self, score):
         print(score)
-        self.ns.update(score)
+        self.ns.set_penalty(score)
         agg_score = score+self.ns.value
-        print(agg_score)
-        return agg_score
-
-    def elite_novelty(self, top_score):
-        print(top_score)
-        self.ns.set(top_score)
-        agg_score = top_score+self.ns.value
         print(agg_score)
         return agg_score
 

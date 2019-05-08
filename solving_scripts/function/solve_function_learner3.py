@@ -43,7 +43,7 @@ def main():
                     "learning rate": 0.35,
                     "alpha": 0.3,
                     "beta": 0.29,
-                    "max steps": 25
+                    "max steps": 35
                     }
     alg = algorithm_factory.make_alg("learner3", model, alg_params)
 

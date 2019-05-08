@@ -11,7 +11,8 @@ class Novelty(object):
         self.limit = 0.1
         self.factor = 1.02
         self.idx = None
-        self.forget_counter = 3
+        self.f = 2
+        self.forget_counter = self.f
 
     def update(self, item):
         item = item.item()
@@ -21,8 +22,10 @@ class Novelty(object):
         else:
             self.value = 0.
             self.append_table(item)
+        self.forget()
 
     def set(self, item):
+        item = item.item()
         if self.in_table(item):
             self.set_elite_penalty(item)
             self.append_count(item)
@@ -77,7 +80,7 @@ class Novelty(object):
     def forget(self):
         if self.forget_counter == 0:
             self.reduce_count()
-            self.forget_counter = 3
+            self.forget_counter = self.f
         else:
             self.forget_counter -=1
 

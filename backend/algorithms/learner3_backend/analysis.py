@@ -44,7 +44,6 @@ class Analysis(object):
         """Function is constructed such that the conditional will evaluate to
         True most of the time.
         """
-        print("entropy: ", self.score, self.top_score)
         normal = self.top_score.ne(0)
         i = torch.sub(self.score, self.top_score)
         if normal:

@@ -22,8 +22,7 @@ class LEARNER3(Algorithm):
         self.populations = False
         self.model = model
         self.minimizing = self.hyper_params.minimizing
-        self.top_score = torch.tensor(self.hyper_params.initial_score,
-                                            device='cuda')
+        self.top_score = None
         self.target = None
         self.set_target()
 
@@ -47,8 +46,11 @@ class LEARNER3(Algorithm):
         so other modules know that this as well. Hence, can't "return" after
         initial condition.
         """
+        if self.top_score is None:
+            self.top_score = score
+        self.engine.set_novelty(self.top_score)
         agg_score  = self.engine.get_novelty(score)
-        top_score  = self.engine.elite_novelty(self.top_score)
+        top_score  = self.engine.get_novelty(self.top_score)
         self.engine.analyzer.analyze(score, agg_score, self.top_score, top_score)
         if self.engine.analyzer.replace:
             self.top_score = score

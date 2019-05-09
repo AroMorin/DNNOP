@@ -8,7 +8,7 @@ class Novelty(object):
     def __init__(self, hp):
         self.hp = hp
         self.value = 0.
-        self.mem_size = 20
+        self.mem_size = 30
         self.table = deque([], maxlen=self.mem_size)
         self.counts = Counter()
         self.penalties = {}
@@ -81,7 +81,7 @@ class Novelty(object):
     def set_penalty(self, item):
         item = item.item()
         n = np.array([0, 1])
-        p = np.array([0.45, 0.55])
+        p = np.array([0.1, 0.9])
         pick = np.random.choice(n, p=p)
         if pick == 1:
             self.value = 0.

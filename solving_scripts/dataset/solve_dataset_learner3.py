@@ -40,7 +40,7 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "tolerance": 0.01,
-                    "learning rate": 0.05,
+                    "learning rate": 0.08,
                     "lambda": 5,
                     "alpha": 0.02,
                     "beta": 0.29,
@@ -56,7 +56,7 @@ def main():
     slv = solver_factory.make_slv("dataset", slv_params)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=4000)
+    slv.train_dataset_with_validation(iterations=9000)
     #slv.batch_train_dataset_with_validation(iterations=2500)
     #slv.repeated_batch_train_dataset_with_validation(iterations=5, reps=500)
 

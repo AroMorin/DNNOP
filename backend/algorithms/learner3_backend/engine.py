@@ -2,7 +2,7 @@
 The pool object will contain the models under optimization.
 """
 from .noise import Noise
-from .novelty2 import Novelty
+from .novelty3 import Novelty
 from .weights import Weights
 from .analysis import Analysis
 from .integrity import Integrity

@@ -10,12 +10,14 @@ class Novelty(object):
         self.table = []
         self.counts = []
         self.penalties = []
-        self.limit = 0.1
-        self.factor = 1.02
-        self.idx = None
-        self.f = 2
+        self.factor = 1.5
+        self.increment = 1.
+        self.decrement = 0.5
+        self.f = 1
         self.forget_counter = self.f
         self.sim = None
+        self.min_len = 3
+        self.mem_len = 5
 
     def update(self, item):
         item = item.item()
@@ -25,28 +27,28 @@ class Novelty(object):
             self.append_lists(item)
         self.forget()
         self.update_penalties()
-        if len(self.table)>3:
+        if len(self.table)>=self.min_len:
             self.update_sim()
+        print(self.table)
         print(self.counts)
-        print((self.table))
-        print(self.penalties)
 
     def set_penalty(self, item):
-        if len(self.table)<4:
+        item = item.item()
+        if len(self.table)<self.min_len:
             self.value = 0.
         else:
-            value = self.sim(item.item())
+            value = self.sim(item)
             self.value = value.tolist()
         print("penalty: %f" %self.value)
 
     def append_lists(self, item):
         self.table.append(item)
-        self.counts.append(1)
+        self.counts.append(self.increment)
         self.penalties.append(0.)
 
     def increment_count(self, item):
         idx = self.table.index(item)
-        self.counts[idx]+=1
+        self.counts[idx]+=self.increment
 
     def forget(self):
         if self.forget_counter == 0:
@@ -56,11 +58,12 @@ class Novelty(object):
             self.forget_counter -=1
 
     def reduce_count(self):
-        self.counts = [i-1 for i in self.counts]
-        while 0 in self.counts:
+        self.counts = [max(0, i-self.decrement) for i in self.counts]
+        while 0 in self.counts and len(self.table)>self.min_len :
             idx = self.counts.index(0)
-            self.counts[idx]+=1
-        assert 0 not in self.counts
+            del self.table[idx]
+            del self.counts[idx]
+            del self.penalties[idx]
         assert len(self.counts) == len(self.table)
 
     def update_penalties(self):
@@ -83,10 +86,10 @@ class Novelty(object):
         idxs = np.argsort(x)
         x = x[idxs]
         y = y[idxs]
-        print (x)
-        print(y)
         #self.sim = interpolate.interp1d(x, y, fill_value=0., kind='linear')
-        self.sim = interpolate.interp1d(x, y, fill_value='extrapolate', kind='linear')
+        z = 0.
+        self.sim = interpolate.interp1d(x, y, bounds_error=False,
+                                        fill_value=z, kind='linear')
 
 
 #

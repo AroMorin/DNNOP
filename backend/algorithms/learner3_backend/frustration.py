@@ -4,19 +4,20 @@ from scipy import interpolate
 import numpy as np
 from collections import deque, Counter
 
-class Novelty(object):
+class Frustration(object):
     def __init__(self, hp):
         self.hp = hp
         self.value = 0.
-        self.mem_size = 30
+        self.mem_size = 50
         self.table = deque([], maxlen=self.mem_size)
         self.counts = Counter()
         self.penalties = {}
-        self.factor = 1.01
+        self.factor = 1.15
         self.sim = None
         self.min_len = 4
         self.uniques = 0
-        self.epsilon = 0.00001
+        self.epsilon = 0.001
+        self.patience = 10
 
     def update(self, item):
         item = item.item()
@@ -38,7 +39,6 @@ class Novelty(object):
 
     def update_penalties(self):
         self.penalties = {}
-
         for element in set(self.table):
             if self.hp.minimizing:
                 pen = element*((self.factor**self.counts[element])-1)
@@ -67,22 +67,21 @@ class Novelty(object):
                 i = 0
 
     def update_sim(self):
-        assert len(list(self.penalties.keys())) == len(set(self.table))
         x = np.array(list(self.penalties.keys()))
         y = np.array(list(self.penalties.values()))
-        #idxs = np.argsort(x)
-        #x = x[idxs]
-        #y = y[idxs]
-        #self.sim = interpolate.interp1d(x, y, fill_value=0., kind='linear')
-        z = 0.
-        self.sim = interpolate.interp1d(x, y, bounds_error=False,
-                                        fill_value=z, kind='linear')
+        self.sim = interpolate.interp1d(x, y, bounds_error=False, fill_value=0.,
+                                        kind='linear')
+
+    def set_jump_p(self):
+        """Sets the search radius (noise magnitude) based on the integrity and
+        hyperparameters."""
+        p = 1.-integrity
+        argument = (self.hp.lambda_*p)-2.5
+        exp1 = math.tanh(argument)+1
+        self.search_radius = exp1*self.hp.lr
 
     def set_penalty(self, item):
         item = item.item()
-        n = np.array([0, 1])
-        p = np.array([0.1, 0.9])
-        pick = np.random.choice(n, p=p)
         if pick == 1:
             self.value = 0.
         else:

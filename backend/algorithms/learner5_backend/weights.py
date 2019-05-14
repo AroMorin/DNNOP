@@ -12,6 +12,7 @@ class Weights(object):
         """It is always assumed that the dict and the vector belong to the same
         model.
         """
+        print(vector)
         self.vector = vector
         torch.nn.utils.vector_to_parameters(self.vector, self.parameters)
 #

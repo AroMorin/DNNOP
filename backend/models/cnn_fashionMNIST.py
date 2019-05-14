@@ -29,14 +29,14 @@ class Net(nn.Module):
     def forward(self, x):
         """Forward pass over the model."""
         x = F.max_pool2d(self.conv1(x), 2)
-        x = self.act1(x)
+        x = torch.sin(x)
         x = F.max_pool2d(self.conv2(x), 2)
-        x = self.act2(x)
+        x = torch.sin(x)
         (_, C, H, W) = x.data.size()
         x = x.view(-1 , C*H*W)
         #print(C*H*W)
         x = self.fc1(x)
-        x = self.act3(x)
+        x = torch.sin(x)
         x = self.fc2(x)
         x = F.log_softmax(x, dim=1)
         return x

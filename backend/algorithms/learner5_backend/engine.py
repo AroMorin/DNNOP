@@ -2,21 +2,22 @@
 The pool object will contain the models under optimization.
 """
 from .noise import Noise
-from .weights import Weights
 from .analysis import Analysis
 from .integrity import Integrity
 from .selection_p import Selection_P
-from .frustration2 import Frustration
+from .frustration import Frustration
+
+import torch
 
 class Engine(object):
     def __init__(self, model, hyper_params):
         self.model = model
         self.analyzer = Analysis(hyper_params)
-        self.weights = Weights(self.model.state_dict())
-        self.elite = self.weights.vector
         self.frustration = Frustration(hyper_params)
-        self.noise = Noise(hyper_params, self.weights.vector)
         self.integrity = Integrity(hyper_params)
+        self.vector = torch.nn.utils.parameters_to_vector(self.model.parameters())
+        self.elite = self.vector
+        self.noise = Noise(hyper_params, self.vector)
         self.selection_p = Selection_P(hyper_params, self.noise.vec_length)
         self.jumped = False
 
@@ -27,7 +28,7 @@ class Engine(object):
     def set_elite(self):
         self.jumped = False
         if self.analyzer.replace or self.frustration.jump:
-            self.elite = self.weights.vector.clone()
+            self.elite = self.vector.clone()
             self.jumped = True
 
     def update_state(self):
@@ -42,7 +43,10 @@ class Engine(object):
     def generate(self):
         new_vector = self.elite.clone()
         new_vector.add_(self.noise.vector)
-        self.weights.update(new_vector)
-        self.model.load_state_dict(self.weights.current)
+        self.vector = new_vector
+
+    def update_weights(self):
+        torch.nn.utils.vector_to_parameters(self.vector, self.model.parameters())
+
 
 #

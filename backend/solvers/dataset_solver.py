@@ -70,13 +70,13 @@ class Dataset_Solver(Solver):
         self.reset_state()
         # Process
         for _ in range(iterations):
-            print ("\nIteration %d" %self.current_iteration)
+            print ("\nIteration %d" %_)
             self.env.step()
-            for ___ in range(reps):
+            for __ in range(reps):
+                print ("\nRep %d" %__)
                 self.forward()
                 self.backward()
             self.alg.reset_state()
-            self.current_iteration += 1
         self.test()
         self.print_test_accuracy()
 

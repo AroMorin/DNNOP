@@ -62,7 +62,7 @@ class Environment(object):
             self.score = False
             self.error = False
             self.minimize = False  # Maximize accuracy
-            self.target = 100  # 100%
+            self.target = 100.  # 100%
         elif self.score_type == "score":
             # Activate when the environment has an evaluation function
             self.loss = False

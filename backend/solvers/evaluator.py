@@ -56,7 +56,7 @@ class Evaluator(object):
             pred = inference.argmax(dim=1, keepdim=True)
             correct = pred.eq(env.labels.view_as(pred)).sum().float()
             if acc:
-                self.abs_to_acc(correct, test=test)
+                self.abs_to_acc(env, correct, test=test)
                 self.train_acc = correct
             self.score = correct
         else:

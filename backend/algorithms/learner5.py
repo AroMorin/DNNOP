@@ -9,13 +9,13 @@ The optimizer object will own the pool.?
 """
 from __future__ import division
 from .algorithm import Algorithm
-from .learner4_backend.hyper_parameters import Hyper_Parameters
-from .learner4_backend.engine import Engine
+from .learner5_backend.hyper_parameters import Hyper_Parameters
+from .learner5_backend.engine import Engine
 
-class LEARNER4(Algorithm):
+class LEARNER5(Algorithm):
     def __init__(self, model, alg_params):
         print ("Using Learner4 algorithm")
-        super(LEARNER4, self).__init__()
+        super(LEARNER5, self).__init__()
         self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
         self.engine = Engine(model, self.hyper_params) # Create a pool object
         self.populations = False
@@ -36,15 +36,16 @@ class LEARNER4(Algorithm):
         obtains the scores and accordingly updates the models.
         """
         inference, score = feedback
-        score = self.regularize(score)
+        #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
         self.engine.update_state()
         self.engine.generate()
+        self.engine.update_weights()
         self.update_top_score(score)
 
     def regularize(self, score):
-        norm = self.engine.weights.vector.norm()
+        norm = self.engine.vector.norm()
         score = score+(0.01*norm)
         return score
 

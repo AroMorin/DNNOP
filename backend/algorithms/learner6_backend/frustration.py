@@ -65,9 +65,10 @@ class Frustration(object):
         jump = np.random.choice([0, 1], 1, p=[p0, p1])
         jump = bool(jump)  # Convert float to boolean
         if jump:
-            diff = abs(score-self.table[-1])/self.table[-1]
+            diff = abs(score-self.table[-1])/abs(self.table[-1])
             self.jump = diff <= self.limit
-
+        else:
+            self.jump = jump
 
 
 

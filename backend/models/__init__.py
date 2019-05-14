@@ -4,6 +4,7 @@ is chosen.
 
 from .cnn_mnist import Net as MNIST_CNN
 from .cnn_fashionMNIST import Net as FashionMNIST_CNN
+from .cnn_cifar10 import Net as CIFAR10_CNN
 from .mnist_cnn_msn import Net as MNIST_CNN_MSN
 from .func_fc import Net as FUNC_FC
 from .nao_fc import Net as NAO_FC
@@ -68,6 +69,8 @@ def pick_model(name, model_params):
         model = MNIST_CNN_MSN(model_params)
     elif name == "FashionMNIST CNN":
         model = FashionMNIST_CNN(model_params)
+    elif name == "CIFAR10 CNN":
+        model = CIFAR10_CNN(model_params)
     elif name == "Function FC model":
         model = FUNC_FC(model_params)
     elif name == "NAO FC model":
@@ -97,7 +100,7 @@ def init_weights(model, scheme):
 def init_uniform(m):
     """Initializes weights according to a Uniform distribution."""
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        limit = 0.1
+        limit = 0.5
         nn.init.uniform_(m.weight, a=-limit, b=limit)
 
 def init_normal(m):

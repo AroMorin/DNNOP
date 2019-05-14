@@ -14,7 +14,7 @@ class Noise(object):
         self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
-        self.limit = 500
+        self.limit = 200
         self.num_selections = None
         self.search_radius = None
         self.precision = vector.dtype
@@ -34,10 +34,10 @@ class Noise(object):
         hyperparameters."""
         #p = 1-self.integrity
         p = integrity
-        numerator = self.hp.alpha
-        denominator = 1+(self.hp.beta/p)
+        numerator = 1
+        denominator = 1+(0.29/p)
         num_selections = numerator/denominator
-        self.num_selections = int(num_selections*self.vec_length)
+        self.num_selections = int(num_selections*self.limit)
 
     def set_search_radius(self, integrity):
         """Sets the search radius (noise magnitude) based on the integrity and

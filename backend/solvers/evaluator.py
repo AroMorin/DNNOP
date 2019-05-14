@@ -40,7 +40,17 @@ class Evaluator(object):
                 self.score = self.train_loss
             else:
                 with torch.no_grad():
-                    loss = F.nll_loss(inference, env.test_labels, reduction='sum').item()
+                    loss = F.nll_loss(inference, env.test_labels,
+                                    reduction='sum').item()
+                    self.test_loss = loss
+        elif env.loss_type == 'CE loss':
+            if not test:
+                self.train_loss = F.cross_entropy(inference, env.labels)
+                self.score = self.train_loss
+            else:
+                with torch.no_grad():
+                    loss = F.cross_entropy(inference, env.test_labels,
+                                                reduction='sum').item()
                     self.test_loss = loss
         else:
             print("Unknown loss type")

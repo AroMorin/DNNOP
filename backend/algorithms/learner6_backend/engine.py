@@ -43,7 +43,7 @@ class Engine(object):
     def generate(self):
         new_vector = self.elite.clone()
         new_vector.add_(self.noise.vector)
-        new_vector.clamp_(-0.1, 0.1)
+        #new_vector.clamp_(-0.3, 0.3)
         self.vector = new_vector
 
     def update_weights(self):

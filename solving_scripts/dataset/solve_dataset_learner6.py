@@ -17,38 +17,36 @@ import torch
 def main():
     precision = torch.half
     #data_path = "C:/Users/aaa2cn/Documents/fashion_mnist_data"
-    data_path = "~/Documents/ahmed/fashion_mnist_data"
+    data_path = "~/Documents/ahmed/cifar10_data"
     # Make an MNIST Dataset environment
     env_params = {
                     "data path": data_path,
                     "precision": precision,
-                    "score type": "loss",
+                    "score type": "accuracy",
                     "loss type": "NLL loss",
                     "batch size": 5000  # Entire set
                     }
-    env = env_factory.make_env("dataset", "fashion mnist", env_params)
+    env = env_factory.make_env("dataset", "cifar10", env_params)
 
     # Make a pool
     model_params = {
                     "precision": precision,
                     "weight initialization scheme": "Default"  # Xavier Normal
                     }
-    model = model_factory.make_model("FashionMNIST CNN", model_params)
+    model = model_factory.make_model("CIFAR10 CNN", model_params)
 
     # Make an algorithm --algorithm takes control of the pool--
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "tolerance": 0.01,
-                    "learning rate": 0.1,
+                    "learning rate": 0.09,
                     "lambda": 5,
-                    "alpha": 0.02,
-                    "beta": 0.29,
-                    "minimum entropy": -0.1,
+                    "minimum entropy": 0.1,
                     "max steps": 100,
-                    "memory size": 500
+                    "memory size": 1000
                     }
-    alg = algorithm_factory.make_alg("learner5", model, alg_params)
+    alg = algorithm_factory.make_alg("learner6", model, alg_params)
 
     slv_params = {
                     "environment": env,
@@ -57,7 +55,7 @@ def main():
     slv = solver_factory.make_slv("dataset", slv_params)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=15000)
+    slv.train_dataset_with_validation(iterations=25000)
     #slv.batch_train_dataset_with_validation(iterations=2500)
     #slv.repeated_batch_train_dataset_with_validation(iterations=5, reps=10000)
 

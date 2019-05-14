@@ -56,10 +56,11 @@ class FashionMNIST(Dataset):
     def set_transformations(self):
         """Set the desired transformations on the dataset."""
         print ("Applying dataset transformations")
-        self.transforms = transforms.Compose([transforms.ToTensor(),
-                                            transforms.Normalize((0.5,),
-                                                                (0.5,))
-                                            ])
+        self.transforms = transforms.Compose([transforms.ToTensor()])
+        #self.transforms = transforms.Compose([transforms.ToTensor(),
+        #                                    transforms.Normalize((0.5,),
+        #                                                        (0.5,))
+        #                                    ])
 
     def format_data(self):
         """Apply the desired precision, split into batches and perform any other

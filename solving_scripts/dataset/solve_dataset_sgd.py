@@ -18,20 +18,20 @@ def main():
     precision = torch.half
     # Make an MNIST Dataset environment
     env_params = {
-                    "data path": "~/Documents/ahmed/fashion_mnist_data",
+                    "data path": "~/Documents/ahmed/cifar10_data",
                     "precision": precision,
                     "score type": "loss",
                     "loss type": "NLL loss",
                     "batch size": 5000  # Entire set
                     }
-    env = env_factory.make_env("dataset", "fashion mnist", env_params)
+    env = env_factory.make_env("dataset", "cifar10", env_params)
 
     # Make a pool
     model_params = {
                     "precision": precision,
                     "weight initialization scheme": "Default"  # Xavier Normal
                     }
-    model = model_factory.make_model("FashionMNIST CNN", model_params)
+    model = model_factory.make_model("CIFAR10 CNN", model_params)
 
     # Make an algorithm --algorithm takes control of the pool--
     alg_params = {

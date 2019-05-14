@@ -7,7 +7,7 @@ class Step_size(object):
         self.value = 0.
         self.increment = 50
         self.decrement = 0.5
-        self.min_steps = 4.
+        self.min_steps = 10.
         self.bin = [self.min_steps]*4  # Uniform distribution
         self.real_bin = [self.min_steps]*4
         self.max_steps = hp.max_steps  # Max number of iterations to spend in one bin

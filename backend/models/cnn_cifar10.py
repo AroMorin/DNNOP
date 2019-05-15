@@ -36,27 +36,33 @@ class Net(nn.Module):
 
     def forward(self, x):
         """Forward pass over the model."""
-        print(x[0][0:10])
+        #print(x[0][0:10])
         x = self.conv1(x)
-        print(x[0][0:10])
-        x = self.act1(x)
-        x = x.clamp(0., 0.1)
-        print(x[0][0:10])
+        #print(x[0][0:10])
+        x = self.clamp(x)
+        #x = x.clamp(-0.1, 0.1)
+        #print(x[0][0:10])
         x = F.max_pool2d(x, 2)
-        #x = torch.sin(x)
         x = self.conv2(x)
-        x = self.act2(x)
+        x = self.clamp(x)
         x = F.max_pool2d(x, 2)
-        #x = torch.sin(x)
         (_, C, H, W) = x.data.size()
         x = x.view(-1, C*H*W)
         #print(C*H*W)
         x = self.fc1(x)
-        x = self.act3(x)
-        #x = torch.sin(x)
+        x = self.clamp(x)
         x = self.fc2(x)
-        x = self.act4(x)
-        #x = torch.sin(x)
+        x = self.clamp(x)
         x = self.fc3(x)
         #x = F.log_softmax(x, dim=1)
+        return x
+
+    def clamp(self, x):
+        #print(x[0][0:100])
+        threshold = torch.full_like(x, 0.5)
+        #threshold = 0.5
+        selections = x.gt(threshold)
+        x.fill_(0.)
+        x[selections] = 0.5
+        #print(x[0][0:100])
         return x

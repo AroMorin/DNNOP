@@ -12,7 +12,7 @@ class Noise(object):
         self.vec_length = torch.numel(vector)
         self.indices = np.arange(self.vec_length)
         self.choices = []  # list of indices
-        self.limit = 500
+        self.limit = 200
         self.num_selections = None
         self.precision = vector.dtype
         self.vector = None

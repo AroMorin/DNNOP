@@ -37,6 +37,7 @@ class LEARNER7(Algorithm):
         obtains the scores and accordingly updates the models.
         """
         inference, score = feedback
+        print(inference[0])
         #print(score.item())
         #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
@@ -72,7 +73,6 @@ class LEARNER7(Algorithm):
         print("Integrity: %f" %self.engine.integrity.value)
         print("Bin: ", self.engine.integrity.step_size.bin)
         print("Step size: %f" %self.engine.integrity.step_size.value)
-        print("SR: %f" %self.engine.noise.search_radius)
         print("Selections: %d" %self.engine.noise.num_selections)
         print("P: ", self.engine.selection_p.p[0:10])
         print("Variance(P): %f\n" %self.engine.selection_p.variance)

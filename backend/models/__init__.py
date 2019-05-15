@@ -100,15 +100,19 @@ def init_weights(model, scheme):
         model.apply(init_he)
     elif scheme == 'Sparse':
         model.apply(init_sparse)
+    elif scheme == 'Spiking':
+        model.apply(init_uniform)
+        model.apply(init_spiking)
     else:
         return  # Default initialization scheme
 
 def init_uniform(m):
     """Initializes weights according to a Uniform distribution."""
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        limit = 0.5
-        nn.init.uniform_(m.weight, a=-limit, b=limit)
-        nn.init.uniform_(m.bias, a=-limit, b=limit)
+        a = -0.9
+        b = 0.9
+        nn.init.uniform_(m.weight, a=a, b=b)
+        nn.init.uniform_(m.bias, a=a, b=b)
 
 def init_normal(m):
     """Initializes weights according to a Normal distribution."""
@@ -150,6 +154,15 @@ def init_sparse(m):
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.sparse_(m.weight, sparsity=ratio)
         nn.init.sparse_(m.bias, sparsity=ratio)
+
+def init_spiking(m):
+    """Initializes weights according to an Identity matrix. This special case
+    allows the initial input(s) to be reflected in the output of the model.
+    """
+    ratio = 0.1
+    if type(m) == nn.Linear or type(m) == nn.Conv2d:
+        m.weight.data.ceil_()
+        m.bias.data.ceil_()
 
 def load_weights(model, path):
     model.load_state_dict(torch.load(path))

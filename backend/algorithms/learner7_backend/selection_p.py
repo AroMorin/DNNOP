@@ -7,8 +7,8 @@ import torch
 class Selection_P(object):
     def __init__(self, hp, length):
         self.hp = hp
-        self.incr = 0.84 # increase is 20% of probability value
-        self.decr = 0.48  # decrease is 10% of probability value
+        self.incr = 5. # increase is 20% of probability value
+        self.decr = 5.  # decrease is 10% of probability value
         self.variance = 0
         self.max_var = 3
         self.p_vec = torch.full((length,), 0.5, device='cuda')

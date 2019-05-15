@@ -15,10 +15,8 @@ class Hyper_Parameters(object):
         """
         print("Iniitializing hyper parameters of LEARNER")
         self.hyper_params = {}
-        self.lr = 0
         self.alpha = 0
         self.beta = 0
-        self.lambda_ = 0
         self.max_steps = 0
         self.mem_size = 50
         self.def_integrity = 0
@@ -46,8 +44,6 @@ class Hyper_Parameters(object):
         self.hyper_params = {
                                 "alpha":0.05,
                                 "beta": 0.29,
-                                "learning rate": 0.04,
-                                "lambda":5,
                                 "default integrity": 0.6,
                                 "initial integrity": 0.6,
                                 "minimum integrity": 0.01,
@@ -69,8 +65,6 @@ class Hyper_Parameters(object):
         # Instantiate hyper parameters for MSN algorithm
         self.alpha = self.hyper_params["alpha"]
         self.beta = self.hyper_params["beta"]
-        self.lr = self.hyper_params["learning rate"]
-        self.lambda_ = self.hyper_params["lambda"]
         self.def_integrity = self.hyper_params["default integrity"]
         self.initial_integrity = self.hyper_params["initial integrity"]
         self.min_integrity = self.hyper_params["minimum integrity"]

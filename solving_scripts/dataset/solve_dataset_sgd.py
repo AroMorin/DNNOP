@@ -29,7 +29,7 @@ def main():
     # Make a pool
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Default"  # Xavier Normal
+                    "weight initialization scheme": "He"  # Xavier Normal
                     }
     model = model_factory.make_model("CIFAR10 CNN", model_params)
 

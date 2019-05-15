@@ -11,6 +11,12 @@ import torch
 class Algorithm(object):
     def __init__(self):
         self.none = "hahahaha"
+        self.top_score = None
+        self.initial_score = None
+        self.populations = False
+        self.model = None
+        self.minimizing = True
+        self.target = None
 
     def step(self):
         """Placeholder method for performing an optimization step."""
@@ -20,7 +26,7 @@ class Algorithm(object):
         """Placeholder method in case the solver has need to reset its internal
         state.
         """
-        pass
+        self.top_score = self.initial_score
 
     def print_state(self):
         """Placeholder method for performing an optimization step."""

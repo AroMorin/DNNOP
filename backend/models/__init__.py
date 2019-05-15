@@ -94,6 +94,12 @@ def init_weights(model, scheme):
         model.apply(init_normal)
     elif scheme == 'Identical':
         model.apply(init_eye)
+    elif scheme == 'Constant':
+        model.apply(init_constant)
+    elif scheme == 'He':
+        model.apply(init_he)
+    elif scheme == 'Sparse':
+        model.apply(init_sparse)
     else:
         return  # Default initialization scheme
 
@@ -102,6 +108,7 @@ def init_uniform(m):
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         limit = 0.5
         nn.init.uniform_(m.weight, a=-limit, b=limit)
+        nn.init.uniform_(m.bias, a=-limit, b=limit)
 
 def init_normal(m):
     """Initializes weights according to a Normal distribution."""
@@ -109,6 +116,7 @@ def init_normal(m):
         limit = 0.1
         origin = 0
         nn.init.normal_(m.weight, mean=origin, std=limit)
+        nn.init.normal_(m.bias, mean=origin, std=limit)
 
 def init_eye(m):
     """Initializes weights according to an Identity matrix. This special case
@@ -116,6 +124,32 @@ def init_eye(m):
     """
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.eye_(m.weight)
+        nn.init.eye_(m.bias)
+
+def init_constant(m):
+    """Initializes weights according to an Identity matrix. This special case
+    allows the initial input(s) to be reflected in the output of the model.
+    """
+    val = 0.
+    if type(m) == nn.Linear or type(m) == nn.Conv2d:
+        nn.init.constant_(m.weight, val)
+        nn.init.constant_(m.bias, val)
+
+def init_he(m):
+    """Initializes weights according to an Identity matrix. This special case
+    allows the initial input(s) to be reflected in the output of the model.
+    """
+    if type(m) == nn.Linear or type(m) == nn.Conv2d:
+        nn.init.kaiming_normal_(m.weight)
+
+def init_sparse(m):
+    """Initializes weights according to an Identity matrix. This special case
+    allows the initial input(s) to be reflected in the output of the model.
+    """
+    ratio = 0.1
+    if type(m) == nn.Linear or type(m) == nn.Conv2d:
+        nn.init.sparse_(m.weight, sparsity=ratio)
+        nn.init.sparse_(m.bias, sparsity=ratio)
 
 def load_weights(model, path):
     model.load_state_dict(torch.load(path))

@@ -40,7 +40,6 @@ class Dataset_Solver(Solver):
                 self.env.step()
                 self.forward()
                 self.backward()
-                self.current_batch +=1
             self.current_iteration +=1
 
     def batch_train_with_validation(self, iterations):
@@ -55,10 +54,34 @@ class Dataset_Solver(Solver):
                 self.env.step()
                 self.forward()
                 self.backward()
-                self.current_batch +=1
             self.current_iteration += 1
         self.alg.test()
         self.alg.print_test_accuracy()
+
+    def determined_batch_train_with_validation(self, iterations):
+        """In cases where a dataset is being trained with a validation component
+        such as MNIST.
+        """
+        print("Mini-batch training model(s) on a dataset w/ validation")
+        batches = self.env.nb_batches
+        for _ in range(iterations):
+            print ("\nIteration %d" %self.current_iteration)
+            for __ in range(batches):
+                improved = False
+                self.alg.reset_state()
+                self.env.step()
+                self.forward()
+                self.backward()
+                step=0
+                while not improved and step<50:
+                    print("Batch: %d" %__)
+                    self.forward()
+                    self.backward()
+                    improved = self.alg.engine.jumped
+                    step+=1
+            self.current_iteration += 1
+        self.test()
+        self.print_test_accuracy()
 
     def repeated_batch_train_dataset_with_validation(self, iterations, reps):
         """In cases where a dataset is being trained with a validation component

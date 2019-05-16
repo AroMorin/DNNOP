@@ -9,9 +9,7 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(model_params['in features'], 256)
         self.act1 = nn.ReLU()
         self.fc2 = nn.Linear(256, 128)
-        self.act2 = nn.ReLU()
         self.fc3 = nn.Linear(128, 64)
-        self.act3 = nn.ReLU()
         self.fc4 = nn.Linear(64, model_params['number of outputs'])
 
     def ingest_params_lvl1(self, model_params):

@@ -14,7 +14,9 @@ import torch
 def main():
     # Variable definition
     precision = torch.float
-    game = "Pong-ram-v0"
+    #game = "Pong-v0"
+    #game = "Pong-ram-v0"
+    game = "MsPacman-ram-v0"
 
     # Parameter and Object declarations
     env_params = {
@@ -42,7 +44,7 @@ def main():
                     "tolerance": 0.01,
                     "minimum entropy": 0.1,
                     "max steps": 50,
-                    "memory size": 10
+                    "memory size": 20
                     }
     alg = algorithm_factory.make_alg("learner7", model, alg_params)
 

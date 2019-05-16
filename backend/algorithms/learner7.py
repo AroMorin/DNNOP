@@ -59,6 +59,8 @@ class LEARNER7(Algorithm):
         """
         if self.engine.jumped:
             self.top_score = score
+        else:
+            self.top_score = (self.top_score)*0.95
 
     def print_state(self):
         if self.engine.analyzer.replace:

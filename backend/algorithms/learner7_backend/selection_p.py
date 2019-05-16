@@ -7,7 +7,7 @@ import torch
 class Selection_P(object):
     def __init__(self, hp, length):
         self.hp = hp
-        self.incr = 0. # increase is 20% of probability value
+        self.incr = 0.3 # increase is 20% of probability value
         self.decr = 0.2  # decrease is 10% of probability value
         self.variance = 0
         self.max_var = 3

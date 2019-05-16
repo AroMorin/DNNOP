@@ -6,7 +6,7 @@ class Step_size(object):
     def __init__(self, hp):
         self.value = 0.
         self.increment = 50
-        self.decrement = 0.5
+        self.decrement = 10
         self.min_steps = 10.
         self.bin = [self.min_steps]*4  # Uniform distribution
         self.real_bin = [self.min_steps]*4

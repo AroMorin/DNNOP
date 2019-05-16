@@ -37,7 +37,7 @@ class LEARNER7(Algorithm):
         obtains the scores and accordingly updates the models.
         """
         inference, score = feedback
-        print(inference[0])
+        print(inference)
         #print(score.item())
         #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
@@ -69,7 +69,7 @@ class LEARNER7(Algorithm):
             print("Improved!")
         print ("Top Score: %f" %self.top_score)
         print("Memory: %d" %self.engine.frustration.count)
-        print("Frustration: %f" %self.engine.frustration.value)
+        print("Frustration: %f" %self.engine.frustration.tau)
         print("Integrity: %f" %self.engine.integrity.value)
         print("Bin: ", self.engine.integrity.step_size.bin)
         print("Step size: %f" %self.engine.integrity.step_size.value)

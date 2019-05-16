@@ -53,9 +53,12 @@ class RL_Solver(Solver):
         self.env.close()
 
     def roll(self):
+        steps=0
         self.env.reset_state()
         while not self.env.done:
             self.forward()
+            steps+=1
+        print("Took %d steps" %steps)
 
     def roll_and_render(self, delay=0.05):
         self.env.reset_state()
@@ -65,7 +68,7 @@ class RL_Solver(Solver):
             time.sleep(delay)
 
     def forward(self):
-        self.interrogator.set_inference(self.alg.model)
+        self.interrogator.set_inference(self.alg.model, self.env)
         action = self.interrogator.inference
         self.env.step(action)
 
@@ -77,6 +80,5 @@ class RL_Solver(Solver):
 
     def demonstrate_env(self):
         """In cases where training is needed."""
-        self.alg.pool.model = self.alg.pool.elite.model
         self.roll_and_render()
         self.env.close()

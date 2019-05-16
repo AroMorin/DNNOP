@@ -12,7 +12,7 @@ class Noise(object):
         self.vec_length = torch.numel(vector)
         self.indices = np.arange(self.vec_length)
         self.choices = []  # list of indices
-        self.limit = 200
+        self.limit = 500
         self.num_selections = None
         self.precision = vector.dtype
         self.vector = None
@@ -50,14 +50,18 @@ class Noise(object):
         "basis" tensor is created with zeros, then the chosen indices are
         modified.
         """
-        noise = np.random.choice([1., 0.], size=self.num_selections)
+        peak = 0.01
+        noise = np.random.choice([0., 1.], size=self.num_selections)
         noise = torch.tensor(noise)
+        self.choices = torch.tensor(self.choices).cuda()
         # Cast to precision and CUDA, and edit shape
-        noise = noise.to(dtype=self.precision, device='cuda').squeeze()
-        noise_vector = torch.zeros(self.vec_length, dtype=self.precision,
-                                    device='cuda')
-        noise_vector[self.choices] = noise
-        self.vector = noise_vector
+        self.vector = noise.to(dtype=self.precision, device='cuda').squeeze()
+        #noise = torch.full(self.num_selections, 0.05, dtype=self.precision,
+        #                            device='cuda')
+        #noise_vector = torch.zeros(self.vec_length, dtype=self.precision,
+        #                            device='cuda')
+        #noise_vector[self.choices] = noise
+        #self.vector = noise_vector
 
 
 

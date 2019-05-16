@@ -92,7 +92,7 @@ class Evaluator(object):
 
     def calculate_score(self, env, inference):
         """Calculates the scores given the network inferences."""
-        self.score = env.evaluate(inference)
+        self.score = env.evaluate(inference).cuda()
 
     def set_score(self, score):
         self.score = score

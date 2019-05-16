@@ -14,18 +14,6 @@ class Net(nn.Module):
         self.act3 = nn.ReLU()
         self.fc4 = nn.Linear(64, model_params['number of outputs'])
 
-    # Called with either one element to determine next action, or a batch
-    # during optimization. Returns tensor([[left0exp,right0exp]...]).
-    def forward(self, x):
-        x = self.fc1(x)
-        x = self.act1(x)
-        x = self.fc2(x)
-        x = self.act2(x)
-        x = self.fc3(x)
-        x = self.act3(x)
-        x = self.fc4(x)
-        return x
-
     def ingest_params_lvl1(self, model_params):
         assert type(model_params) is dict
         default_params = {
@@ -34,3 +22,35 @@ class Net(nn.Module):
                             }
         default_params.update(model_params)  # Update with user selections
         return default_params
+
+
+    # Called with either one element to determine next action, or a batch
+    # during optimization. Returns tensor([[left0exp,right0exp]...]).
+    def forward(self, x):
+        #print(x[0:25])
+        x = self.fc1(x)
+        #print(x[0:25])
+        x = self.clamp(x)
+        #print(x[0:25])
+        x = self.fc2(x)
+        #print(x[0:25])
+        x = self.clamp(x)
+        x = self.fc3(x)
+        x = self.clamp(x)
+        #print(x[0:25])
+        x = self.fc4(x)
+        #print(x)
+        #exit()
+        return x
+
+    def clamp(self, x):
+        #print(x[0:50])
+        m = x.max().item()
+        peak = m*0.01
+        threshold = m*0.85
+        threshold = torch.full_like(x, threshold)
+        selections = x.gt(threshold)
+        x.fill_(0.)
+        x[selections] = peak
+        #print(x[0:50])
+        return x

@@ -4,16 +4,20 @@ from __future__ import division
 import numpy as np
 import torch
 import math
+from torch.distributions import uniform, normal
 
 class Noise(object):
     def __init__(self, hp, vector):
         self.hp = hp
         self.vec_length = torch.numel(vector)
         self.indices = np.arange(self.vec_length)
+        self.noise_distribution = "uniform"  # Or "uniform"
+        self.distribution = None
         self.running_idxs = np.arange(self.vec_length)
         self.choices = []  # list of indices
-        self.limit = 1000
+        self.limit = 5000
         self.num_selections = None
+        self.search_radius = None
         self.precision = vector.dtype
         self.vector = None
 
@@ -21,6 +25,8 @@ class Noise(object):
         # Set noise size (scope)
         self.choices = []
         self.set_num_selections(integrity)
+        self.set_search_radius(integrity)
+        self.set_noise_dist()
         self.set_choices()
         self.set_vector()
 
@@ -34,17 +40,37 @@ class Noise(object):
         num_selections = numerator/denominator
         self.num_selections = int(num_selections*self.limit)
 
+    def set_search_radius(self, integrity):
+        """Sets the search radius (noise magnitude) based on the integrity and
+        hyperparameters."""
+        p = 1.-integrity
+        argument = (5.*p)-2.5
+        exp1 = math.tanh(argument)+1
+        self.search_radius = exp1*0.08
+
+    def set_noise_dist(self):
+        """Determines the shape and magnitude of the noise."""
+        a = -self.search_radius
+        b = self.search_radius
+        if self.noise_distribution == "uniform":
+            self.distribution = uniform.Uniform(torch.Tensor([a]), torch.Tensor([b]))
+        elif self.noise_distribution == "normal":
+            self.distribution = normal.Normal(torch.Tensor([0.]), torch.Tensor([b]))
+        else:
+            print("Unknown distribution type")
+            exit()
+
     def set_choices(self):
         """Use the numpy choices function (which has no equivalent in Pytorch)
         to generate a sample from the array of indices. The sample size and
         distribution are dynamically updated by the algorithm's state.
         """
-        self.check_idxs()
+        #self.check_idxs()
         np.random.seed()
-        self.choices = np.random.choice(self.running_idxs, self.num_selections,
+        self.choices = np.random.choice(self.indices, self.num_selections,
                                         replace=False)
-        self.running_idxs = np.delete(self.running_idxs, self.choices)
-        self.choices = torch.tensor(self.choices).cuda()
+        #self.running_idxs = np.delete(self.running_idxs, self.choices)
+        #self.choices = torch.tensor(self.choices).cuda()
 
     def check_idxs(self):
         if len(self.running_idxs)<self.num_selections:
@@ -56,10 +82,18 @@ class Noise(object):
         "basis" tensor is created with zeros, then the chosen indices are
         modified.
         """
-        noise = np.random.choice([0., 1.], size=self.num_selections)
-        noise = torch.tensor(noise)
+        noise = self.distribution.sample(torch.Size([self.num_selections]))
         # Cast to precision and CUDA, and edit shape
-        self.vector = noise.to(dtype=self.precision, device='cuda').squeeze()
+        noise = noise.to(dtype=self.precision, device='cuda').squeeze()
+        noise_vector = torch.zeros(self.vec_length, dtype=self.precision,
+                                    device='cuda')
+        noise_vector[self.choices] = noise
+        self.vector = noise_vector
+
+        #noise = np.random.choice([0., 1.], size=self.num_selections)
+        #noise = torch.tensor(noise)
+        # Cast to precision and CUDA, and edit shape
+        #self.vector = noise.to(dtype=self.precision, device='cuda').squeeze()
         #noise = torch.full(self.num_selections, 0.05, dtype=self.precision,
         #                            device='cuda')
         #noise_vector = torch.zeros(self.vec_length, dtype=self.precision,

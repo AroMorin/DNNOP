@@ -60,7 +60,15 @@ class LEARNER8(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            self.top_score = self.top_score
+            v = 0.001
+            if self.minimizing and self.top_score>0.:
+                self.top_score = self.top_score*(1.+v)
+            elif self.minimizing and self.top_score<0.:
+                self.top_score = self.top_score*(1.-v)
+            elif not self.minimizing and self.top_score>0.:
+                self.top_score = self.top_score*(1.-v)
+            elif not self.minimizing and self.top_score<0.:
+                self.top_score = self.top_score*(1.+v)
 
     def print_state(self):
         if self.engine.analyzer.replace:

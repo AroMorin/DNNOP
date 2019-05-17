@@ -39,9 +39,10 @@ class Engine(object):
 
     def generate(self):
         new_vector = self.elite.clone()
-        #new_vector.add_(self.noise.vector)
-        new_vector[self.noise.choices] = self.noise.vector
-        #new_vector.clamp_(-0.3, 0.3)
+        print(new_vector[0:19])
+        new_vector.add_(self.noise.vector)
+        new_vector.clamp_(0.01, 0.99)
+        #new_vector[self.noise.choices] = self.noise.vector
         self.vector = new_vector
 
     def update_weights(self):

@@ -11,6 +11,7 @@ from .nao_fc import Net as NAO_FC
 from .object_detection_msn import Net as OD_CNN_MSN
 from .dqn import Net as DQN
 from .dqn_ram import Net as DQN_RAM
+from .dqn_ram2 import Net as DQN_RAM2
 
 import torch
 import torch.nn as nn
@@ -79,6 +80,8 @@ def pick_model(name, model_params):
         model = OD_CNN_MSN(model_params)
     elif name == "DQN RAM model":
         model = DQN_RAM(model_params)
+    elif name == "DQN RAM2 model":
+        model = DQN_RAM2(model_params)
     elif name == "DQN model":
         model = DQN(model_params)
     else:
@@ -150,10 +153,9 @@ def init_sparse(m):
     """Initializes weights according to an Identity matrix. This special case
     allows the initial input(s) to be reflected in the output of the model.
     """
-    ratio = 0.1
+    ratio = 0.8
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.sparse_(m.weight, sparsity=ratio)
-        nn.init.sparse_(m.bias, sparsity=ratio)
 
 def init_spiking(m):
     """Initializes weights according to an Identity matrix. This special case

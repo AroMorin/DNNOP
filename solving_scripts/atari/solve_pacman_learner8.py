@@ -29,14 +29,15 @@ def main():
 
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Constant",
+                    "weight initialization scheme": "Sparse",
+                    "grad": False,
                     "number of outputs": env.action_space.n,
                     "w": 210,
                     "h": 160,
                     "in features": 128,
                     "in channels": 3
                     }
-    model = model_factory.make_model("DQN RAM model", model_params)
+    model = model_factory.make_model("DQN RAM2 model", model_params)
 
     alg_params = {
                     "target": env.target,

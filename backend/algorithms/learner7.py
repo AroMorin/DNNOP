@@ -14,7 +14,7 @@ from .learner7_backend.engine import Engine
 
 class LEARNER7(Algorithm):
     def __init__(self, model, alg_params):
-        print ("Using Learner4 algorithm")
+        print ("Using Learner7 algorithm")
         super(LEARNER7, self).__init__()
         self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
         self.engine = Engine(model, self.hyper_params) # Create a pool object
@@ -60,7 +60,15 @@ class LEARNER7(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            self.top_score = (self.top_score)*0.95
+            v = 0.001
+            if self.minimizing and self.top_score>0.:
+                self.top_score = self.top_score*(1.+v)
+            elif self.minimizing and self.top_score<0.:
+                self.top_score = self.top_score*(1.-v)
+            elif not self.minimizing and self.top_score>0.:
+                self.top_score = self.top_score*(1.-v)
+            elif not self.minimizing and self.top_score<0.:
+                self.top_score = self.top_score*(1.+v)
 
     def print_state(self):
         if self.engine.analyzer.replace:

@@ -16,10 +16,11 @@ class LEARNER8(Algorithm):
     def __init__(self, model, alg_params):
         print ("Using Learner8 algorithm")
         super(LEARNER8, self).__init__()
-        self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
-        self.engine = Engine(model, self.hyper_params) # Create a pool object
-        self.populations = False
         self.model = model
+        self.hyper_params = Hyper_Parameters(alg_params)
+        self.engine = Engine(self.model.parameters(), self.hyper_params)
+        self.populations = False
+        self.grad = False
         self.minimizing = self.hyper_params.minimizing
         self.initial_score = self.hyper_params.initial_score
         self.top_score = self.initial_score
@@ -43,8 +44,8 @@ class LEARNER8(Algorithm):
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
         self.engine.update_state()
-        self.engine.generate()
-        self.engine.update_weights()
+        self.engine.generate(self.model)
+        self.engine.update_weights(self.model.parameters())
         self.update_top_score(score)
 
     def regularize(self, score):

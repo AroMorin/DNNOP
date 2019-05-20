@@ -9,12 +9,11 @@ from .frustration import Frustration
 import torch
 
 class Engine(object):
-    def __init__(self, model, hyper_params):
-        self.model = model
+    def __init__(self, params, hyper_params):
         self.analyzer = Analysis(hyper_params)
         self.frustration = Frustration(hyper_params)
         self.integrity = Integrity(hyper_params)
-        self.vector = torch.nn.utils.parameters_to_vector(self.model.parameters())
+        self.vector = torch.nn.utils.parameters_to_vector(params)
         self.elite = self.vector
         self.noise = Noise(hyper_params, self.vector)
         self.jumped = False
@@ -37,16 +36,13 @@ class Engine(object):
         # Define noise vector
         self.noise.update_state(self.integrity.value)
 
-    def generate(self):
-        new_vector = self.elite.clone()
-        print(new_vector[0:19])
-        new_vector.add_(self.noise.vector)
-        new_vector.clamp_(0.01, 0.99)
-        #new_vector[self.noise.choices] = self.noise.vector
-        self.vector = new_vector
+    def generate(self, model):
+        v = model.fc1.weight[:, model.post]
+        v[model.pre] = 1.
+        model.fc1.weight[:, model.post] = v
 
-    def update_weights(self):
-        torch.nn.utils.vector_to_parameters(self.vector, self.model.parameters())
+    def update_weights(self, params):
+        torch.nn.utils.vector_to_parameters(self.vector, params)
 
 
 #

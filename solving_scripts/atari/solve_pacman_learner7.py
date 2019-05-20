@@ -15,8 +15,8 @@ def main():
     # Variable definition
     precision = torch.float
     #game = "Pong-v0"
-    #game = "Pong-ram-v0"
-    game = "MsPacman-ram-v0"
+    game = "Pong-ram-v0"
+    #game = "MsPacman-ram-v0"
 
     # Parameter and Object declarations
     env_params = {

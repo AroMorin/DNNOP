@@ -11,6 +11,7 @@ from .learner5 import LEARNER5
 from .learner6 import LEARNER6
 from .learner7 import LEARNER7
 from .learner8 import LEARNER8
+from .learner9 import LEARNER9
 
 def make_alg(name, m, alg_params):
     """Class factory method. This method takes the name of the desired
@@ -47,6 +48,8 @@ def make_alg(name, m, alg_params):
         return LEARNER7(m, alg_params)
     elif name == 'learner8':
         return LEARNER8(m, alg_params)
+    elif name == 'learner9':
+        return LEARNER9(m, alg_params)
     else:
         print("Unknown algorithm requested!")
         exit()

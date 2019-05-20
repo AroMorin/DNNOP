@@ -17,6 +17,7 @@ class Engine(object):
         self.elite = self.vector
         self.noise = Noise(hyper_params, self.vector)
         self.jumped = False
+        self.mu = 0.1
 
     def analyze(self, score, top_score):
         self.analyzer.analyze(score, top_score)
@@ -25,7 +26,7 @@ class Engine(object):
     def set_elite(self):
         self.jumped = False
         if self.analyzer.replace or self.frustration.jump:
-            self.elite = self.vector.clone()
+            #self.elite = self.vector.clone()
             self.jumped = True
 
     def update_state(self):
@@ -36,10 +37,41 @@ class Engine(object):
         # Define noise vector
         self.noise.update_state(self.integrity.value)
 
-    def generate(self, model):
-        v = model.fc1.weight[:, model.post]
-        v[model.pre] = 1.
-        model.fc1.weight[:, model.post] = v
+    def update(self, model):
+        if self.analyzer.replace:
+            self.reinforce(model)
+        else:
+            self.erode(model)
+        print(model.a1)
+        print(model.a2)
+        print(model.a3)
+        print(model.a4)
+        print(model.fc1.weight.size())
+        print(model.fc2.weight.size())
+        print(model.fc3.weight.size())
+        print(model.fc4.weight.size())
+
+        v = model.fc1.weight[model.a1, :]
+        v.add_(self.mu)
+        model.fc1.weight[model.a1, :] = v
+
+        v = model.fc2.weight[model.a2, :]
+        v[:, model.a1].add_(self.mu)
+        model.fc2.weight[model.a2, :] = v
+
+        v = model.fc3.weight[model.a3, :]
+        v[:, model.a2].add_(self.mu)
+        model.fc3.weight[model.a3, :] = v
+
+        v = model.fc4.weight[model.a4, :]
+        v[:, model.a3].add_(self.mu)
+        model.fc4.weight[model.a4, :] = v
+
+    def reinforce(self, model):
+        self.mu = 0.01
+
+    def erode(self, model):
+        self.mu = -0.01
 
     def update_weights(self, params):
         torch.nn.utils.vector_to_parameters(self.vector, params)

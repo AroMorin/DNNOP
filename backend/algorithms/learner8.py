@@ -44,8 +44,7 @@ class LEARNER8(Algorithm):
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
         self.engine.update_state()
-        self.engine.generate(self.model)
-        self.engine.update_weights(self.model.parameters())
+        self.engine.update(self.model)
         self.update_top_score(score)
 
     def regularize(self, score):

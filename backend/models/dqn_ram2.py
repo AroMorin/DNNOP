@@ -6,21 +6,22 @@ class Net(nn.Module):
     def __init__(self, model_params):
         super(Net, self).__init__()
         model_params = self.ingest_params_lvl1(model_params)
-        self.fc1 = nn.Linear(model_params['in features'], 256)
-        self.fc2 = nn.Linear(256, 128)
-        self.fc3 = nn.Linear(128, 64)
-        self.fc4 = nn.Linear(64, model_params['number of outputs'])
-        self.a1 = None
-        self.a2 = None
-        self.a3 = None
-        self.a4 = None
-        self.a1 = None
+        self.fc1 = nn.Linear(model_params['in features'], 512)
+        self.fc2 = nn.Linear(512, 128)
+        self.fc3 = nn.Linear(128, 128)
+        self.fc4 = nn.Linear(128, model_params['number of outputs'])
+        self.a1 = []
+        self.a2 = []
+        self.a3 = []
+        self.a4 = []
         self.step = 0
         self.max = -float('inf')
         self.min = float('inf')
         self.prev = None
         self.peak = 0.05
-        self.threshold = 0.05
+        self.threshold = 0.3
+        self.mu = 0.01
+        self.excitation = None
 
     def ingest_params_lvl1(self, model_params):
         assert type(model_params) is dict
@@ -35,20 +36,30 @@ class Net(nn.Module):
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
+        x = self.zero_out(x)
+        #self.update(x)
+        #self.set_limits(x)
+        #x = self.normalize(x)
+        #x = x.sub_(x.mean())
+        #print(x)
+        #self.step_()
+
         x = self.fc1(x)
-        x = self.clamp(x)
+        x = self.filter(x)
+
         self.set_a1(x)
 
         x = self.fc2(x)
-        x = self.clamp(x)
+        x = self.fire(x)
         self.set_a2(x)
 
         x = self.fc3(x)
-        x = self.clamp(x)
+        x = self.fire(x)
+        print(x)
         self.set_a3(x)
 
         x = self.fc4(x)
-        x1 = self.clamp(x)
+        x1 = self.fire(x)
         self.set_a4(x1)
         return x
 
@@ -62,11 +73,11 @@ class Net(nn.Module):
 
     def zero_out(self, x):
         if self.step == 0:
-            self.prev = x
+            self.prev = x.clone()
             return x
         x1 = x.sub(self.prev)
         if not self.step == 0:
-            self.prev = x
+            self.prev = x.clone()
         return x1
 
     def step_(self):
@@ -79,14 +90,21 @@ class Net(nn.Module):
         return n
 
     def filter(self, x):
-        threshold = 5.
-        threshold = torch.full_like(x, threshold)
-        selections = x.gt(threshold)
+        ma = x.max().item()
+        mi = x.min().item()
+        f = 0.85
+        t1 = f*ma
+        t2 = f*mi
+        t1 = torch.full_like(x, t1)
+        t2 = torch.full_like(x, t2)
+        select = x.gt(t1)
+        select2 = x.lt(t2)
         x.fill_(0.)
-        x[selections] = peak
+        x[select] = self.peak
+        x[select2] = self.peak
         return x
 
-    def clamp(self, x):
+    def fire(self, x):
         threshold = torch.full_like(x, self.threshold)
         saturated = x.gt(threshold)
         x.fill_(0.)
@@ -94,25 +112,67 @@ class Net(nn.Module):
         return x
 
     def set_a1(self, x):
-        indices = x.eq(self.peak)
+        active = x.eq(self.peak)
         i = torch.arange(x.size()[0])
-        self.a1 = i[indices]
+        self.a1.append(i[active])
 
     def set_a2(self, x):
-        indices = x.eq(self.peak)
+        active = x.eq(self.peak)
         i = torch.arange(x.size()[0])
-        self.a2 = i[indices]
+        self.a2.append(i[active])
 
     def set_a3(self, x):
-        indices = x.eq(self.peak)
+        active = x.eq(self.peak)
         i = torch.arange(x.size()[0])
-        self.a3 = i[indices]
+        self.a3.append(i[active])
 
     def set_a4(self, x):
-        indices = x.eq(self.peak)
+        active = x.eq(self.peak)
         i = torch.arange(x.size()[0])
-        self.a4 = i[indices]
+        self.a4.append(i[active])
 
+    def excite(self, x):
+        y = x.clone()
+        if self.step != 0:
+            self.excitation.add_(y)
+        else:
+            self.excitation = x
+        return self.excitation
+
+    def update(self, x):
+        dead = x.eq(0.)
+        active = x.ne(0.)
+        i = torch.arange(x.size()[0])
+        dead = i[dead]
+        active = i[active]
+
+        v = self.fc1.weight[:, dead]
+        v.sub_(0.001)
+        v.clamp_(0., 1.0)
+        self.fc1.weight[:, dead] = v
+
+        v = self.fc1.weight[:, active]
+        v.add_(0.1)
+        v.clamp_(0., 1.0)
+        self.fc1.weight[:, active] = v
+
+        #v = self.fc2.weight[self.a2, :]
+        #v.sub_(self.mu)
+        #v[:, self.a1].add_(2*self.mu)
+        #v.clamp_(0., 1.0)
+        #self.fc2.weight[self.a2, :] = v
+
+        #v = self.fc3.weight[self.a3, :]
+        #v.sub_(self.mu)
+        #v[:, self.a2].add_(2*self.mu)
+        #v.clamp_(0., 1.0)
+        #self.fc3.weight[self.a3, :] = v
+
+        #v = self.fc4.weight[self.a4, :]
+        #v.sub_(self.mu)
+        #v[:, self.a3].add_(2*self.mu)
+        #v.clamp_(0., 1.0)
+        #self.fc4.weight[self.a4, :] = v
 
 
 

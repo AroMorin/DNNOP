@@ -43,7 +43,7 @@ class LEARNER8(Algorithm):
         #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
-        self.engine.update_state()
+        #self.engine.update_state()
         self.engine.update(self.model)
         self.update_top_score(score)
 
@@ -81,9 +81,9 @@ class LEARNER8(Algorithm):
         print("Memory: %d" %self.engine.frustration.count)
         print("Frustration: %f" %self.engine.frustration.tau)
         print("Integrity: %f" %self.engine.integrity.value)
-        print("Bin: ", self.engine.integrity.step_size.bin)
-        print("Step size: %f" %self.engine.integrity.step_size.value)
-        print("Selections: %d" %self.engine.noise.num_selections)
+        #print("Bin: ", self.engine.integrity.step_size.bin)
+        #print("Step size: %f" %self.engine.integrity.step_size.value)
+        #print("Selections: %d" %self.engine.noise.num_selections)
 
 
 

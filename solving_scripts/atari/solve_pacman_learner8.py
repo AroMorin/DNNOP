@@ -29,7 +29,7 @@ def main():
 
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Sparse",
+                    "weight initialization scheme": "Uniform",
                     "grad": False,
                     "number of outputs": env.action_space.n,
                     "w": 210,

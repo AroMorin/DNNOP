@@ -17,7 +17,7 @@ class Engine(object):
         self.elite = self.vector
         self.noise = Noise(hyper_params, self.vector)
         self.jumped = False
-        self.mu = 0.1
+        self.mu = 0.000001
 
     def analyze(self, score, top_score):
         self.analyzer.analyze(score, top_score)
@@ -39,39 +39,50 @@ class Engine(object):
 
     def update(self, model):
         if self.analyzer.replace:
-            self.reinforce(model)
+            self.reinforce()
         else:
-            self.erode(model)
-        print(model.a1)
-        print(model.a2)
-        print(model.a3)
-        print(model.a4)
-        print(model.fc1.weight.size())
-        print(model.fc2.weight.size())
-        print(model.fc3.weight.size())
-        print(model.fc4.weight.size())
+            self.erode()
+        for i in range(len(model.a1)):
+            #current_a = model.a1[i]
+            #v = model.fc1.weight[current_a, :]
+            #v = v.add(self.mu)
+            #v = v.clamp(0., 1.0)
+            #model.fc1.weight[current_a, :] = v
 
-        v = model.fc1.weight[model.a1, :]
-        v.add_(self.mu)
-        model.fc1.weight[model.a1, :] = v
+            higher_a = model.a1[i]
+            current_a = model.a2[i]
+            v = model.fc2.weight[current_a, :]
+            v = self.get_v(v, higher_a)
+            model.fc2.weight[current_a, :] = v
+            #print(model.fc2.weight[current_a])
 
-        v = model.fc2.weight[model.a2, :]
-        v[:, model.a1].add_(self.mu)
-        model.fc2.weight[model.a2, :] = v
+            higher_a = model.a2[i]
+            current_a = model.a3[i]
+            v = model.fc3.weight[current_a, :]
+            v = self.get_v(v, higher_a)
+            model.fc3.weight[current_a, :] = v
 
-        v = model.fc3.weight[model.a3, :]
-        v[:, model.a2].add_(self.mu)
-        model.fc3.weight[model.a3, :] = v
+            higher_a = model.a3[i]
+            current_a = model.a4[i]
+            v = model.fc4.weight[current_a, :]
+            v = self.get_v(v, higher_a)
+            model.fc4.weight[current_a, :] = v
+        #print(model.a1[:])
+        #print(model.fc1.weight[0])
 
-        v = model.fc4.weight[model.a4, :]
-        v[:, model.a3].add_(self.mu)
-        model.fc4.weight[model.a4, :] = v
+    def reinforce(self):
+        self.mu = 0.0001
 
-    def reinforce(self, model):
-        self.mu = 0.01
+    def erode(self):
+        self.mu = 0.00001
 
-    def erode(self, model):
-        self.mu = -0.01
+    def get_v(self, v, higher_a):
+        v.sub_(self.mu)
+        p = v[:, higher_a]
+        p.add_(self.mu*2.)
+        v[:, higher_a] = p
+        v.clamp_(0., 1.0)
+        return v
 
     def update_weights(self, params):
         torch.nn.utils.vector_to_parameters(self.vector, params)

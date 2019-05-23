@@ -29,7 +29,8 @@ def main():
 
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Sparse",
+                    "weight initialization scheme": "Uniform",
+                    "grad": False,
                     "number of outputs": env.action_space.n,
                     "w": 210,
                     "h": 160,
@@ -46,7 +47,7 @@ def main():
                     "max steps": 50,
                     "memory size": 20
                     }
-    alg = algorithm_factory.make_alg("learner9", model, alg_params)
+    alg = algorithm_factory.make_alg("neuro2", model, alg_params)
 
 
     slv_params = {
@@ -56,7 +57,7 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve(iterations=200)
+    slv.solve(iterations=5)
     slv.demonstrate_env()
 
 if __name__ == '__main__':

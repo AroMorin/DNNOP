@@ -1,15 +1,17 @@
 """A script that defines a simple FC model for function solving"""
 import torch.nn as nn
 import torch
+import random
 
 class Net(nn.Module):
     def __init__(self, model_params):
         super(Net, self).__init__()
         model_params = self.ingest_params_lvl1(model_params)
-        self.fc1 = nn.Linear(model_params['in features'], 512)
-        self.fc2 = nn.Linear(512, 128)
-        self.fc3 = nn.Linear(128, 128)
-        self.fc4 = nn.Linear(128, model_params['number of outputs'])
+        self.fc1 = nn.Linear(model_params['in features'], 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, model_params['number of outputs'])
+        self.act = nn.ReLU()
         self.a1 = []
         self.a2 = []
         self.a3 = []
@@ -19,9 +21,10 @@ class Net(nn.Module):
         self.min = float('inf')
         self.prev = None
         self.peak = 0.05
-        self.threshold = 0.3
+        self.threshold = 1.5
         self.mu = 0.01
         self.excitation = None
+        self.dropout = 0.3
 
     def ingest_params_lvl1(self, model_params):
         assert type(model_params) is dict
@@ -36,30 +39,32 @@ class Net(nn.Module):
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
-        x = self.zero_out(x)
+        #x = self.zero_out(x)
         #self.update(x)
         #self.set_limits(x)
         #x = self.normalize(x)
         #x = x.sub_(x.mean())
-        #print(x)
         #self.step_()
 
         x = self.fc1(x)
-        x = self.filter(x)
-
+        x = self.act(x)
+        #x = self.fire(x)
         self.set_a1(x)
 
         x = self.fc2(x)
-        x = self.fire(x)
+        x = self.act(x)
+        #x = self.fire(x)
         self.set_a2(x)
 
         x = self.fc3(x)
-        x = self.fire(x)
-        print(x)
+        x = self.act(x)
+        #x = self.fire(x)
         self.set_a3(x)
 
         x = self.fc4(x)
-        x1 = self.fire(x)
+        print(x)
+        x1 = self.act(x)
+        #x1 = self.fire(x)
         self.set_a4(x1)
         return x
 
@@ -105,10 +110,16 @@ class Net(nn.Module):
         return x
 
     def fire(self, x):
-        threshold = torch.full_like(x, self.threshold)
+        m = x.max().item()
+        t = 0.85*m
+        threshold = torch.full_like(x, t)
         saturated = x.gt(threshold)
         x.fill_(0.)
         x[saturated] = self.peak
+        num_drop = int(self.dropout*x.size()[0])
+        blackout = torch.randint(0, x.size()[0], (num_drop,))
+        val = random.choice([0., self.peak])
+        x[blackout] = val
         return x
 
     def set_a1(self, x):
@@ -155,6 +166,7 @@ class Net(nn.Module):
         v.add_(0.1)
         v.clamp_(0., 1.0)
         self.fc1.weight[:, active] = v
+        print(self.fc1.weight[0])
 
         #v = self.fc2.weight[self.a2, :]
         #v.sub_(self.mu)

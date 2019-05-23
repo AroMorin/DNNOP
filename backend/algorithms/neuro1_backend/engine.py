@@ -9,20 +9,15 @@ from .frustration import Frustration
 import torch
 
 class Engine(object):
-    def __init__(self, model, hyper_params):
-        self.model = model
+    def __init__(self, params, hyper_params):
         self.analyzer = Analysis(hyper_params)
         self.frustration = Frustration(hyper_params)
         self.integrity = Integrity(hyper_params)
-        for param in self.model.parameters():
-            print(param)
-            print(param.size())
-        exit()
-
-        self.vector = torch.nn.utils.parameters_to_vector(self.model.parameters())
+        self.vector = torch.nn.utils.parameters_to_vector(params)
         self.elite = self.vector
         self.noise = Noise(hyper_params, self.vector)
         self.jumped = False
+        self.mu = 0.000001
 
     def analyze(self, score, top_score):
         self.analyzer.analyze(score, top_score)
@@ -31,7 +26,7 @@ class Engine(object):
     def set_elite(self):
         self.jumped = False
         if self.analyzer.replace or self.frustration.jump:
-            self.elite = self.vector.clone()
+            #self.elite = self.vector.clone()
             self.jumped = True
 
     def update_state(self):
@@ -42,14 +37,6 @@ class Engine(object):
         # Define noise vector
         self.noise.update_state(self.integrity.value)
 
-    def generate(self):
-        new_vector = self.elite.clone()
-        print(new_vector[0:19])
-        new_vector.add_(self.noise.vector)
-        new_vector.clamp_(0.01, 0.99)
-        #new_vector[self.noise.choices] = self.noise.vector
-        self.vector = new_vector
-
     def update(self, model):
         if self.analyzer.replace:
             self.reinforce()
@@ -57,23 +44,19 @@ class Engine(object):
             self.erode()
         for i in range(len(model.a1)):
             current_a = model.a1[i]
-            #print(current_a)
-            v = model.fc1.weight[:]
-            v.mul_(self.nu)
-            p = v[current_a, :]
-            p.mul_(self.mu)
-            v[current_a, :] = p
-            v.clamp_(0., 1.0)
-            model.fc1.weight[:] = v
+            model.fc1.weight.requires_grad_(False)
+            model.fc1.weight.fill_(self.nu)
+            model.fc1.weight[current_a, :].fill_(self.mu)
+            model.fc1.weight.clamp_(0., 1.0)
             v = model.fc1.bias[:]
-            v = self.bias(v, current_a)
+            v = self.bias(model.fc1.bias[:], current_a)
             model.fc1.bias[:] = v
 
             higher_a = model.a1[i]
             current_a = model.a2[i]
-            v = model.fc2.weight[current_a, :]
-            v = self.get_v(v, higher_a)
-            model.fc2.weight[current_a, :] = v
+            model.fc2.weight.requires_grad_(False)
+            model.fc2.weight.fill_(self.nu)
+            model.fc2.weight[current_a, :].fill_(self.mu)
             v = model.fc2.bias[:]
             v = self.bias(v, current_a)
             model.fc2.bias[:] = v
@@ -81,18 +64,18 @@ class Engine(object):
 
             higher_a = model.a2[i]
             current_a = model.a3[i]
-            v = model.fc3.weight[current_a, :]
-            v = self.get_v(v, higher_a)
-            model.fc3.weight[current_a, :] = v
+            model.fc3.weight.requires_grad_(False)
+            model.fc3.weight.fill_(self.nu)
+            model.fc3.weight[current_a, :].fill_(self.mu)
             v = model.fc3.bias[:]
             v = self.bias(v, current_a)
             model.fc3.bias[:] = v
 
             higher_a = model.a3[i]
             current_a = model.a4[i]
-            v = model.fc4.weight[current_a, :]
-            v = self.get_v(v, higher_a)
-            model.fc4.weight[current_a, :] = v
+            model.fc4.weight.requires_grad_(False)
+            model.fc4.weight.fill_(self.nu)
+            model.fc4.weight[current_a, :].fill_(self.mu)
             v = model.fc4.bias[:]
             v = self.bias(v, current_a)
             model.fc4.bias[:] = v
@@ -100,12 +83,12 @@ class Engine(object):
         #print(model.fc1.weight[0])
 
     def reinforce(self):
-        self.mu = 1.0002
-        self.nu = 0.9995
+        self.nu = 0.0
+        self.mu = 0.9
 
     def erode(self):
-        self.mu = 0.9995
-        self.nu = 1.0002
+        self.nu = 0.2
+        self.mu = 0.0
 
     def get_v(self, v, higher_a):
         v.mul_(self.nu)
@@ -123,9 +106,8 @@ class Engine(object):
         v.clamp_(0., 1.0)
         return v
 
-
-    def update_weights(self):
-        torch.nn.utils.vector_to_parameters(self.vector, self.model.parameters())
+    def update_weights(self, params):
+        torch.nn.utils.vector_to_parameters(self.vector, params)
 
 
 #

@@ -111,17 +111,17 @@ def init_weights(model, scheme):
 
 def init_uniform(m):
     """Initializes weights according to a Uniform distribution."""
+    a = 0.0
+    b = 0.8
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        a = 0.001
-        b = 0.09
         nn.init.uniform_(m.weight, a=a, b=b)
         nn.init.uniform_(m.bias, a=a, b=b)
 
 def init_normal(m):
     """Initializes weights according to a Normal distribution."""
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        limit = 0.5
-        origin = 0
+        limit = 0.9
+        origin = 0.
         nn.init.normal_(m.weight, mean=origin, std=limit)
         nn.init.normal_(m.bias, mean=origin, std=limit)
 
@@ -140,7 +140,7 @@ def init_constant(m):
     val = 0.01
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.constant_(m.weight, val)
-        #nn.init.constant_(m.bias, val)
+        nn.init.constant_(m.bias, val)
 
 def init_he(m):
     """Initializes weights according to an Identity matrix. This special case
@@ -153,9 +153,13 @@ def init_sparse(m):
     """Initializes weights according to an Identity matrix. This special case
     allows the initial input(s) to be reflected in the output of the model.
     """
-    ratio = 0.8
+    ratio = 0.95
+    a = 0.0
+    b = 0.01
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.sparse_(m.weight, sparsity=ratio)
+        m.weight.data.abs_()
+        nn.init.uniform_(m.bias, a=a, b=b)
 
 def init_spiking(m):
     """Initializes weights according to an Identity matrix. This special case

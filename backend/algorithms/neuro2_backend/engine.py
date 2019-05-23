@@ -17,7 +17,6 @@ class Engine(object):
         self.elite = self.vector
         self.noise = Noise(hyper_params, self.vector)
         self.jumped = False
-        self.mu = 0.000001
 
     def analyze(self, score, top_score):
         self.analyzer.analyze(score, top_score)
@@ -37,76 +36,56 @@ class Engine(object):
         # Define noise vector
         self.noise.update_state(self.integrity.value)
 
-    def update(self, model):
+    def update_weights(self, model):
         if self.analyzer.replace:
             self.reinforce()
         else:
             self.erode()
-        for i in range(len(model.a1)):
-            current_a = model.a1[i]
-            model.fc1.weight.requires_grad_(False)
-            model.fc1.weight.fill_(self.nu)
-            model.fc1.weight[current_a, :].fill_(self.mu)
-            model.fc1.weight.clamp_(0., 1.0)
-            v = model.fc1.bias[:]
-            v = self.bias(model.fc1.bias[:], current_a)
-            model.fc1.bias[:] = v
-
-            higher_a = model.a1[i]
-            current_a = model.a2[i]
-            model.fc2.weight.requires_grad_(False)
-            model.fc2.weight.fill_(self.nu)
-            model.fc2.weight[current_a, :].fill_(self.mu)
-            v = model.fc2.bias[:]
-            v = self.bias(v, current_a)
-            model.fc2.bias[:] = v
-            #print(model.fc2.weight[current_a])
-
-            higher_a = model.a2[i]
-            current_a = model.a3[i]
-            model.fc3.weight.requires_grad_(False)
-            model.fc3.weight.fill_(self.nu)
-            model.fc3.weight[current_a, :].fill_(self.mu)
-            v = model.fc3.bias[:]
-            v = self.bias(v, current_a)
-            model.fc3.bias[:] = v
-
-            higher_a = model.a3[i]
-            current_a = model.a4[i]
-            model.fc4.weight.requires_grad_(False)
-            model.fc4.weight.fill_(self.nu)
-            model.fc4.weight[current_a, :].fill_(self.mu)
-            v = model.fc4.bias[:]
-            v = self.bias(v, current_a)
-            model.fc4.bias[:] = v
-        #print(model.a1[:])
-        #print(model.fc1.weight[0])
+        self.update_w(model.fc1.weight)
+        self.update_w(model.fc2.weight)
+        self.update_w(model.fc3.weight)
+        self.update_w(model.fc4.weight)
+        self.update_b(model.fc1.bias)
+        self.update_b(model.fc2.bias)
+        self.update_b(model.fc3.bias)
+        self.update_b(model.fc4.bias)
+        print(model.fc1.weight[0])
 
     def reinforce(self):
-        self.nu = 0.0
-        self.mu = 0.9
+        self.mu = 0.01
+        self.nu = -0.01
 
     def erode(self):
-        self.nu = 0.2
-        self.mu = 0.0
+        self.mu = -0.01
+        self.nu = 0.01
 
-    def get_v(self, v, higher_a):
-        v.mul_(self.nu)
-        p = v[:, higher_a]
-        p.mul_(self.mu)
-        v[:, higher_a] = p
-        v.clamp_(0., 1.0)
-        return v
-
-    def bias(self, v, current_a):
-        v.mul_(self.nu)
-        p = v[current_a]
+    def update_w(self, v):
+        v.requires_grad_(False)
+        ma = v.max().item()
+        mi = v.min().item()
+        strongest = v.gt(0.5*ma).nonzero()
+        weakest = v.lt(1.5*mi).nonzero()
+        p = v[strongest[:, 0], strongest[:, 1]]
         p.add_(self.mu)
-        v[current_a] = p
-        v.clamp_(0., 1.0)
-        return v
+        v[strongest[:, 0], strongest[:, 1]] = p
+        p = v[weakest[:, 0], weakest[:, 1]]
+        p.add_(self.nu)
+        v[weakest[:, 0], weakest[:, 1]] = p
 
-    def update_weights(self, params):
+    def update_b(self, v):
+        v.requires_grad_(False)
+        ma = v.max().item()
+        mi = v.min().item()
+        strongest = v.gt(0.5*ma).nonzero()
+        weakest = v.lt(1.5*mi).nonzero()
+        p = v[strongest]
+        p.add_(self.mu)
+        v[strongest] = p
+        p = v[weakest]
+        p.add_(self.nu)
+        v[weakest] = p
+
+    def update_weights__(self, params):
         torch.nn.utils.vector_to_parameters(self.vector, params)
 
 

@@ -11,7 +11,6 @@ class Net(nn.Module):
         self.fc2 = nn.Linear(256, 128)
         self.fc3 = nn.Linear(128, 64)
         self.fc4 = nn.Linear(64, model_params['number of outputs'])
-        self.act = nn.ReLU()
         self.a1 = []
         self.a2 = []
         self.a3 = []
@@ -47,24 +46,20 @@ class Net(nn.Module):
         #self.step_()
 
         x = self.fc1(x)
-        x = self.act(x)
-        #x = self.fire(x)
+        x = self.fire(x)
         self.set_a1(x)
 
         x = self.fc2(x)
-        x = self.act(x)
-        #x = self.fire(x)
+        x = self.fire(x)
         self.set_a2(x)
 
         x = self.fc3(x)
-        x = self.act(x)
-        #x = self.fire(x)
+        x = self.fire(x)
         self.set_a3(x)
 
         x = self.fc4(x)
         print(x)
-        x1 = self.act(x)
-        #x1 = self.fire(x)
+        x1 = self.fire(x)
         self.set_a4(x1)
         return x
 

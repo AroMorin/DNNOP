@@ -12,6 +12,7 @@ from .object_detection_msn import Net as OD_CNN_MSN
 from .dqn import Net as DQN
 from .dqn_ram import Net as DQN_RAM
 from .dqn_ram2 import Net as DQN_RAM2
+from .dqn_ram3 import Net as DQN_RAM3
 
 import torch
 import torch.nn as nn
@@ -82,6 +83,8 @@ def pick_model(name, model_params):
         model = DQN_RAM(model_params)
     elif name == "DQN RAM2 model":
         model = DQN_RAM2(model_params)
+    elif name == "DQN RAM3 model":
+        model = DQN_RAM3(model_params)
     elif name == "DQN model":
         model = DQN(model_params)
     else:

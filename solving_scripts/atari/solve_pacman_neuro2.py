@@ -29,7 +29,7 @@ def main():
 
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Uniform",
+                    "weight initialization scheme": "He",
                     "grad": False,
                     "number of outputs": env.action_space.n,
                     "w": 210,
@@ -37,7 +37,7 @@ def main():
                     "in features": 128,
                     "in channels": 3
                     }
-    model = model_factory.make_model("DQN RAM2 model", model_params)
+    model = model_factory.make_model("DQN RAM3 model", model_params)
 
     alg_params = {
                     "target": env.target,
@@ -45,7 +45,7 @@ def main():
                     "tolerance": 0.01,
                     "minimum entropy": 0.1,
                     "max steps": 50,
-                    "memory size": 20
+                    "memory size": 10
                     }
     alg = algorithm_factory.make_alg("neuro2", model, alg_params)
 
@@ -57,7 +57,7 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve(iterations=5)
+    slv.solve(iterations=50)
     slv.demonstrate_env()
 
 if __name__ == '__main__':

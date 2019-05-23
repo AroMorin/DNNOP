@@ -24,8 +24,8 @@ class Engine(object):
 
     def set_elite(self):
         self.jumped = False
-        if self.analyzer.replace or self.frustration.jump:
-            #self.elite = self.vector.clone()
+        if self.analyzer.replace:
+            self.elite = self.vector.clone()
             self.jumped = True
 
     def update_state(self):
@@ -41,49 +41,31 @@ class Engine(object):
             self.reinforce()
         else:
             self.erode()
-        self.update_w(model.fc1.weight)
-        self.update_w(model.fc2.weight)
-        self.update_w(model.fc3.weight)
-        self.update_w(model.fc4.weight)
-        self.update_b(model.fc1.bias)
-        self.update_b(model.fc2.bias)
-        self.update_b(model.fc3.bias)
-        self.update_b(model.fc4.bias)
-        print(model.fc1.weight[0])
+        vec = self.elite.clone()
+        #print(vec[0:100])
+        self.update_v(vec)
+        vec.add_(self.noise.vector)
+        self.vector = vec
+        torch.nn.utils.vector_to_parameters(self.vector, model.parameters())
 
     def reinforce(self):
-        self.mu = 0.01
-        self.nu = -0.01
+        self.mu = 0.002
+        self.nu = -0.001
 
     def erode(self):
-        self.mu = -0.01
-        self.nu = 0.01
+        self.mu = -0.002
+        self.nu = 0.001
 
-    def update_w(self, v):
-        v.requires_grad_(False)
+    def update_v(self, v):
         ma = v.max().item()
         mi = v.min().item()
-        strongest = v.gt(0.5*ma).nonzero()
-        weakest = v.lt(1.5*mi).nonzero()
-        p = v[strongest[:, 0], strongest[:, 1]]
-        p.add_(self.mu)
-        v[strongest[:, 0], strongest[:, 1]] = p
-        p = v[weakest[:, 0], weakest[:, 1]]
-        p.add_(self.nu)
-        v[weakest[:, 0], weakest[:, 1]] = p
-
-    def update_b(self, v):
-        v.requires_grad_(False)
-        ma = v.max().item()
-        mi = v.min().item()
-        strongest = v.gt(0.5*ma).nonzero()
-        weakest = v.lt(1.5*mi).nonzero()
-        p = v[strongest]
-        p.add_(self.mu)
-        v[strongest] = p
-        p = v[weakest]
-        p.add_(self.nu)
-        v[weakest] = p
+        strongest = v.gt(0.3*ma).nonzero()
+        if mi<0.:
+            weakest = v.lt(0.3*mi).nonzero()
+        else:
+            weakest = v.lt(1.7*mi).nonzero()
+        v[strongest] = v[strongest].add(self.mu)
+        v[weakest] = v[weakest].add(self.nu)
 
     def update_weights__(self, params):
         torch.nn.utils.vector_to_parameters(self.vector, params)

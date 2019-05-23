@@ -16,13 +16,15 @@ import torch
 
 def main():
     precision = torch.half
+    #data_path = "C:/Users/aaa2cn/Documents/fashion_mnist_data"
+    data_path = "~/Documents/ahmed/cifar10_data"
     # Make an MNIST Dataset environment
     env_params = {
-                    "data path": "~/Documents/ahmed/cifar10_data",
+                    "data path": data_path,
                     "precision": precision,
                     "score type": "loss",
                     "loss type": "NLL loss",
-                    "batch size": 40000  # Entire set
+                    "batch size": 4000  # Entire set
                     }
     env = env_factory.make_env("dataset", "cifar10", env_params)
 
@@ -35,11 +37,15 @@ def main():
 
     # Make an algorithm --algorithm takes control of the pool--
     alg_params = {
-                    "learning rate": 0.01,
+                    "target": env.target,
+                    "minimization mode": env.minimize,
+                    "tolerance": 0.01,
+                    "minimum entropy": -0.1,
+                    "max steps": 100,
+                    "memory size": 50
                     }
-    alg = algorithm_factory.make_alg("sgd", model, alg_params)
+    alg = algorithm_factory.make_alg("neuro2", model, alg_params)
 
-    # Make a solver
     slv_params = {
                     "environment": env,
                     "algorithm": alg
@@ -47,8 +53,9 @@ def main():
     slv = solver_factory.make_slv("dataset", slv_params)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=2500)
-    #slv.batch_train_dataset_with_validation(iterations=62)
+    slv.train_dataset_with_validation(iterations=12000)
+    #slv.determined_batch_train_with_validation(iterations=5)
+    #slv.repeated_batch_train_dataset_with_validation(iterations=5, reps=6000)
 
 if __name__ == '__main__':
     main()

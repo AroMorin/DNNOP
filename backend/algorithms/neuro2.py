@@ -37,13 +37,13 @@ class NEURO2(Algorithm):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        inference, score = feedback
+        score = feedback
         #print(inference)
         print(score.item())
         #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
-        #self.engine.update_state()
+        self.engine.update_state()
         self.engine.update_weights(self.model)
         self.update_top_score(score)
 
@@ -60,7 +60,7 @@ class NEURO2(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.00
+            v = 0.0001
             if self.minimizing and self.top_score>0.:
                 self.top_score = self.top_score*(1.+v)
             elif self.minimizing and self.top_score<0.:

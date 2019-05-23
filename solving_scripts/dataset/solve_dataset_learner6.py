@@ -24,7 +24,7 @@ def main():
                     "precision": precision,
                     "score type": "loss",
                     "loss type": "NLL loss",
-                    "batch size": 32  # Entire set
+                    "batch size": 15000  # Entire set
                     }
     env = env_factory.make_env("dataset", "cifar10", env_params)
 
@@ -55,8 +55,8 @@ def main():
     slv = solver_factory.make_slv("dataset", slv_params)
 
     # Use solver to solve the problem
-    #slv.train_dataset_with_validation(iterations=15000)
-    slv.determined_batch_train_with_validation(iterations=5)
+    slv.train_dataset_with_validation(iterations=15000)
+    #slv.determined_batch_train_with_validation(iterations=5)
     #slv.repeated_batch_train_dataset_with_validation(iterations=5, reps=6000)
 
 if __name__ == '__main__':

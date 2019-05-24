@@ -29,7 +29,6 @@ class Solver(object):
 
     def backward(self):
         self.evaluator.evaluate(self.env, self.interrogator.inference)
-        self.interrogator.inference = None
         feedback = (self.evaluator.score)
         self.alg.step(feedback)
         self.alg.print_state()

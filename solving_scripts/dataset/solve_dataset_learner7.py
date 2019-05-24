@@ -24,7 +24,7 @@ def main():
                     "precision": precision,
                     "score type": "loss",
                     "loss type": "NLL loss",
-                    "batch size": 4000  # Entire set
+                    "batch size": 20000  # Entire set
                     }
     env = env_factory.make_env("dataset", "fashion mnist", env_params)
 
@@ -40,11 +40,13 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "tolerance": 0.01,
+                    "learning rate": 0.09,
+                    "lambda": 5,
                     "minimum entropy": -0.1,
                     "max steps": 100,
-                    "memory size": 50
+                    "memory size": 500
                     }
-    alg = algorithm_factory.make_alg("neuro2", model, alg_params)
+    alg = algorithm_factory.make_alg("learner7", model, alg_params)
 
     slv_params = {
                     "environment": env,
@@ -53,7 +55,7 @@ def main():
     slv = solver_factory.make_slv("dataset", slv_params)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=12000)
+    slv.train_dataset_with_validation(iterations=15000)
     #slv.determined_batch_train_with_validation(iterations=5)
     #slv.repeated_batch_train_dataset_with_validation(iterations=5, reps=6000)
 

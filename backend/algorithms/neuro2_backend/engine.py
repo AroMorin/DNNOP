@@ -57,12 +57,12 @@ class Engine(object):
     def reinforce(self):
         #self.mu = 0.002
         #self.nu = -0.001
-        self.mu = 1. + self.x
-        self.nu = 1. - self.x
+        self.mu = self.x
+        self.nu = -self.x
 
     def erode(self):
-        self.mu = 1. - self.x
-        self.nu = 1. + self.x
+        self.mu = -self.x
+        self.nu = self.x
 
     def update_v(self, v):
         ma = v.max().item()
@@ -72,8 +72,8 @@ class Engine(object):
             weakest = v.lt(0.8*mi).nonzero()
         else:
             weakest = v.lt(1.2*mi).nonzero()
-        v[strongest] = v[strongest].mul(self.mu)
-        v[weakest] = v[weakest].mul(self.nu)
+        v[strongest] = v[strongest].add(self.mu)
+        v[weakest] = v[weakest].add(self.nu)
 
     def update_weights__(self, params):
         torch.nn.utils.vector_to_parameters(self.vector, params)

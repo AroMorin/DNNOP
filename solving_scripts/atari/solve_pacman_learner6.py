@@ -37,17 +37,21 @@ def main():
                     "in features": 128,
                     "in channels": 3
                     }
-    model = model_factory.make_model("DQN RAM3 model", model_params)
+    model = model_factory.make_model("DQN RAM model", model_params)
 
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "tolerance": 0.01,
                     "minimum entropy": 0.1,
+                    "tolerance": 0.01,
+                    "learning rate": 0.2,
+                    "lambda": 5,
+                    "alpha": 0.0005,
+                    "beta": 0.29,
                     "max steps": 50,
                     "memory size": 10
                     }
-    alg = algorithm_factory.make_alg("neuro2", model, alg_params)
+    alg = algorithm_factory.make_alg("learner6", model, alg_params)
 
 
     slv_params = {
@@ -57,7 +61,7 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve(iterations=50)
+    slv.solve(iterations=200)
     slv.demonstrate_env()
 
 if __name__ == '__main__':

@@ -21,11 +21,11 @@ class Net(nn.Module):
     def forward(self, x):
         """Forward pass over the model."""
         x = self.conv1(x)
-        x = self.act(x)
         x = self.maxpool(x)
+        x = self.act(x)
         x = self.conv2(x)
-        x = self.act(x)
         x = self.maxpool(x)
+        x = self.act(x)
         (_, C, H, W) = x.data.size()
         x = x.view(-1, C*H*W)
         #print(C*H*W)

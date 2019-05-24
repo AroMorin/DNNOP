@@ -46,7 +46,7 @@ def main():
                     "max steps": 50,
                     "memory size": 20
                     }
-    alg = algorithm_factory.make_alg("learner7", model, alg_params)
+    alg = algorithm_factory.make_alg("spiking1", model, alg_params)
 
 
     slv_params = {

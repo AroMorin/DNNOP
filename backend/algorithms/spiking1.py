@@ -9,13 +9,13 @@ The optimizer object will own the pool.?
 """
 from __future__ import division
 from .algorithm import Algorithm
-from .learner7_backend.hyper_parameters import Hyper_Parameters
-from .learner7_backend.engine import Engine
+from .spiking1_backend.hyper_parameters import Hyper_Parameters
+from .spiking1_backend.engine import Engine
 
-class LEARNER7(Algorithm):
+class SPIKING1(Algorithm):
     def __init__(self, model, alg_params):
         print ("Using Learner7 algorithm")
-        super(LEARNER7, self).__init__()
+        super(SPIKING1, self).__init__()
         self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
         self.engine = Engine(model, self.hyper_params) # Create a pool object
         self.populations = False

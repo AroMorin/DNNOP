@@ -9,8 +9,8 @@ from .learner3 import LEARNER3
 from .learner4 import LEARNER4
 from .learner5 import LEARNER5
 from .learner6 import LEARNER6
-from .learner7 import LEARNER7
-from .learner8 import LEARNER8
+from .spiking1 import SPIKING1
+from .spiking2 import SPIKING2
 from .neuro1 import NEURO1
 from .neuro2 import NEURO2
 
@@ -45,10 +45,10 @@ def make_alg(name, m, alg_params):
         return LEARNER5(m, alg_params)
     elif name == 'learner6':
         return LEARNER6(m, alg_params)
-    elif name == 'learner7':
-        return LEARNER7(m, alg_params)
-    elif name == 'learner8':
-        return LEARNER8(m, alg_params)
+    elif name == 'spiking1':
+        return SPIKING1(m, alg_params)
+    elif name == 'spiking2':
+        return SPIKING2(m, alg_params)
     elif name == 'neuro1':
         return NEURO1(m, alg_params)
     elif name == 'neuro2':

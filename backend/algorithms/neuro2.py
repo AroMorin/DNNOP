@@ -60,7 +60,7 @@ class NEURO2(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.0001
+            v = 0.0000
             if self.minimizing and self.top_score>0.:
                 self.top_score = self.top_score*(1.+v)
             elif self.minimizing and self.top_score<0.:

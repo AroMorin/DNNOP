@@ -22,7 +22,7 @@ def main():
     env_params = {
                     "data path": data_path,
                     "precision": precision,
-                    "score type": "loss",
+                    "score type": "accuracy",
                     "loss type": "NLL loss",
                     "batch size": 4000  # Entire set
                     }
@@ -40,7 +40,7 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "tolerance": 0.01,
-                    "minimum entropy": -0.1,
+                    "minimum entropy": 0.1,
                     "max steps": 100,
                     "memory size": 50
                     }

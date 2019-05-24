@@ -17,6 +17,7 @@ class Engine(object):
         self.elite = self.vector
         self.noise = Noise(hyper_params, self.vector)
         self.jumped = False
+        self.x = 0.01
 
     def analyze(self, score, top_score):
         self.analyzer.analyze(score, top_score)
@@ -24,7 +25,7 @@ class Engine(object):
 
     def set_elite(self):
         self.jumped = False
-        if self.analyzer.replace:
+        if self.analyzer.replace or self.frustration.jump:
             self.elite = self.vector.clone()
             self.jumped = True
 
@@ -35,6 +36,11 @@ class Engine(object):
         self.integrity.set_integrity(self.analyzer.improved)
         # Define noise vector
         self.noise.update_state(self.integrity.value)
+        if self.analyzer.replace:
+            self.x = 0.01
+        else:
+            self.x += 0.01
+        print(self.x)
 
     def update_weights(self, model):
         if self.analyzer.replace:
@@ -49,23 +55,25 @@ class Engine(object):
         torch.nn.utils.vector_to_parameters(self.vector, model.parameters())
 
     def reinforce(self):
-        self.mu = 0.002
-        self.nu = -0.001
+        #self.mu = 0.002
+        #self.nu = -0.001
+        self.mu = 1. + self.x
+        self.nu = 1. - self.x
 
     def erode(self):
-        self.mu = -0.002
-        self.nu = 0.001
+        self.mu = 1. - self.x
+        self.nu = 1. + self.x
 
     def update_v(self, v):
         ma = v.max().item()
         mi = v.min().item()
-        strongest = v.gt(0.3*ma).nonzero()
+        strongest = v.gt(0.8*ma).nonzero()
         if mi<0.:
-            weakest = v.lt(0.3*mi).nonzero()
+            weakest = v.lt(0.8*mi).nonzero()
         else:
-            weakest = v.lt(1.7*mi).nonzero()
-        v[strongest] = v[strongest].add(self.mu)
-        v[weakest] = v[weakest].add(self.nu)
+            weakest = v.lt(1.2*mi).nonzero()
+        v[strongest] = v[strongest].mul(self.mu)
+        v[weakest] = v[weakest].mul(self.nu)
 
     def update_weights__(self, params):
         torch.nn.utils.vector_to_parameters(self.vector, params)

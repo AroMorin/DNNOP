@@ -24,14 +24,14 @@ def main():
                     "precision": precision,
                     "score type": "accuracy",
                     "loss type": "NLL loss",
-                    "batch size": 5000  # Entire set
+                    "batch size": 500  # Entire set
                     }
     env = env_factory.make_env("dataset", "cifar10", env_params)
 
     # Make a pool
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Spiking"  # Xavier Normal
+                    "weight initialization scheme": "Constant"  # Xavier Normal
                     }
     model = model_factory.make_model("CIFAR10 CNN", model_params)
 
@@ -44,7 +44,7 @@ def main():
                     "max steps": 100,
                     "memory size": 100
                     }
-    alg = algorithm_factory.make_alg("learner7", model, alg_params)
+    alg = algorithm_factory.make_alg("spiking2", model, alg_params)
 
     slv_params = {
                     "environment": env,

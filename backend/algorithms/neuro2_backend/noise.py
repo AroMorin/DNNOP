@@ -46,7 +46,7 @@ class Noise(object):
         p = 1.-integrity
         argument = (5.*p)-2.5
         exp1 = math.tanh(argument)+1
-        self.search_radius = exp1*0.05
+        self.search_radius = exp1*0.02
 
     def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""

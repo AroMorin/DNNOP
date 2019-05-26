@@ -32,6 +32,10 @@ class Frustration(object):
             self.table.append(item)
         else:
             self.table = [item]
+            self.reset_state()
+
+    def reset_state(self):
+        self.tau = 0.0001
 
     def update_count(self):
         self.count = len(self.table)
@@ -43,8 +47,6 @@ class Frustration(object):
         if self.count > self.mem_size:
             r = self.count/self.mem_size
             self.tau = r-1.
-        else:
-            self.tau = 0.0001
 
     def set_value(self):
         """Sets the frustration value based on tau. The function has a slow

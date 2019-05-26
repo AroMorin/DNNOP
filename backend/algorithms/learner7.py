@@ -82,7 +82,7 @@ class LEARNER7(Algorithm):
         print("Integrity: %f" %self.engine.integrity.value)
         print("Bin: ", self.engine.integrity.step_size.bin)
         print("Step size: %f" %self.engine.integrity.step_size.value)
-        print("SR: %f" %self.engine.noise.search_radius)
+        print("SR: (%f, %f)" %(self.engine.noise.sr_min, self.engine.noise.sr_max))
         print("Selections: %d" %self.engine.noise.num_selections)
         print("P: ", self.engine.selection_p.p[0:10])
         print("Variance(P): %f\n" %self.engine.selection_p.variance)

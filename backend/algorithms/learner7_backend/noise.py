@@ -11,23 +11,32 @@ class Noise(object):
         self.hp = hp
         self.vec_length = torch.numel(vector)
         self.indices = np.arange(self.vec_length)
-        self.noise_distribution = "uniform"  # Or "uniform"
+        self.noise_distribution = "normal"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
         self.limit = 2000
         self.num_selections = None
-        self.search_radius = None
+        self.sr_min = None
+        self.sr_max = None
         self.precision = vector.dtype
         self.vector = None
 
-    def update_state(self, integrity, p, m):
+    def update_state(self, integrity, p, limits):
         # Set noise size (scope)
         self.choices = []
         self.set_num_selections(integrity)
-        self.set_search_radius(integrity, m)
+        self.set_sr(integrity, limits)
         self.set_noise_dist()
         self.set_choices(p)
         self.set_vector()
+
+    def set_num_selections_(self, integrity):
+        """Sets the number of selected neurons based on the integrity and
+        hyperparameters."""
+        p = integrity
+        argument = (5*p)-2.5
+        exp1 = math.tanh(argument)+1
+        self.num_selections = int(exp1*0.5*self.limit)
 
     def set_num_selections(self, integrity):
         """Sets the number of selected neurons based on the integrity and
@@ -39,22 +48,26 @@ class Noise(object):
         num_selections = numerator/denominator
         self.num_selections = int(num_selections*self.limit)
 
-    def set_search_radius(self, integrity, m):
+    def set_sr(self, integrity, limits):
         """Sets the search radius (noise magnitude) based on the integrity and
         hyperparameters."""
+        (lmin, lmax) = limits
         p = 1.-integrity
         argument = (5*p)-2.5
         exp1 = math.tanh(argument)+1
-        self.search_radius = exp1*m*0.05
+        self.sr_min = exp1*lmin*0.05
+        self.sr_max = exp1*lmax*0.05
 
     def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""
-        a = -self.search_radius
-        b = self.search_radius
+        a = self.sr_min
+        b = self.sr_max
+        c = (b-a)/2.
+        assert a != b  # Sanity check
         if self.noise_distribution == "uniform":
             self.distribution = uniform.Uniform(torch.Tensor([a]), torch.Tensor([b]))
         elif self.noise_distribution == "normal":
-            self.distribution = normal.Normal(torch.Tensor([0.]), torch.Tensor([b]))
+            self.distribution = normal.Normal(torch.Tensor([c]), torch.Tensor([b]))
         else:
             print("Unknown distribution type")
             exit()
@@ -67,7 +80,7 @@ class Noise(object):
         p = p.cpu().numpy()  # Casting
         np.random.seed()
         self.choices = np.random.choice(self.indices, self.num_selections,
-                                        replace=False)
+                                        replace=False, p=p)
 
     def set_vector(self):
         """ This function defines a noise tensor, and returns it. The noise

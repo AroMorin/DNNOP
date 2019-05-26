@@ -11,7 +11,7 @@ class Noise(object):
         self.hp = hp
         self.vec_length = torch.numel(vector)
         self.indices = np.arange(self.vec_length)
-        self.noise_distribution = "uniform"  # Or "uniform"
+        self.noise_distribution = "normal"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
         self.limit = 200

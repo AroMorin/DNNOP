@@ -45,9 +45,3 @@ class Step_size(object):
             self.bin[2] = max(self.min_steps, self.bin[2]-self.decrement)
         elif  0.75 < integrity <= 1.:
             self.bin[3] = max(self.min_steps, self.bin[3]-self.decrement)
-
-    def suspend_reality(self):
-        self.real_bin = self.bin
-
-    def restore_reality(self):
-        self.bin = self.real_bin

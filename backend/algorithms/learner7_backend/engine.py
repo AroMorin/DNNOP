@@ -23,7 +23,7 @@ class Engine(object):
 
     def analyze(self, score, top_score):
         self.analyzer.analyze(score, top_score)
-        self.frustration.update(score, top_score)
+        #self.frustration.update(score, top_score)
 
     def set_elite(self):
         self.jumped = False
@@ -35,10 +35,11 @@ class Engine(object):
         """Prepares the new pool based on the scores of the current generation
         and the results of the analysis (such as value of intergrity).
         """
-        self.selection_p.update_state(self.analyzer.replace, self.noise.choices)
+        self.selection_p.update_state(self.elite)
         self.integrity.set_integrity(self.analyzer.improved)
         # Define noise vector
-        self.noise.update_state(self.integrity.value, self.selection_p.p, self.elite.max())
+        limits = (self.elite.min(), self.elite.max())
+        self.noise.update_state(self.integrity.value, self.selection_p.p, limits)
 
     def generate(self):
         new_vector = self.elite.clone()

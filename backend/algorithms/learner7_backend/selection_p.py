@@ -18,11 +18,9 @@ class Selection_P(object):
         self.step = 0
         self.max_steps = 1000
 
-    def update_state(self, improved, choices):
-        self.choices = choices
-        self.update_p(improved)
-        self.check_step()
-        self.step+=1
+    def update_state(self, vec):
+        p = torch.nn.functional.softmax(vec, dim=0)
+        self.p = p.detach()
 
     def update_p(self, improved):
         """Updates the probability distribution."""

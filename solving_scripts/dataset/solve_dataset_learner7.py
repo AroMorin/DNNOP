@@ -24,7 +24,7 @@ def main():
                     "precision": precision,
                     "score type": "loss",
                     "loss type": "NLL loss",
-                    "batch size": 5000  # Entire set
+                    "batch size": 2000  # Entire set
                     }
     env = env_factory.make_env("dataset", "fashion mnist", env_params)
 
@@ -57,7 +57,7 @@ def main():
     # Use solver to solve the problem
     slv.train_dataset_with_validation(iterations=15000)
     #slv.determined_batch_train_with_validation(iterations=5)
-    #slv.repeated_batch_train_dataset_with_validation(iterations=5, reps=6000)
+    #slv.repeated_batch_train_dataset_with_validation(iterations=5, reps=8000)
 
 if __name__ == '__main__':
     main()

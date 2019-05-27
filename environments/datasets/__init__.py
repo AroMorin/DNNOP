@@ -3,6 +3,7 @@
 from .mnist import MNIST
 from .fashion_mnist import FashionMNIST
 from .cifar10 import CIFAR10
+from .cifar100 import CIFAR100
 
 def make_dataset(name, env_params):
     """Class factory method. This method takes the name of the desired
@@ -14,6 +15,8 @@ def make_dataset(name, env_params):
         return FashionMNIST(env_params)
     elif name == 'cifar10':
         return CIFAR10(env_params)
+    elif name == 'cifar100':
+        return CIFAR100(env_params)
     else:
         print("Unknown dataset requested!")
         exit()

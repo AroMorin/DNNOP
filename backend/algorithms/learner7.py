@@ -59,7 +59,7 @@ class LEARNER7(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.0000
+            v = 0.00001
             if self.minimizing and self.top_score>0.:
                 self.top_score = self.top_score*(1.+v)
             elif self.minimizing and self.top_score<0.:
@@ -85,8 +85,7 @@ class LEARNER7(Algorithm):
         print("SR: (%f, %f)" %(self.engine.noise.sr_min, self.engine.noise.sr_max))
         print("Selections: %d" %self.engine.noise.num_selections)
         print("P: ", self.engine.selection_p.p[0:10])
-        print("Variance(P): %f\n" %self.engine.selection_p.variance)
-
+        print("F: %f" %self.engine.selection_p.f)
 
 
 

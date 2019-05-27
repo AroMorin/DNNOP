@@ -23,7 +23,7 @@ class Engine(object):
 
     def analyze(self, score, top_score):
         self.analyzer.analyze(score, top_score)
-        self.frustration.update(score, top_score)
+        #self.frustration.update(score, top_score)
 
     def set_elite(self):
         self.jumped = False

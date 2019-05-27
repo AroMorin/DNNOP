@@ -15,7 +15,7 @@ class Net(nn.Module):
         self.conv2 = nn.Conv2d(32, 64, kernel_size=5)
         self.fc1 = nn.Linear(1600, 100)
         self.fc2 = nn.Linear(100, 32)
-        self.fc3 = nn.Linear(32, 10)
+        self.fc3 = nn.Linear(32, 100)
         self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, x):

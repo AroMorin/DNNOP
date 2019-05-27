@@ -29,11 +29,12 @@ class Net(nn.Module):
     def forward(self, x):
         x = self.fc1(x)
         x = self.clamp(x)
+        #print(x[0:100])
         x = self.fc2(x)
         x = self.clamp(x)
         x = self.fc3(x)
         x = self.clamp(x)
-        print(x.nonzero().shape[0])
+        #print(x.nonzero().shape[0])
         x = self.fc4(x)
         #print(x.argmax())
         #exit()
@@ -49,7 +50,7 @@ class Net(nn.Module):
     def clamp(self, x):
         m = x.max().item()
         peak = m*0.01
-        threshold = m*0.85
+        threshold = m*0.65
         threshold = torch.full_like(x, threshold)
         selections = x.gt(threshold)
         x.fill_(0.)

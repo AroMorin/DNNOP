@@ -152,7 +152,6 @@ def init_eye(m):
     """
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.eye_(m.weight)
-        nn.init.eye_(m.bias)
 
 def init_constant(m):
     """Initializes weights according to an Identity matrix. This special case

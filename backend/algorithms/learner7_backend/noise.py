@@ -14,7 +14,7 @@ class Noise(object):
         self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
-        self.limit = int(0.005*self.vec_length)
+        self.limit = int(0.5*self.vec_length)
         self.num_selections = None
         self.sr_min = None
         self.sr_max = None
@@ -57,9 +57,8 @@ class Noise(object):
         exp1 = math.tanh(argument)+1
         #self.sr_min = -exp1*0.05
         #self.sr_max = exp1*0.05
-        self.sr_min = (exp1*0.05*lmin).floor_()
-        self.sr_max = (exp1*0.05*lmax).ceil_()
-
+        self.sr_min = exp1*0.1*lmin
+        self.sr_max = exp1*0.1*lmax
 
     def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""

@@ -85,7 +85,6 @@ class LEARNER7(Algorithm):
         print("SR: (%f, %f)" %(self.engine.noise.sr_min, self.engine.noise.sr_max))
         print("Selections: %d" %self.engine.noise.num_selections)
         print("P: ", self.engine.selection_p.p[0:10])
-        print("F: %f" %self.engine.selection_p.f)
 
 
 

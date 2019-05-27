@@ -61,7 +61,7 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve(iterations=500)
+    slv.solve(iterations=15)
     slv.demonstrate_env()
 
 if __name__ == '__main__':

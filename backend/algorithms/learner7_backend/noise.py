@@ -11,10 +11,10 @@ class Noise(object):
         self.hp = hp
         self.vec_length = torch.numel(vector)
         self.indices = np.arange(self.vec_length)
-        self.noise_distribution = "normal"  # Or "uniform"
+        self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
-        self.limit = 2000
+        self.limit = 200
         self.num_selections = None
         self.sr_min = None
         self.sr_max = None
@@ -55,8 +55,8 @@ class Noise(object):
         p = 1.-integrity
         argument = (5*p)-2.5
         exp1 = math.tanh(argument)+1
-        self.sr_min = exp1*lmin*0.05
-        self.sr_max = exp1*lmax*0.05
+        self.sr_min = -exp1*0.05
+        self.sr_max = exp1*0.05
 
     def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""

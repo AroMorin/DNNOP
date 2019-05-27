@@ -24,7 +24,7 @@ def main():
                     "precision": precision,
                     "score type": "loss",
                     "loss type": "NLL loss",
-                    "batch size": 20000  # Entire set
+                    "batch size": 5000  # Entire set
                     }
     env = env_factory.make_env("dataset", "fashion mnist", env_params)
 

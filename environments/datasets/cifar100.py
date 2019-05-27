@@ -54,9 +54,12 @@ class CIFAR100(Dataset):
         """Set the desired transformations on the dataset."""
         print ("Applying dataset transformations")
         #self.transforms = transforms.Compose([transforms.ToTensor()])
-        self.transforms = transforms.Compose(
-                        [transforms.ToTensor(),
-                        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        if self.normalize:
+            self.transforms = transforms.Compose(
+                            [transforms.ToTensor(),
+                            transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        else:
+            self.transforms = transforms.Compose([transforms.ToTensor()])
 
     def format_data(self):
         """Apply the desired precision, split into batches and perform any other

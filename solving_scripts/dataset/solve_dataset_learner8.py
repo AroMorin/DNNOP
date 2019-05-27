@@ -15,15 +15,16 @@ import backend.solvers as solver_factory
 import torch
 
 def main():
-    precision = torch.half
+    precision = torch.float
     #data_path = "C:/Users/aaa2cn/Documents/fashion_mnist_data"
     data_path = "~/Documents/ahmed/fashion_mnist_data"
     # Make an MNIST Dataset environment
     env_params = {
                     "data path": data_path,
                     "precision": precision,
-                    "score type": "loss",
+                    "score type": "accuracy",
                     "loss type": "NLL loss",
+                    "normalize": False,
                     "batch size": 2000  # Entire set
                     }
     env = env_factory.make_env("dataset", "fashion mnist", env_params)
@@ -31,7 +32,7 @@ def main():
     # Make a pool
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "He"  # Xavier Normal
+                    "weight initialization scheme": "Integer"
                     }
     model = model_factory.make_model("FashionMNIST CNN", model_params)
 
@@ -42,7 +43,7 @@ def main():
                     "tolerance": 0.01,
                     "learning rate": 0.09,
                     "lambda": 5,
-                    "minimum entropy": -0.1,
+                    "minimum entropy": 0.1,
                     "max steps": 100,
                     "memory size": 500
                     }

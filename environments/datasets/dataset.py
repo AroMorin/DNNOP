@@ -9,6 +9,7 @@ class Dataset(Environment):
         super(Dataset, self).__init__(env_params)
         env_params = self.ingest_params_lvl1(env_params)
         self.data_path = env_params["data path"]
+        self.normalize = env_params["normalize"]
         self.train_dataset = None
         self.test_dataset = None
         self.train_loader = None
@@ -27,6 +28,7 @@ class Dataset(Environment):
         assert type(env_params) is dict
         default_params = {
                             "data path": "C:/Users/aaa2cn/Documents/mnist_data",
+                            "normalize": True
                             }
         default_params.update(env_params)  # Update with user selections
         return default_params

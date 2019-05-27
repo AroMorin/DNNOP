@@ -14,7 +14,7 @@ class Noise(object):
         self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
-        self.limit = int(0.005*self.vec_length)
+        self.limit = int(0.001*self.vec_length)
         self.num_selections = None
         self.sr_min = None
         self.sr_max = None
@@ -57,8 +57,8 @@ class Noise(object):
         exp1 = math.tanh(argument)+1
         #self.sr_min = -exp1*0.05
         #self.sr_max = exp1*0.05
-        self.sr_min = (exp1*0.05*lmin).floor_()
-        self.sr_max = (exp1*0.05*lmax).ceil_()
+        self.sr_min = (exp1*0.5*lmin).floor_()
+        self.sr_max = (exp1*0.5*lmax).ceil_()
 
 
     def set_noise_dist(self):
@@ -91,7 +91,7 @@ class Noise(object):
         "basis" tensor is created with zeros, then the chosen indices are
         modified.
         """
-        noise = self.distribution.sample(torch.Size([self.num_selections]))
+        noise = self.distribution.sample(torch.Size([self.num_selections])).ceil_()
         # Cast to precision and CUDA, and edit shape
         noise = noise.to(dtype=self.precision, device='cuda').squeeze()
         noise_vector = torch.zeros(self.vec_length, dtype=self.precision,

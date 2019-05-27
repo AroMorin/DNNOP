@@ -14,6 +14,7 @@ from .dqn_ram import Net as DQN_RAM
 from .dqn_ram2 import Net as DQN_RAM2
 from .dqn_ram3 import Net as DQN_RAM3
 from .dqn_lstm_ram import Net as DQN_LSTM_RAM
+from .dqn_spiking_ram import Net as DQN_SPIKING_RAM
 
 import torch
 import torch.nn as nn
@@ -88,6 +89,8 @@ def pick_model(name, model_params):
         model = DQN_RAM3(model_params)
     elif name == "DQN LSTM RAM model":
         model = DQN_LSTM_RAM(model_params)
+    elif name == "DQN Spiking RAM model":
+        model = DQN_SPIKING_RAM(model_params)
     elif name == "DQN model":
         model = DQN(model_params)
     else:
@@ -101,6 +104,8 @@ def init_weights(model, scheme):
         model.apply(init_uniform)
     elif scheme == 'Normal':
         model.apply(init_normal)
+    elif scheme == 'Integer':
+        model.apply(init_integer)
     elif scheme == 'Identical':
         model.apply(init_eye)
     elif scheme == 'Constant':
@@ -122,6 +127,16 @@ def init_uniform(m):
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.uniform_(m.weight, a=a, b=b)
         nn.init.uniform_(m.bias, a=a, b=b)
+
+def init_integer(m):
+    """Initializes weights according to a Uniform distribution."""
+    a = -5.
+    b = 5.
+    if type(m) == nn.Linear or type(m) == nn.Conv2d:
+        nn.init.uniform_(m.weight, a=a, b=b)
+        nn.init.uniform_(m.bias, a=a, b=b)
+        m.weight.data.ceil_()
+        m.bias.data.ceil_()
 
 def init_normal(m):
     """Initializes weights according to a Normal distribution."""

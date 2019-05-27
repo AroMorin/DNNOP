@@ -33,9 +33,9 @@ class Net(nn.Module):
         x = self.clamp(x)
         x = self.fc3(x)
         x = self.clamp(x)
-        #print(x.nonzero().shape[0])
+        print(x.nonzero().shape[0])
         x = self.fc4(x)
-        #print(x)
+        #print(x.argmax())
         #exit()
         return x
 

@@ -10,8 +10,9 @@ class Net(nn.Module):
         print("Creating basic CNN MNIST model for MSN")
         super(Net, self).__init__()
         self.conv1 = nn.Conv2d(1, 32, kernel_size=5)
-        #self.act = nn.ReLU()
-        self.act = nn.Tanh()
+        self.relu = nn.ReLU()
+        #self.act = nn.Tanh()
+        #self.act = self.activation()
         #self.act = nn.ELU()
         self.drop = nn.Dropout(0.05)
         self.maxpool = nn.MaxPool2d(2)
@@ -23,8 +24,8 @@ class Net(nn.Module):
     def forward(self, x):
         """Forward pass over the model."""
         x = self.conv1(x)
-        x = self.maxpool(x)
         x = self.act(x)
+        x = self.maxpool(x)
         x = self.conv2(x)
         x = self.act(x)
         x = self.maxpool(x)
@@ -35,5 +36,12 @@ class Net(nn.Module):
         x = self.act(x)
         x = self.drop(x)
         x = self.fc2(x)
-        x = self.softmax(x)
+        x = self.act(x)
+        #x = self.softmax(x)
+        return x
+
+
+    def act(self, x):
+        x = self.relu(x)
+        x = x.mul(0.5)
         return x

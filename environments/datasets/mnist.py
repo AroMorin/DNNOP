@@ -55,8 +55,11 @@ class MNIST(Dataset):
     def set_transformations(self):
         """Set the desired transformations on the dataset."""
         print ("Applying dataset transformations")
-        self.transforms = transforms.Compose([transforms.ToTensor(),
-                           transforms.Normalize((0.1307,), (0.3081,))])
+        if self.normalize:
+            self.transforms = transforms.Compose([transforms.ToTensor(),
+                               transforms.Normalize((0.1307,), (0.3081,))])
+        else:
+            self.transforms = transforms.Compose([transforms.ToTensor()])
 
     def format_data(self):
         """Apply the desired precision, split into batches and perform any other

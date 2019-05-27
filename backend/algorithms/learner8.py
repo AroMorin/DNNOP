@@ -77,8 +77,6 @@ class LEARNER8(Algorithm):
         if self.engine.analyzer.improved:
             print("Improved!")
         print ("Top Score: %f" %self.top_score)
-        print("Memory: %d" %self.engine.frustration.count)
-        print("Frustration: %f" %self.engine.frustration.value)
         print("Integrity: %f" %self.engine.integrity.value)
         print("Bin: ", self.engine.integrity.step_size.bin)
         print("Step size: %f" %self.engine.integrity.step_size.value)

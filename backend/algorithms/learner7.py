@@ -38,7 +38,7 @@ class LEARNER7(Algorithm):
         """
         score = feedback
         #print(score.item())
-        #score = self.regularize(score)
+        score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
         self.engine.update_state()
@@ -48,7 +48,12 @@ class LEARNER7(Algorithm):
 
     def regularize(self, score):
         norm = self.engine.vector.norm()
-        score = score+(0.01*norm)
+        penalty = 0.00001*norm
+        print("Regularization: %f" %penalty.item())
+        if self.minimizing:
+            score = score+penalty
+        else:
+            score = score-penalty
         return score
 
     def update_top_score(self, score):
@@ -59,7 +64,7 @@ class LEARNER7(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.00001
+            v = 0.00
             if self.minimizing and self.top_score>0.:
                 self.top_score = self.top_score*(1.+v)
             elif self.minimizing and self.top_score<0.:

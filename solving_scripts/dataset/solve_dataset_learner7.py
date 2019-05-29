@@ -44,7 +44,7 @@ def main():
                     "lambda": 5,
                     "minimum entropy": -0.1,
                     "max steps": 100,
-                    "memory size": 500
+                    "memory size": 10
                     }
     alg = algorithm_factory.make_alg("learner7", model, alg_params)
 

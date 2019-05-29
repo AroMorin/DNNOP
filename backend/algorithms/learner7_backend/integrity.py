@@ -37,7 +37,7 @@ class Integrity(object):
             self.value = max(0, a)  # Integrity never below zero
 
     def maintain_integrity(self):
-        a = self.value+0.04
+        a = self.value+0.25
         b = self.hp.max_integrity
         self.value = min(a, b)
 

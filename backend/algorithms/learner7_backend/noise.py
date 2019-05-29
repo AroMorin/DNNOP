@@ -14,7 +14,7 @@ class Noise(object):
         self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
-        self.limit = int(0.5*self.vec_length)
+        self.limit = int(0.3*self.vec_length)
         self.num_selections = None
         self.sr_min = None
         self.sr_max = None
@@ -30,19 +30,19 @@ class Noise(object):
         self.set_choices(p)
         self.set_vector()
 
-    def set_num_selections_(self, integrity):
-        """Sets the number of selected neurons based on the integrity and
-        hyperparameters."""
-        p = integrity
-        argument = (5*p)-2.5
-        exp1 = math.tanh(argument)+1
-        self.num_selections = int(exp1*0.5*self.limit)
-
     def set_num_selections(self, integrity):
         """Sets the number of selected neurons based on the integrity and
         hyperparameters."""
-        #p = 1-self.integrity
-        p = integrity
+        p = 1.-integrity
+        argument = (5*p)-3.5
+        exp1 = math.tanh(argument)+1
+        self.num_selections = int(exp1*0.5*self.limit)
+
+    def set_num_selections_(self, integrity):
+        """Sets the number of selected neurons based on the integrity and
+        hyperparameters."""
+        p = 1.-integrity
+        #p = integrity
         numerator = 1
         denominator = 1+(0.29/p)
         num_selections = numerator/denominator
@@ -57,8 +57,8 @@ class Noise(object):
         exp1 = math.tanh(argument)+1
         #self.sr_min = -exp1*0.05
         #self.sr_max = exp1*0.05
-        self.sr_min = exp1*0.1*lmin
-        self.sr_max = exp1*0.1*lmax
+        self.sr_min = -exp1*0.07
+        self.sr_max = exp1*0.06
 
     def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""

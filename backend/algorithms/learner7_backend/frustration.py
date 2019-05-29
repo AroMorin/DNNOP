@@ -11,7 +11,7 @@ class Frustration(object):
         self.mem_size = hp.mem_size
         self.table = [None]
         self.count = 0
-        self.tau = 0.0001
+        self.tau = 0.00001
         self.jump = False
         self.limit = 0.1
 
@@ -21,8 +21,8 @@ class Frustration(object):
         self.append_table(top_score)
         self.update_count()
         self.set_tau()
-        if self.tau != 0.0001:
-            self.set_value()
+        self.set_value()
+        if self.tau != 0.00001:
             self.set_jump(score)
         else:
             self.jump = False
@@ -41,10 +41,10 @@ class Frustration(object):
         at index 0.
         """
         if self.count > self.mem_size:
-            r = self.count/self.mem_size
+            r = (self.count*0.05)/self.mem_size
             self.tau = r-1.
         else:
-            self.tau = 0.0001
+            self.tau = 0.00001
 
     def set_value(self):
         """Sets the frustration value based on tau. The function has a slow

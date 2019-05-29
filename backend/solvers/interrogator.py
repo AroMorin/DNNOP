@@ -26,6 +26,12 @@ class Interrogator(object):
             model.eval()  # Turn on evaluation mode
             self.inference = model(env.test_data)
 
+    def get_var(self):
+        return self.inference.var()
+
+    def get_mean(self):
+        return self.inference.mean()
+
     def print_inference(self):
         """Prints the inference of the neural networks. Attempts to extract
         the output items from the tensors.

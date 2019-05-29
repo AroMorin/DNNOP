@@ -62,9 +62,9 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve(iterations=10000)
+    slv.solve(iterations=99000)
     slv.demonstrate_env()
-    slv.save_elite_weights("")
+    slv.save_elite_weights(alg.model, "")
 
 if __name__ == '__main__':
     main()

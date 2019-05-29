@@ -1,5 +1,6 @@
 from ..environment import Environment
 import gym
+import roboschool
 import torch
 import numpy as np
 
@@ -19,13 +20,19 @@ class Gym_base(Environment):
         self.iteration = 0  # State
         self.minimize = False
         self.target = 999999   # Infinity, max score
+        self.RAM = False
+        self.IMG = False
+        self.discrete = True
 
     def ingest_params_lvl1(self, env_params):
         assert type(env_params) is dict
         default_params = {
                             "env name": "MsPacman-v0",
                             "scoring type": "score",
-                            "populations": False  # Population-based optimization
+                            "populations": False,  # Population-based optimization
+                            "RAM": False,
+                            "IMG": False,
+                            "Discrete": True
                             }
         default_params.update(env_params)  # Update with user selections
         return default_params
@@ -49,8 +56,11 @@ class Gym_base(Environment):
 
     def step(self, action):
         """Instantiates the plotter class if a plot is requested by the user."""
-        action = action.argmax().int()
-        action = action.cpu().numpy()
+        if self.discrete:
+            action = action.argmax().int()
+        action = action.cpu().detach().numpy()
+        action = np.squeeze(action)
+        action = self.env.action_space.sample()
         observation, reward, self.done, self.info = self.env.step(action)
         self.reward += reward
         self.format_obs(observation)

@@ -1,6 +1,7 @@
 """This script allows making objects of different dataset classes"""
 
 from .atari import Atari
+from .roboschool import Roboschool
 
 def make_env(name, env_params):
     """Class factory method. This method takes the name of the desired
@@ -8,6 +9,8 @@ def make_env(name, env_params):
     """
     if name == 'atari':
         return Atari(env_params)
+    elif name == 'roboschool':
+        return Roboschool(env_params)
     else:
-        print("Unknown nao robot function requested")
+        print("Unknown openAI Gym env requested")
         exit()

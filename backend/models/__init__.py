@@ -15,6 +15,7 @@ from .dqn_ram2 import Net as DQN_RAM2
 from .dqn_ram3 import Net as DQN_RAM3
 from .dqn_lstm_ram import Net as DQN_LSTM_RAM
 from .dqn_spiking_ram import Net as DQN_SPIKING_RAM
+from .roboschool_fc import Net as ROBOSCHOOL_FC
 
 import torch
 import torch.nn as nn
@@ -93,6 +94,8 @@ def pick_model(name, model_params):
         model = DQN_SPIKING_RAM(model_params)
     elif name == "DQN model":
         model = DQN(model_params)
+    elif name == "Roboschool FC":
+        model = ROBOSCHOOL_FC(model_params)
     else:
         print("Unknown model selected")
         exit()

@@ -16,29 +16,27 @@ def main():
     precision = torch.float
     #game = "Pong-v0"
     #game = "Pong-ram-v0"
-    game = "MsPacman-ram-v0"
+    module = "RoboschoolReacher-v1"
 
     # Parameter and Object declarations
     env_params = {
                     "score type": "score",  # Function evaluation
                     "render": False,
-                    "RAM": True,
-                    "game name": game
+                    "module name": module
                     }
-    env = env_factory.make_env("openai", "atari", env_params)
+    env = env_factory.make_env("openai", "roboschool", env_params)
 
+    #print(env.obs_space)
+    #print(env.action_space)
+    #exit()
     model_params = {
                     "precision": precision,
                     "weight initialization scheme": "Sparse",
                     "grad": False,
-                    "number of outputs": env.action_space.n,
-                    "w": 210,
-                    "h": 160,
-                    "in features": 128,
-                    "in channels": 3
+                    "in features": 9,
+                    "number of outputs": 2
                     }
-    model = model_factory.make_model("DQN RAM model", model_params)
-    #model = model_factory.make_model("DQN LSTM RAM model", model_params)
+    model = model_factory.make_model("Roboschool FC", model_params)
 
     alg_params = {
                     "target": env.target,
@@ -50,7 +48,7 @@ def main():
                     "alpha": 0.0005,
                     "beta": 0.29,
                     "max steps": 30,
-                    "memory size": 2
+                    "memory size": 10
                     }
     alg = algorithm_factory.make_alg("learner7", model, alg_params)
 
@@ -62,9 +60,8 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve(iterations=10000)
+    slv.solve(iterations=5000)
     slv.demonstrate_env()
-    slv.save_elite_weights("")
 
 if __name__ == '__main__':
     main()

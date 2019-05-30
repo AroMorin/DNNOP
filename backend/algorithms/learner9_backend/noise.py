@@ -81,7 +81,7 @@ class Noise(object):
         """
         p = p.cpu().numpy()  # Casting
         self.choices = np.random.choice(self.indices, self.num_selections,
-                                        replace=False)
+                                        replace=False, p=p)
 
     def set_vector(self):
         """ This function defines a noise tensor, and returns it. The noise

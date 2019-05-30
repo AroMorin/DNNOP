@@ -73,6 +73,32 @@ class RL_Solver(Solver):
                 break # Terminate optimization
         self.env.close()
 
+    def solve_averager2(self, iterations, reps):
+        """In cases where training is needed."""
+        print("Training OpenAI environment solver \n")
+        for iteration in range(iterations):
+            print("Iteration: %d/%d \n" %(iteration, iterations))
+            print("Episodes: %d" %reps)
+            feedback = 0.
+            self.interrogator.reset_state()
+            for _ in range(reps):
+                #self.roll(silent=True)
+                self.roll_and_render()
+                self.evaluator.evaluate(self.env, self.interrogator.inference)
+                feedback += self.evaluator.score
+            m = self.interrogator.get_mean(chain=True)
+            v = self.interrogator.get_var(chain=True)
+            reward = feedback/reps
+            feedback = (reward, m, v)
+            self.alg.step(feedback)
+            self.alg.print_state()
+            self.current_iteration +=1
+            print("\n")
+            if self.alg.achieved_target():
+                print ("Achieved/exceeded target")
+                break # Terminate optimization
+        self.env.close()
+
     def solve_and_render(self, iterations):
         """In cases where training is needed."""
         print("Training OpenAI environment solver \n")

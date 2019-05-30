@@ -37,6 +37,42 @@ class RL_Solver(Solver):
                 break # Terminate optimization
         self.env.close()
 
+    def roll(self, silent=False):
+        steps=0
+        obs = self.env.reset_state()
+        while not self.env.done:
+            self.forward()
+            steps+=1
+        if not silent:
+            print("Took %d steps" %steps)
+
+    def forward(self):
+        self.interrogator.set_inference_chain(self.alg.model, self.env)
+        action = self.interrogator.inference
+        self.env.step(action)
+
+    def solve_averager(self, iterations, reps):
+        """In cases where training is needed."""
+        print("Training OpenAI environment solver \n")
+        for iteration in range(iterations):
+            print("Iteration: %d/%d \n" %(iteration, iterations))
+            print("Episodes: %d" %reps)
+            feedback = 0.
+            for _ in range(reps):
+                #self.roll(silent=True)
+                self.roll_and_render()
+                self.evaluator.evaluate(self.env, self.interrogator.inference)
+                feedback += self.evaluator.score
+            feedback /= reps
+            self.alg.step(feedback)
+            self.alg.print_state()
+            self.current_iteration +=1
+            print("\n")
+            if self.alg.achieved_target():
+                print ("Achieved/exceeded target")
+                break # Terminate optimization
+        self.env.close()
+
     def solve_and_render(self, iterations):
         """In cases where training is needed."""
         print("Training OpenAI environment solver \n")
@@ -52,25 +88,12 @@ class RL_Solver(Solver):
                 break # Terminate optimization
         self.env.close()
 
-    def roll(self):
-        steps=0
-        self.env.reset_state()
-        while not self.env.done:
-            self.forward()
-            steps+=1
-        print("Took %d steps" %steps)
-
-    def roll_and_render(self, delay=0.05):
+    def roll_and_render(self, delay=0.03):
         self.env.reset_state()
         while not self.env.done:
             self.env.render()
             self.forward()
             time.sleep(delay)
-
-    def forward(self):
-        self.interrogator.set_inference(self.alg.model, self.env)
-        action = self.interrogator.inference
-        self.env.step(action)
 
     def reset_state(self):
         """This is probably in cases of RL and such where an "envrionment"
@@ -78,7 +101,8 @@ class RL_Solver(Solver):
         """
         self.current_iteration = 0
 
-    def demonstrate_env(self):
+    def demonstrate_env(self, episodes=1):
         """In cases where training is needed."""
-        self.roll_and_render()
+        for _ in range(episodes):
+            self.roll_and_render()
         self.env.close()

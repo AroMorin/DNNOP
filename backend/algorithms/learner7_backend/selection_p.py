@@ -8,7 +8,7 @@ class Selection_P(object):
     def __init__(self, hp, length):
         self.hp = hp
         self.incr = 5. # increase is 20% of probability value
-        self.decr = 0.5  # decrease is 10% of probability value
+        self.decr = 0.05  # decrease is 10% of probability value
         self.variance = 0
         self.max_var = 30.
         self.p_vec = torch.full((length,), 0.5, device='cuda')
@@ -16,7 +16,7 @@ class Selection_P(object):
         self.p = torch.nn.functional.softmax(self.uniform_vec, dim=0)
         self.choices = []
         self.step = 0
-        self.max_steps = 100
+        self.max_steps = 50
 
     def update_state(self, improved, choices):
         self.choices = choices

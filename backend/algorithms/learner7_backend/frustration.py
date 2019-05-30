@@ -61,7 +61,6 @@ class Frustration(object):
         """
         p0 = 1.-self.value
         p1 = self.value
-        np.random.seed()
         jump = np.random.choice([0, 1], 1, p=[p0, p1])
         self.jump = bool(jump)  # Convert float to boolean
         #if jump:

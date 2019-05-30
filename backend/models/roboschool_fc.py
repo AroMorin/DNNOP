@@ -6,12 +6,15 @@ class Net(nn.Module):
     def __init__(self, model_params):
         super(Net, self).__init__()
         model_params = self.ingest_params_lvl1(model_params)
-        self.fc1 = nn.Linear(model_params['in features'], 256)
-        self.act = nn.ReLU()
-        self.drop = nn.Dropout(0.05)
+        ins = model_params['in features']
+        outs = model_params['number of outputs']
+        self.fc1 = nn.Linear(ins, 256)
         self.fc2 = nn.Linear(256, 128)
         self.fc3 = nn.Linear(128, 64)
-        self.fc4 = nn.Linear(64, model_params['number of outputs'])
+        self.fc4 = nn.Linear(64, outs)
+        self.drop = nn.Dropout(0.05)
+        self.act = nn.ReLU()
+        #self.act = nn.Tanh()
 
     def ingest_params_lvl1(self, model_params):
         assert type(model_params) is dict
@@ -26,6 +29,7 @@ class Net(nn.Module):
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
+        x = self.drop(x)
         x = self.fc1(x)
         x = self.act(x)
         x = self.drop(x)

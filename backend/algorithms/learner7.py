@@ -38,7 +38,7 @@ class LEARNER7(Algorithm):
         """
         score = feedback
         #print(score.item())
-        score = self.regularize(score)
+        #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
         self.engine.update_state()
@@ -47,13 +47,17 @@ class LEARNER7(Algorithm):
         self.update_top_score(score)
 
     def regularize(self, score):
-        norm = self.engine.vector.norm()
-        penalty = 0.00001*norm
+        norm = abs(self.engine.vector.mean())
+        penalty = norm
         print("Regularization: %f" %penalty.item())
-        if self.minimizing:
+        if self.minimizing and score>0.:
             score = score+penalty
-        else:
+        elif self.minimizing and score<0.:
             score = score-penalty
+        elif not self.minimizing and score>0.:
+            score = score-penalty
+        elif not self.minimizing and score<0.:
+            score = score+penalty
         return score
 
     def update_top_score(self, score):
@@ -64,7 +68,7 @@ class LEARNER7(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.00
+            v = 0.001
             if self.minimizing and self.top_score>0.:
                 self.top_score = self.top_score*(1.+v)
             elif self.minimizing and self.top_score<0.:
@@ -83,7 +87,7 @@ class LEARNER7(Algorithm):
             print("Improved!")
         print ("Top Score: %f" %self.top_score)
         print("Memory: %d" %self.engine.frustration.count)
-        print("Frustration: %f" %self.engine.frustration.value)
+        print("Jump: %f" %(100.*self.engine.frustration.value))
         print("Integrity: %f" %self.engine.integrity.value)
         print("Bin: ", self.engine.integrity.step_size.bin)
         print("Step size: %f" %self.engine.integrity.step_size.value)

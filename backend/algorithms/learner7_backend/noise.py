@@ -14,7 +14,7 @@ class Noise(object):
         self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
-        self.limit = int(0.3*self.vec_length)
+        self.limit = int(0.6*self.vec_length)
         self.num_selections = None
         self.sr_min = None
         self.sr_max = None
@@ -53,12 +53,12 @@ class Noise(object):
         hyperparameters."""
         (lmin, lmax) = limits
         p = 1.-integrity
-        argument = (5*p)-2.5
+        argument = (5*p)-2.0
         exp1 = math.tanh(argument)+1
         #self.sr_min = -exp1*0.05
         #self.sr_max = exp1*0.05
-        self.sr_min = -exp1*0.07
-        self.sr_max = exp1*0.06
+        self.sr_min = -exp1*0.52
+        self.sr_max = exp1*0.5
 
     def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""
@@ -80,7 +80,6 @@ class Noise(object):
         distribution are dynamically updated by the algorithm's state.
         """
         p = p.cpu().numpy()  # Casting
-        np.random.seed()
         self.choices = np.random.choice(self.indices, self.num_selections,
                                         replace=False, p=p)
 

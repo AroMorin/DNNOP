@@ -42,7 +42,7 @@ class Engine(object):
         self.noise.update_state(self.integrity.value, self.selection_p.p, limits)
 
     def generate(self):
-        new_vector = self.elite.clone()
+        new_vector = self.vector.clone()
         new_vector.add_(self.noise.vector)
         #new_vector.clamp_(-0.3, 0.3)
         self.vector = new_vector

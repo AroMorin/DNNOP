@@ -8,11 +8,11 @@ class Net(nn.Module):
         model_params = self.ingest_params_lvl1(model_params)
         ins = model_params['in features']
         outs = model_params['number of outputs']
-        self.fc1 = nn.Linear(ins, 256)
+        self.fc1 = nn.Linear(ins, 16)
         self.fc2 = nn.Linear(256, 128)
         self.fc3 = nn.Linear(128, 64)
-        self.fc4 = nn.Linear(64, outs)
-        self.drop = nn.Dropout(0.05)
+        self.fc4 = nn.Linear(16, outs)
+        self.drop = nn.Dropout(0.0)
         self.act = nn.ReLU()
         #self.act = nn.Tanh()
 
@@ -29,15 +29,15 @@ class Net(nn.Module):
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
-        #x = self.drop(x)
+        x = self.drop(x)
         x = self.fc1(x)
         x = self.act(x)
-        x = self.drop(x)
-        x = self.fc2(x)
-        x = self.act(x)
-        x = self.drop(x)
-        x = self.fc3(x)
-        x = self.act(x)
-        x = self.drop(x)
+        #x = self.drop(x)
+        #x = self.fc2(x)
+        #x = self.act(x)
+        #x = self.drop(x)
+        #x = self.fc3(x)
+        #x = self.act(x)
+        #x = self.drop(x)
         x = self.fc4(x)
         return x

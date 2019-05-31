@@ -125,7 +125,7 @@ def init_weights(model, scheme):
 
 def init_uniform(m):
     """Initializes weights according to a Uniform distribution."""
-    a = 0.0
+    a = -0.4
     b = 0.8
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.uniform_(m.weight, a=a, b=b)
@@ -160,7 +160,7 @@ def init_constant(m):
     """Initializes weights according to an Identity matrix. This special case
     allows the initial input(s) to be reflected in the output of the model.
     """
-    val = 0.01
+    val = 2.0
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.constant_(m.weight, val)
         nn.init.constant_(m.bias, val)
@@ -190,8 +190,8 @@ def init_spiking(m):
     """
     ratio = 0.1
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        m.weight.data.ceil_()
-        m.bias.data.ceil_()
+        m.weight.data.round_()
+        m.bias.data.round_()
 
 def load_weights(model, path):
     model.load_state_dict(torch.load(path))

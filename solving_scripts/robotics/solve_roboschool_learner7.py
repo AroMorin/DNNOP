@@ -16,8 +16,10 @@ def main():
     precision = torch.float
     #game = "Pong-v0"
     #game = "Pong-ram-v0"
-    module = "RoboschoolReacher-v1"
+    #module = "RoboschoolReacher-v1"
     #module = "RoboschoolAnt-v1"
+    #module = "RoboschoolAtlasForwardWalk-v1"
+    module = 'RoboschoolInvertedPendulum-v1'
 
     # Parameter and Object declarations
     env_params = {
@@ -32,10 +34,10 @@ def main():
     #exit()
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "He",
+                    "weight initialization scheme": "Constant",
                     "grad": False,
-                    "in features": 9,
-                    "number of outputs": 2
+                    "in features": 5,
+                    "number of outputs": 1
                     }
     model = model_factory.make_model("Roboschool FC", model_params)
 
@@ -57,7 +59,8 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve_online(iterations=100)
+    slv.solve_averager(iterations=100, reps=3)
+    #slv.solve_online(iterations=100)
     slv.demonstrate_env(episodes=5)
     slv.save_elite_weights(alg.model, path='')
 

@@ -16,8 +16,8 @@ def main():
     precision = torch.float
     #game = "Pong-v0"
     #game = "Pong-ram-v0"
-    #module = "RoboschoolReacher-v1"
-    module = "RoboschoolAnt-v1"
+    module = "RoboschoolReacher-v1"
+    #module = "RoboschoolAnt-v1"
 
     # Parameter and Object declarations
     env_params = {
@@ -32,10 +32,10 @@ def main():
     #exit()
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Sparse",
+                    "weight initialization scheme": "He",
                     "grad": False,
-                    "in features": 28,
-                    "number of outputs": 8
+                    "in features": 9,
+                    "number of outputs": 2
                     }
     model = model_factory.make_model("Roboschool FC", model_params)
 
@@ -45,7 +45,7 @@ def main():
                     "minimum entropy": 0.1,
                     "tolerance": 0.01,
                     "max steps": 10,
-                    "memory size": 2
+                    "memory size": 200
                     }
     alg = algorithm_factory.make_alg("learner7", model, alg_params)
 
@@ -57,7 +57,7 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve_averager(iterations=100, reps=1)
+    slv.solve_online(iterations=100)
     slv.demonstrate_env(episodes=5)
     slv.save_elite_weights(alg.model, path='')
 

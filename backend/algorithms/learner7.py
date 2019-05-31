@@ -37,7 +37,7 @@ class LEARNER7(Algorithm):
         obtains the scores and accordingly updates the models.
         """
         score = feedback
-        #print(score.item())
+        print(score.item())
         #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
@@ -68,7 +68,7 @@ class LEARNER7(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.001
+            v = 0.00
             if self.minimizing and self.top_score>0.:
                 self.top_score = self.top_score*(1.+v)
             elif self.minimizing and self.top_score<0.:

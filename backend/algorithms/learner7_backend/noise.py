@@ -57,8 +57,8 @@ class Noise(object):
         exp1 = math.tanh(argument)+1
         #self.sr_min = -exp1*0.05
         #self.sr_max = exp1*0.05
-        self.sr_min = -exp1*0.52
-        self.sr_max = exp1*0.5
+        self.sr_min = -exp1*0.052
+        self.sr_max = exp1*0.05
 
     def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""

@@ -39,6 +39,7 @@ class Gym_base(Environment):
 
     def init_env(self, name):
         self.env = gym.make(name)  # Location
+        self.env._max_episode_steps = 50000
         self.action_space = self.env.action_space
         self.obs_space = self.env.observation_space
         self.obs_high = self.obs_space.high

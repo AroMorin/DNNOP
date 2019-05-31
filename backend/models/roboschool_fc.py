@@ -29,7 +29,7 @@ class Net(nn.Module):
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
-        x = self.drop(x)
+        #x = self.drop(x)
         x = self.fc1(x)
         x = self.act(x)
         x = self.drop(x)

@@ -51,6 +51,28 @@ class RL_Solver(Solver):
         action = self.interrogator.inference
         self.env.step(action)
 
+    def solve_online(self, iterations):
+        """In cases where training is needed."""
+        print("Training OpenAI environment solver \n")
+        for iteration in range(iterations):
+            print("Iteration: %d/%d \n" %(iteration, iterations))
+            #self.roll(silent=True)
+            self.env.reset_state()
+            while not self.env.done:
+                self.env.render()
+                self.forward()
+                time.sleep(0.03)  # Delay is 0.03 secs
+                self.evaluator.evaluate(self.env, self.interrogator.inference)
+                feedback = self.evaluator.score
+                self.alg.step(feedback)
+                self.alg.print_state()
+            self.current_iteration +=1
+            print("\n")
+            if self.alg.achieved_target():
+                print ("Achieved/exceeded target")
+                break # Terminate optimization
+        self.env.close()
+
     def solve_averager(self, iterations, reps):
         """In cases where training is needed."""
         print("Training OpenAI environment solver \n")

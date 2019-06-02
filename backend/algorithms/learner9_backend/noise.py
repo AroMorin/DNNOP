@@ -57,8 +57,8 @@ class Noise(object):
         exp1 = math.tanh(argument)+1
         #self.sr_min = -exp1*0.05
         #self.sr_max = exp1*0.05
-        self.sr_min = -exp1*0.52
-        self.sr_max = exp1*0.5
+        self.sr_min = -exp1*0.8
+        self.sr_max = exp1*0.8
 
     def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""
@@ -81,7 +81,7 @@ class Noise(object):
         """
         p = p.cpu().numpy()  # Casting
         self.choices = np.random.choice(self.indices, self.num_selections,
-                                        replace=False, p=p)
+                                        replace=False)
 
     def set_vector(self):
         """ This function defines a noise tensor, and returns it. The noise

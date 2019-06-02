@@ -4,6 +4,7 @@ The pool object will contain the models under optimization.
 from .noise import Noise
 from .analysis import Analysis
 from .integrity import Integrity
+from .diversity import Diversity
 from .selection_p import Selection_P
 from .frustration import Frustration
 
@@ -15,6 +16,7 @@ class Engine(object):
         self.analyzer = Analysis(hyper_params)
         self.frustration = Frustration(hyper_params)
         self.integrity = Integrity(hyper_params)
+        self.diversity = Diversity(hyper_params)
         self.vector = torch.nn.utils.parameters_to_vector(self.model.parameters())
         self.elite = self.vector
         self.noise = Noise(hyper_params, self.vector)
@@ -37,15 +39,21 @@ class Engine(object):
         """
         self.selection_p.update_state(self.analyzer.replace, self.noise.choices)
         self.integrity.set_integrity(self.analyzer.improved)
+        self.diversity.update_state(self.analyzer.replace, self.integrity.value)
+
+    def generate(self):
+        while not self.diversity.flag:
+            self.create_noise()
+            new_vector = self.elite.clone()
+            new_vector.add_(self.noise.vector)
+            #new_vector.clamp_(-0.3, 0.3)
+            self.diversity.check(self.elite, new_vector)
+        self.vector = new_vector
+
+    def create_noise(self):
         # Define noise vector
         limits = (self.elite.min(), self.elite.max())
         self.noise.update_state(self.integrity.value, self.selection_p.p, limits)
-
-    def generate(self):
-        new_vector = self.vector.clone()
-        new_vector.add_(self.noise.vector)
-        #new_vector.clamp_(-0.3, 0.3)
-        self.vector = new_vector
 
     def update_weights(self):
         torch.nn.utils.vector_to_parameters(self.vector, self.model.parameters())

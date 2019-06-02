@@ -36,8 +36,8 @@ class LEARNER9(Algorithm):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        score, mean, var = feedback
-        #print(score.item())
+        score = feedback
+        print(score.item())
         #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
@@ -65,10 +65,17 @@ class LEARNER9(Algorithm):
         so other modules know that this as well. Hence, can't "return" after
         initial condition.
         """
+        self.top_score = score
+
+    def update_top_score_(self, score):
+        """Analysis is still needed even if there's no improvement,
+        so other modules know that this as well. Hence, can't "return" after
+        initial condition.
+        """
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.001
+            v = 0.0001
             if self.minimizing and self.top_score>0.:
                 self.top_score = self.top_score*(1.+v)
             elif self.minimizing and self.top_score<0.:

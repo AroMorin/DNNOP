@@ -20,7 +20,7 @@ class Net(nn.Module):
         assert type(model_params) is dict
         default_params = {
                             "in features": 128,
-                            "number of outputs": 18,
+                            "number of outputs": 18
                             }
         default_params.update(model_params)  # Update with user selections
         return default_params

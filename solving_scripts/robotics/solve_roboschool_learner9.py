@@ -42,9 +42,9 @@ def main():
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": 0.1,
+                    "minimum entropy": 1,
                     "tolerance": 0.01,
-                    "max steps": 10,
+                    "max steps": 256,
                     "memory size": 2
                     }
     alg = algorithm_factory.make_alg("learner9", model, alg_params)
@@ -57,7 +57,8 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve_averager(iterations=100, reps=1)
+    slv.solve_online(iterations=100)
+    #slv.solve_averager(iterations=100, reps=1)
     slv.demonstrate_env(episodes=5)
     slv.save_elite_weights(alg.model, path='')
 

@@ -10,42 +10,30 @@ class Integrity(object):
         self.hp = hyper_params
         self.step_size = Step_size(hyper_params)
         self.value = self.hp.initial_integrity
-        self.entropy = 0
-        self.improvement = False
 
     def set_integrity(self, improved):
         """Hence, it ensures that integrity restarts with every
         improvement, and only with improvement. If once searching starts, then
         integrity is reduced normally.
         """
-        self.step_size.set_step_size(self.value)
+        self.step_size.update(improved, self.value)
         if not improved:
             self.reduce_integrity()
-            self.step_size.decrease_bin(self.value)
-
         else:
             self.maintain_integrity()
-            self.step_size.increase_bin(self.value)
 
     def reduce_integrity(self):
-        # Reduce integrity, but not below the minimum allowed level
+        """Reduce integrity, but not below the minimum allowed level."""
         step_size = self.step_size.value
         a = self.value-step_size  # Decrease integrity
-        if a <= self.hp.min_integrity:
-            self.value = self.hp.max_integrity  # Reset integrity
+        if a <= 0.01:  # 0.01 is the minimum integrity
+            self.value = 0.99  # Reset integrity (0.99 is maximum)
         else:
-            self.value = max(0, a)  # Integrity never below zero
+            self.value = max(0.01, a)  # Integrity never below zero
 
     def maintain_integrity(self):
-        a = self.value+0.25
-        b = self.hp.max_integrity
-        self.value = min(a, b)
-
-    def suspend_reality(self):
-        self.real_value = self.value
-
-    def restore_reality(self):
-        self.value = self.real_integrity
+        a = self.value+0.25  # 0.25 pushes the integrity back a bin
+        self.value = min(a, 0.99)
 
 
 #

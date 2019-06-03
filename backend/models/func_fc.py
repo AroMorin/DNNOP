@@ -8,7 +8,8 @@ class Net(nn.Module):
         self.fc1 = nn.Linear(2, 128)
         #self.act = nn.PReLU()
         #self.act = nn.ReLU6()
-        self.act = nn.Tanh()
+        #self.act = nn.Tanh()
+        self.act = nn.ReLU()
         self.fc2 = nn.Linear(128, 2)
 
     def forward(self, observation):

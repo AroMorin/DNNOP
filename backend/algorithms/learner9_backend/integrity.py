@@ -35,5 +35,4 @@ class Integrity(object):
         a = self.value+0.25  # 0.25 pushes the integrity back a bin
         self.value = min(a, 0.99)
 
-
 #

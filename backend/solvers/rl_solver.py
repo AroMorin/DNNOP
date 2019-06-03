@@ -51,7 +51,7 @@ class RL_Solver(Solver):
         action = self.interrogator.inference
         self.env.step(action)
 
-    def solve_online(self, iterations):
+    def solve_online_render(self, iterations):
         """In cases where training is needed."""
         print("Training OpenAI environment solver \n")
         for iteration in range(iterations):
@@ -73,7 +73,49 @@ class RL_Solver(Solver):
                 break # Terminate optimization
         self.env.close()
 
+    def solve_online(self, iterations):
+        """In cases where training is needed."""
+        print("Training OpenAI environment solver \n")
+        for iteration in range(iterations):
+            print("Iteration: %d/%d \n" %(iteration, iterations))
+            #self.roll(silent=True)
+            self.env.reset_state()
+            while not self.env.done:
+                self.forward()
+                self.evaluator.evaluate(self.env, self.interrogator.inference)
+                feedback = self.evaluator.score
+                self.alg.step(feedback)
+                self.alg.print_state()
+            self.current_iteration +=1
+            print("\n")
+            if self.alg.achieved_target():
+                print ("Achieved/exceeded target")
+                break # Terminate optimization
+        self.env.close()
+
     def solve_averager(self, iterations, reps):
+        """In cases where training is needed."""
+        print("Training OpenAI environment solver \n")
+        for iteration in range(iterations):
+            print("Iteration: %d/%d \n" %(iteration, iterations))
+            print("Episodes: %d" %reps)
+            feedback = 0.
+            for _ in range(reps):
+                #self.roll(silent=True)
+                self.roll()
+                self.evaluator.evaluate(self.env, self.interrogator.inference)
+                feedback += self.evaluator.score
+            feedback /= reps
+            self.alg.step(feedback)
+            self.alg.print_state()
+            self.current_iteration +=1
+            print("\n")
+            if self.alg.achieved_target():
+                print ("Achieved/exceeded target")
+                break # Terminate optimization
+        self.env.close()
+
+    def solve_averager_render(self, iterations, reps):
         """In cases where training is needed."""
         print("Training OpenAI environment solver \n")
         for iteration in range(iterations):

@@ -160,7 +160,7 @@ def init_constant(m):
     """Initializes weights according to an Identity matrix. This special case
     allows the initial input(s) to be reflected in the output of the model.
     """
-    val = 2.0
+    val = 0.0
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.constant_(m.weight, val)
         nn.init.constant_(m.bias, val)

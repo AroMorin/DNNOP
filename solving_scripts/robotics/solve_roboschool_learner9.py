@@ -14,10 +14,9 @@ import torch
 def main():
     # Variable definition
     precision = torch.float
-    #game = "Pong-v0"
-    #game = "Pong-ram-v0"
     #module = "RoboschoolReacher-v1"
-    module = "RoboschoolAnt-v1"
+    #module = "RoboschoolAnt-v1"
+    module = "RoboschoolInvertedPendulum-v1"
 
     # Parameter and Object declarations
     env_params = {
@@ -27,22 +26,28 @@ def main():
                     }
     env = env_factory.make_env("openai", "roboschool", env_params)
 
+    #print(env.action_space.low)
+    #print(env.action_space.high)
     #print(env.obs_space)
     #print(env.action_space)
     #exit()
+
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Sparse",
+                    "weight initialization scheme": "Constant",
                     "grad": False,
-                    "in features": 28,
-                    "number of outputs": 8
+                    "in features": 5,
+                    "number of outputs": 1,
+                    "min action 1": -1.,
+                    "max action 1": 1.,
+                    "noise limit": 0.05
                     }
     model = model_factory.make_model("Roboschool FC", model_params)
 
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": 1,
+                    "minimum entropy": 0.5,
                     "tolerance": 0.01,
                     "max steps": 256,
                     "memory size": 2
@@ -57,8 +62,8 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve_online(iterations=100)
-    #slv.solve_averager(iterations=100, reps=1)
+    slv.solve_online(iterations=1000)
+    #slv.solve_averager(iterations=10000, reps=3)
     slv.demonstrate_env(episodes=5)
     slv.save_elite_weights(alg.model, path='')
 

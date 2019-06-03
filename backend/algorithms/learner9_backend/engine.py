@@ -25,7 +25,7 @@ class Engine(object):
 
     def analyze(self, score, top_score):
         self.analyzer.analyze(score, top_score)
-        self.frustration.update(score, top_score)
+        #self.frustration.update(score, top_score)
 
     def set_elite(self):
         self.jumped = False
@@ -37,7 +37,7 @@ class Engine(object):
         """Prepares the new pool based on the scores of the current generation
         and the results of the analysis (such as value of intergrity).
         """
-        self.selection_p.update_state(self.analyzer.replace, self.noise.choices)
+        #self.selection_p.update_state(self.analyzer.replace, self.noise.choices)
         self.integrity.set_integrity(self.analyzer.improved)
         self.diversity.update_state(self.analyzer.replace, self.integrity.value)
 

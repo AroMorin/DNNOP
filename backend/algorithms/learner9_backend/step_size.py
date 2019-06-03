@@ -5,7 +5,7 @@ from __future__ import division
 class Step_size(object):
     def __init__(self, hp):
         self.value = 0
-        self.increment = 2
+        self.increment = 50
         self.decrement = 1
         self.min_steps = 1
         self.bin = [self.min_steps]*4  # Uniform distribution
@@ -19,8 +19,8 @@ class Step_size(object):
                 self.increase_depth()
             self.decrease_bin()
         else:
-            self.increase_bin()
             self.reset_depth()
+            self.increase_bin()
 
     def set_interval(self, integrity):
         if  0. < integrity <= 0.25:
@@ -40,7 +40,8 @@ class Step_size(object):
         self.bin[self.interval] = max(self.min_steps, a)
 
     def increase_depth(self):
-        self.min_steps *= 2
+        a = self.min_steps*2
+        self.min_steps = min(self.max_steps, a)
 
     def increase_bin(self):
         a = self.bin[self.interval]+self.increment
@@ -48,3 +49,6 @@ class Step_size(object):
 
     def reset_depth(self):
         self.min_steps = 1
+        #p = self.bin[self.interval]
+        self.bin = [self.min_steps]*4
+        #self.bin[self.interval] = p

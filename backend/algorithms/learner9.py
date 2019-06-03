@@ -37,7 +37,7 @@ class LEARNER9(Algorithm):
         obtains the scores and accordingly updates the models.
         """
         score = feedback
-        print(score.item())
+        #print(score.item())
         #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
@@ -60,14 +60,14 @@ class LEARNER9(Algorithm):
             score = score+penalty
         return score
 
-    def update_top_score(self, score):
+    def update_top_score_(self, score):
         """Analysis is still needed even if there's no improvement,
         so other modules know that this as well. Hence, can't "return" after
         initial condition.
         """
         self.top_score = score
 
-    def update_top_score_(self, score):
+    def update_top_score(self, score):
         """Analysis is still needed even if there's no improvement,
         so other modules know that this as well. Hence, can't "return" after
         initial condition.
@@ -93,14 +93,12 @@ class LEARNER9(Algorithm):
         if self.engine.analyzer.improved:
             print("Improved!")
         print ("Top Score: %f" %self.top_score)
-        print("Memory: %d" %self.engine.frustration.count)
-        print("Jump: %f" %(100.*self.engine.frustration.value))
         print("Integrity: %f" %self.engine.integrity.value)
         print("Bin: ", self.engine.integrity.step_size.bin)
         print("Step size: %f" %self.engine.integrity.step_size.value)
         print("SR: (%f, %f)" %(self.engine.noise.sr_min, self.engine.noise.sr_max))
         print("Selections: %d" %self.engine.noise.num_selections)
-        print("P: ", self.engine.selection_p.p[0:10])
+        print("V: ", self.engine.elite[0:15])
 
 
 

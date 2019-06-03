@@ -75,7 +75,7 @@ class LEARNER9(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.0001
+            v = 0.0005
             if self.minimizing and self.top_score>0.:
                 self.top_score = self.top_score*(1.+v)
             elif self.minimizing and self.top_score<0.:
@@ -93,6 +93,8 @@ class LEARNER9(Algorithm):
         if self.engine.analyzer.improved:
             print("Improved!")
         print ("Top Score: %f" %self.top_score)
+        print("Memory: %d" %self.engine.frustration.count)
+        print("Jump: %f" %(100.*self.engine.frustration.value))
         print("Integrity: %f" %self.engine.integrity.value)
         print("Bin: ", self.engine.integrity.step_size.bin)
         print("Step size: %f" %self.engine.integrity.step_size.value)
@@ -100,7 +102,8 @@ class LEARNER9(Algorithm):
         print("Selections: %d" %self.engine.noise.num_selections)
         print("V: ", self.engine.elite[0:15])
 
-
-
+    def eval(self):
+        self.engine.vector = self.engine.elite
+        self.engine.update_weights()
 
 #

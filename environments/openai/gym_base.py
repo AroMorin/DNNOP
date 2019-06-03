@@ -39,7 +39,7 @@ class Gym_base(Environment):
 
     def init_env(self, name):
         self.env = gym.make(name)  # Location
-        self.env._max_episode_steps = 50000
+        #self.env._max_episode_steps = 50000
         self.action_space = self.env.action_space
         self.obs_space = self.env.observation_space
         self.obs_high = self.obs_space.high
@@ -61,7 +61,9 @@ class Gym_base(Environment):
             action = action.argmax().int()
         action = action.cpu().detach().numpy()
         action = np.squeeze(action)
-        action = self.env.action_space.sample()
+        #print(action)
+        #exit()
+        #action = self.env.action_space.sample()
         observation, reward, self.done, self.info = self.env.step(action)
         self.reward += reward
         self.format_obs(observation)

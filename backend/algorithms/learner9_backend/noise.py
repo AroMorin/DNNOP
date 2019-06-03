@@ -14,7 +14,7 @@ class Noise(object):
         self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
-        self.limit = int(0.2*self.vec_length)
+        self.limit = int(0.5*self.vec_length)
         self.num_selections = None
         self.sr_min = None
         self.sr_max = None

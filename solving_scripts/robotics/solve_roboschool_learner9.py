@@ -14,9 +14,10 @@ import torch
 def main():
     # Variable definition
     precision = torch.float
+    module = 'RoboschoolPong-v1'
     #module = "RoboschoolReacher-v1"
     #module = "RoboschoolAnt-v1"
-    module = "RoboschoolInvertedPendulum-v1"
+    #module = "RoboschoolInvertedPendulum-v1"
 
     # Parameter and Object declarations
     env_params = {
@@ -36,8 +37,8 @@ def main():
                     "precision": precision,
                     "weight initialization scheme": "Constant",
                     "grad": False,
-                    "in features": 5,
-                    "number of outputs": 1,
+                    "in features": 13,
+                    "number of outputs": 2,
                     "min action 1": -1.,
                     "max action 1": 1.,
                     "noise limit": 0.05
@@ -47,10 +48,10 @@ def main():
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": 0.5,
+                    "minimum entropy": 20.,
                     "tolerance": 0.01,
                     "max steps": 256,
-                    "memory size": 2
+                    "memory size": 150
                     }
     alg = algorithm_factory.make_alg("learner9", model, alg_params)
 
@@ -62,9 +63,9 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve_online(iterations=1000)
-    #slv.solve_averager(iterations=10000, reps=3)
-    slv.demonstrate_env(episodes=5)
+    #slv.solve_online_render(iterations=1000)
+    slv.solve_averager(iterations=5000, reps=1, ep_len=150)
+    slv.demonstrate_env(episodes=3, ep_len=1000)
     slv.save_elite_weights(alg.model, path='')
 
 if __name__ == '__main__':

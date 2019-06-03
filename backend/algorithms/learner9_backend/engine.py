@@ -26,12 +26,14 @@ class Engine(object):
     def analyze(self, score, top_score):
         self.analyzer.analyze(score, top_score)
         #self.frustration.update(score, top_score)
+        self.frustration.update(self.analyzer.replace)
 
     def set_elite(self):
         self.jumped = False
         if self.analyzer.replace or self.frustration.jump:
             self.elite = self.vector.clone()
             self.jumped = True
+            self.frustration.reset_state()
 
     def update_state(self):
         """Prepares the new pool based on the scores of the current generation

@@ -11,10 +11,12 @@ class Noise(object):
         self.hp = hp
         self.vec_length = torch.numel(vector)
         self.indices = np.arange(self.vec_length)
+        self.running_idxs = np.arange(self.vec_length)
         self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
         self.limit = int(0.5*self.vec_length)
+        #self.limit = 1000
         self.num_selections = None
         self.sr_min = None
         self.sr_max = None
@@ -34,6 +36,7 @@ class Noise(object):
         """Sets the number of selected neurons based on the integrity and
         hyperparameters."""
         p = 1.-integrity
+        #p = integrity
         argument = (5*p)-3.5
         exp1 = math.tanh(argument)+1
         self.num_selections = int(exp1*0.5*self.limit)
@@ -57,8 +60,8 @@ class Noise(object):
         exp1 = math.tanh(argument)+1
         #self.sr_min = -exp1*0.05
         #self.sr_max = exp1*0.05
-        self.sr_min = -exp1*0.5
-        self.sr_max = exp1*0.5
+        self.sr_min = -exp1*0.25
+        self.sr_max = exp1*0.25
 
     def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""
@@ -75,6 +78,20 @@ class Noise(object):
             exit()
 
     def set_choices(self, p):
+        """Use the numpy choices function (which has no equivalent in Pytorch)
+        to generate a sample from the array of indices. The sample size and
+        distribution are dynamically updated by the algorithm's state.
+        """
+        self.check_idxs()
+        choices = np.random.choice(self.running_idxs, self.num_selections)
+        self.running_idxs = np.delete(self.running_idxs, choices)
+        self.choices = choices.tolist()
+
+    def check_idxs(self):
+        if len(self.running_idxs)<self.num_selections:
+            self.running_idxs = np.arange(self.vec_length)
+
+    def set_choices_(self, p):
         """Use the numpy choices function (which has no equivalent in Pytorch)
         to generate a sample from the array of indices. The sample size and
         distribution are dynamically updated by the algorithm's state.

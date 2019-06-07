@@ -37,13 +37,13 @@ class LEARNER9(Algorithm):
         obtains the scores and accordingly updates the models.
         """
         score = feedback
-        #print(score.item())
+        print(score.item())
         #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
         self.engine.update_state()
         self.engine.generate()
-        self.engine.update_weights()
+        self.engine.update_weights(self.model)
         self.update_top_score(score)
 
     def regularize(self, score):
@@ -101,9 +101,10 @@ class LEARNER9(Algorithm):
         print("SR: (%f, %f)" %(self.engine.noise.sr_min, self.engine.noise.sr_max))
         print("Selections: %d" %self.engine.noise.num_selections)
         print("V: ", self.engine.elite[0:15])
+        print("Distance: %f" %self.engine.diversity.min_distance)
 
     def eval(self):
         self.engine.vector = self.engine.elite
-        self.engine.update_weights()
+        self.engine.update_weights(self.model)
 
 #

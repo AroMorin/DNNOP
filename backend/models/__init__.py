@@ -144,7 +144,7 @@ def init_integer(m):
 def init_normal(m):
     """Initializes weights according to a Normal distribution."""
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        limit = 0.9
+        limit = 0.5
         origin = 0.
         nn.init.normal_(m.weight, mean=origin, std=limit)
         nn.init.normal_(m.bias, mean=origin, std=limit)

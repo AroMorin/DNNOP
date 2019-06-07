@@ -12,12 +12,11 @@ import torch
 
 class Engine(object):
     def __init__(self, model, hyper_params):
-        self.model = model
         self.analyzer = Analysis(hyper_params)
         self.frustration = Frustration(hyper_params)
         self.integrity = Integrity(hyper_params)
         self.diversity = Diversity(hyper_params)
-        self.vector = torch.nn.utils.parameters_to_vector(self.model.parameters())
+        self.vector = torch.nn.utils.parameters_to_vector(model.parameters())
         self.elite = self.vector
         self.noise = Noise(hyper_params, self.vector)
         self.selection_p = Selection_P(hyper_params, self.noise.vec_length)
@@ -44,9 +43,9 @@ class Engine(object):
         self.diversity.update_state(self.analyzer.replace, self.integrity.value)
 
     def generate(self):
+        new_vector = self.elite.clone()
         while not self.diversity.flag:
             self.create_noise()
-            new_vector = self.elite.clone()
             new_vector.add_(self.noise.vector)
             #new_vector.clamp_(-0.3, 0.3)
             self.diversity.check(self.elite, new_vector)
@@ -57,8 +56,8 @@ class Engine(object):
         limits = (self.elite.min(), self.elite.max())
         self.noise.update_state(self.integrity.value, self.selection_p.p, limits)
 
-    def update_weights(self):
-        torch.nn.utils.vector_to_parameters(self.vector, self.model.parameters())
+    def update_weights(self, model):
+        torch.nn.utils.vector_to_parameters(self.vector, model.parameters())
 
 
 #

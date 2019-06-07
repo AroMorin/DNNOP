@@ -37,14 +37,12 @@ class RL_Solver(Solver):
                 break # Terminate optimization
         self.env.close()
 
-    def roll(self, silent=False):
+    def roll(self):
         steps=0
         obs = self.env.reset_state()
         while not self.env.done:
             self.forward()
             steps+=1
-        if not silent:
-            print("Took %d steps" %steps)
 
     def forward(self):
         self.interrogator.set_inference_chain(self.alg.model, self.env)
@@ -56,15 +54,14 @@ class RL_Solver(Solver):
         print("Training OpenAI environment solver \n")
         for iteration in range(iterations):
             print("Iteration: %d/%d \n" %(iteration, iterations))
-            #self.roll(silent=True)
             self.env.reset_state()
             while not self.env.done:
                 self.env.render()
                 self.forward()
                 time.sleep(0.03)  # Delay is 0.03 secs
-                self.evaluator.evaluate(self.env, self.interrogator.inference)
-                feedback = self.evaluator.score
-                self.alg.step(feedback)
+                self.evaluator.evaluate(self.env, None)
+                reward = self.evaluator.score
+                self.alg.step(reward)
                 self.alg.print_state()
             self.current_iteration +=1
             print("\n")
@@ -78,13 +75,12 @@ class RL_Solver(Solver):
         print("Training OpenAI environment solver \n")
         for iteration in range(iterations):
             print("Iteration: %d/%d \n" %(iteration, iterations))
-            #self.roll(silent=True)
             self.env.reset_state()
             while not self.env.done:
                 self.forward()
-                self.evaluator.evaluate(self.env, self.interrogator.inference)
-                feedback = self.evaluator.score
-                self.alg.step(feedback)
+                self.evaluator.evaluate(self.env, None)
+                reward = self.evaluator.score
+                self.alg.step(reward)
                 self.alg.print_state()
             self.current_iteration +=1
             print("\n")
@@ -100,14 +96,13 @@ class RL_Solver(Solver):
         for iteration in range(iterations):
             print("Iteration: %d/%d \n" %(iteration, iterations))
             print("Episodes: %d" %reps)
-            feedback = 0.
+            reward = 0.
             for _ in range(reps):
-                #self.roll(silent=True)
                 self.roll()
-                self.evaluator.evaluate(self.env, self.interrogator.inference)
-                feedback += self.evaluator.score
-            feedback /= reps
-            self.alg.step(feedback)
+                self.evaluator.evaluate(self.env, None)
+                reward += self.evaluator.score
+            reward /= reps
+            self.alg.step(reward)
             self.alg.print_state()
             self.current_iteration +=1
             print("\n")
@@ -116,20 +111,51 @@ class RL_Solver(Solver):
                 break # Terminate optimization
         self.env.close()
 
+    def solve_aggregator(self, iterations, reps, ep_len=1000):
+        """In cases where training is needed."""
+        print("Training OpenAI environment solver \n")
+        self.env.env._max_episode_steps = ep_len
+        for iteration in range(iterations):
+            print("Iteration: %d/%d \n" %(iteration, iterations))
+            print("Episodes: %d" %reps)
+            rewards = []
+            for _ in range(reps):
+                self.roll()
+                self.evaluator.evaluate(self.env, None)
+                rewards.append(self.evaluator.score)
+            reward = self.calc_reward(rewards)
+            self.alg.step(reward)
+            self.alg.print_state()
+            self.current_iteration +=1
+            print("\n")
+            if self.alg.achieved_target():
+                print ("Achieved/exceeded target")
+                break # Terminate optimization
+        self.env.close()
+
+    def calc_reward(self, rewards):
+        rewards = torch.Tensor(rewards).cuda()
+        var = torch.var(rewards)*0.5
+        avg = torch.mean(rewards)
+        a = avg-var
+        b = rewards.min()
+        reward = max(a, b)
+        print(rewards, reward)
+        return reward
+
     def solve_averager_render(self, iterations, reps):
         """In cases where training is needed."""
         print("Training OpenAI environment solver \n")
         for iteration in range(iterations):
             print("Iteration: %d/%d \n" %(iteration, iterations))
             print("Episodes: %d" %reps)
-            feedback = 0.
+            reward = 0.
             for _ in range(reps):
-                #self.roll(silent=True)
                 self.roll_and_render()
-                self.evaluator.evaluate(self.env, self.interrogator.inference)
-                feedback += self.evaluator.score
-            feedback /= reps
-            self.alg.step(feedback)
+                self.evaluator.evaluate(self.env, None)
+                reward += self.evaluator.score
+            reward /= reps
+            self.alg.step(reward)
             self.alg.print_state()
             self.current_iteration +=1
             print("\n")
@@ -159,6 +185,9 @@ class RL_Solver(Solver):
             self.env.render()
             self.forward()
             time.sleep(delay)
+        self.evaluator.evaluate(self.env, None)
+        reward = self.evaluator.score
+        print(reward.item())
 
     def reset_state(self):
         """This is probably in cases of RL and such where an "envrionment"

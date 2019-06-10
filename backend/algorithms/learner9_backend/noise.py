@@ -15,7 +15,7 @@ class Noise(object):
         self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
-        self.limit = int(0.5*self.vec_length)
+        self.limit = int(0.05*self.vec_length)
         #self.limit = 1000
         self.num_selections = None
         self.sr_min = None
@@ -77,7 +77,7 @@ class Noise(object):
             print("Unknown distribution type")
             exit()
 
-    def set_choices(self, p):
+    def set_choices_(self, p):
         """Use the numpy choices function (which has no equivalent in Pytorch)
         to generate a sample from the array of indices. The sample size and
         distribution are dynamically updated by the algorithm's state.
@@ -91,7 +91,7 @@ class Noise(object):
         if len(self.running_idxs)<self.num_selections:
             self.running_idxs = np.arange(self.vec_length)
 
-    def set_choices_(self, p):
+    def set_choices(self, p):
         """Use the numpy choices function (which has no equivalent in Pytorch)
         to generate a sample from the array of indices. The sample size and
         distribution are dynamically updated by the algorithm's state.

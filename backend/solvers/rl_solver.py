@@ -22,9 +22,10 @@ class RL_Solver(Solver):
         super(RL_Solver, self).__init__(slv_params)
         self.current_iteration = 0
 
-    def solve(self, iterations):
+    def solve(self, iterations, ep_len=1000):
         """In cases where training is needed."""
         print("Training OpenAI environment solver \n")
+        self.env.env._max_episode_steps = ep_len
         for iteration in range(iterations):
             print("Iteration: %d\n" %iteration)
             print("New Episode")
@@ -140,7 +141,6 @@ class RL_Solver(Solver):
         a = avg-var
         b = rewards.min()
         reward = max(a, b)
-        print(rewards, reward)
         return reward
 
     def solve_averager_render(self, iterations, reps):

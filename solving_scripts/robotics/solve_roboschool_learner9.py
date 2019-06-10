@@ -35,7 +35,7 @@ def main():
 
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Normal",
+                    "weight initialization scheme": "Constant",
                     "grad": False,
                     "in features": 13,
                     "number of outputs": 2,
@@ -51,7 +51,7 @@ def main():
                     "minimum entropy": 20.,
                     "tolerance": 0.01,
                     "max steps": 256,
-                    "memory size": 125
+                    "memory size": 35
                     }
     alg = algorithm_factory.make_alg("learner9", model, alg_params)
 
@@ -63,11 +63,12 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
+    slv.solve(iterations=1000, ep_len=2000)
     #slv.solve_online_render(iterations=1000)
-    slv.solve_aggregator(iterations=1000, reps=5, ep_len=150)
+    #slv.solve_aggregator(iterations=500, reps=10, ep_len=150)
     #slv.solve_averager(iterations=1000, reps=10, ep_len=300)
-    slv.demonstrate_env(episodes=3, ep_len=400)
-    slv.save_elite_weights(alg.model, path='')
+    slv.demonstrate_env(episodes=3, ep_len=1000)
+    #slv.save_elite_weights(alg.model, path='')
 
 if __name__ == '__main__':
     main()

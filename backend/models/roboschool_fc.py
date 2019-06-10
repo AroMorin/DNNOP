@@ -11,10 +11,10 @@ class Net(nn.Module):
         self.lmin = model_params['min action 1']
         self.lmax = model_params['max action 1']
         self.l = model_params['noise limit']
-        self.fc1 = nn.Linear(ins, 128)
+        self.fc1 = nn.Linear(ins, 512)
         self.fc2 = nn.Linear(128, 64)
         self.fc3 = nn.Linear(64, 32)
-        self.fc4 = nn.Linear(32, outs)
+        self.fc4 = nn.Linear(512, outs)
         self.drop = nn.Dropout(0.1)
         #self.act = nn.ReLU()
         self.act = nn.Tanh()
@@ -36,15 +36,15 @@ class Net(nn.Module):
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
-        x.round_()
+        #x.round_()
         x = self.fc1(x)
         x = self.act(x)
         #x = self.drop(x)
-        x = self.fc2(x)
-        x = self.act(x)
+        #x = self.fc2(x)
+        #x = self.act(x)
         #x = self.drop(x)
-        x = self.fc3(x)
-        x = self.act(x)
+        #x = self.fc3(x)
+        #x = self.act(x)
         #x = self.drop(x)
         x = self.fc4(x)
         #noise = self.generate_noise(x)

@@ -12,7 +12,7 @@ class Diversity(object):
 
     def update_state(self, improved, integrity):
         self.flag = False
-        if improved:
+        if improved or integrity == 0.99:
             self.reset_state()
         else:
             self.increase_distance()

@@ -41,6 +41,7 @@ def main():
                     "tolerance": 0.12,
                     "minimum entropy": -0.1,  # Percentage
                     "max steps": 256,
+                    "memory size": 257
                     }
     alg = algorithm_factory.make_alg("learner9", model, alg_params)
 

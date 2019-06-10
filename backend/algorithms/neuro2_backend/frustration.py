@@ -9,42 +9,34 @@ class Frustration(object):
         self.hp = hp
         self.value = 0.
         self.mem_size = hp.mem_size
-        self.table = [None]
         self.count = 0
-        self.tau = 0.0001
+        self.tau = 0.00001
         self.jump = False
         self.limit = 0.1
 
-    def update(self, score, top_score):
-        score = score.item()
-        top_score = top_score.item()
-        self.append_table(top_score)
-        self.update_count()
+    def update(self, replace):
+        self.update_count(replace)
         self.set_tau()
-        if self.tau != 0.0001:
-            self.set_value()
-            self.set_jump(score)
+        self.set_value()
+        if self.count > self.mem_size:
+            self.set_jump()
         else:
             self.jump = False
 
-    def append_table(self, item):
-        if self.table[-1] == item:
-            self.table.append(item)
+    def update_count(self, replace):
+        if replace:
+            self.count = 0
         else:
-            self.table = [item]
-
-    def update_count(self):
-        self.count = len(self.table)
+            self.count+=1
+        if self.count>1000:
+            self.count = 0 # Reset
 
     def set_tau(self):
         """Return most common n element (n=1) as a list. First entry in list is
         at index 0.
         """
-        if self.count > self.mem_size:
-            r = self.count/self.mem_size
-            self.tau = r-1.
-        else:
-            self.tau = 0.0001
+        r = (self.count)/self.mem_size
+        self.tau = r-1.
 
     def set_value(self):
         """Sets the frustration value based on tau. The function has a slow
@@ -55,21 +47,17 @@ class Frustration(object):
         exp1 = math.tanh(argument)+1
         self.value = exp1*0.5
 
-    def set_jump(self, score):
+    def set_jump(self):
         """As the frustruation increases, the probability of a "jump" increases
         thus getting unstuck.
         """
         p0 = 1.-self.value
         p1 = self.value
-        np.random.seed()
         jump = np.random.choice([0, 1], 1, p=[p0, p1])
         self.jump = bool(jump)  # Convert float to boolean
-        #if jump:
-        #    diff = abs(score-self.table[-1])/abs(self.table[-1])
-        #    self.jump = diff <= self.limit
-        #else:
-        #    self.jump = jump
 
+    def reset_state(self):
+        self.count = 0
 
 
 #

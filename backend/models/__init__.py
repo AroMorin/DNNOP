@@ -16,6 +16,7 @@ from .dqn_ram3 import Net as DQN_RAM3
 from .dqn_lstm_ram import Net as DQN_LSTM_RAM
 from .dqn_spiking_ram import Net as DQN_SPIKING_RAM
 from .roboschool_fc import Net as ROBOSCHOOL_FC
+from .neural_fc import Net as NEURAL_FC
 
 import torch
 import torch.nn as nn
@@ -96,6 +97,8 @@ def pick_model(name, model_params):
         model = DQN(model_params)
     elif name == "Roboschool FC":
         model = ROBOSCHOOL_FC(model_params)
+    elif name == "NEURAL FC":
+        model = NEURAL_FC(model_params)
     else:
         print("Unknown model selected")
         exit()
@@ -188,7 +191,6 @@ def init_spiking(m):
     """Initializes weights according to an Identity matrix. This special case
     allows the initial input(s) to be reflected in the output of the model.
     """
-    ratio = 0.1
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         m.weight.data.round_()
         m.bias.data.round_()

@@ -26,12 +26,6 @@ class LEARNER9(Algorithm):
         self.target = None
         self.set_target()
 
-    def set_target(self):
-        if self.minimizing:
-            self.target = self.hyper_params.target + self.hyper_params.tolerance
-        else:
-            self.target = self.hyper_params.target - self.hyper_params.tolerance
-
     def step(self, feedback):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.

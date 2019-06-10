@@ -17,6 +17,7 @@ class Algorithm(object):
         self.model = None
         self.minimizing = True
         self.target = None
+        self.hyper_params = None
 
     def step(self):
         """Placeholder method for performing an optimization step."""
@@ -31,6 +32,12 @@ class Algorithm(object):
     def print_state(self):
         """Placeholder method for performing an optimization step."""
         pass
+
+    def set_target(self):
+        if self.minimizing:
+            self.target = self.hyper_params.target + self.hyper_params.tolerance
+        else:
+            self.target = self.hyper_params.target - self.hyper_params.tolerance
 
     def achieved_target(self):
         """Determines whether the algorithm achieved its target or not."""

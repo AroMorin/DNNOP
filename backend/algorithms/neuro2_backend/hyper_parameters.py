@@ -3,7 +3,6 @@ hyper parameters. The object of this class thus encapsulates the entirety
 of hyper parameters for the MSN algorithm, and facilitates their updates.
 """
 
-import numpy
 import torch
 
 class Hyper_Parameters(object):
@@ -15,13 +14,8 @@ class Hyper_Parameters(object):
         """
         print("Iniitializing hyper parameters of LEARNER")
         self.hyper_params = {}
-        self.alpha = 0
-        self.beta = 0
         self.max_steps = 0
         self.mem_size = 50
-        self.def_integrity = 0
-        self.min_integrity = 0
-        self.max_integrity = 0
         self.initial_integrity = 0
         self.min_entropy = 0
         self.target = 0
@@ -42,12 +36,7 @@ class Hyper_Parameters(object):
         hyper parameter.
         """
         self.hyper_params = {
-                                "alpha":0.05,
-                                "beta": 0.29,
-                                "default integrity": 0.6,
                                 "initial integrity": 0.6,
-                                "minimum integrity": 0.01,
-                                "maximum integrity": 0.99,
                                 "minimization mode": True,
                                 "target": 0,
                                 "minimum entropy": -0.01,
@@ -63,12 +52,7 @@ class Hyper_Parameters(object):
         """Updates the hyperparameters of the MSN algorithm based on user input.
         """
         # Instantiate hyper parameters for MSN algorithm
-        self.alpha = self.hyper_params["alpha"]
-        self.beta = self.hyper_params["beta"]
-        self.def_integrity = self.hyper_params["default integrity"]
         self.initial_integrity = self.hyper_params["initial integrity"]
-        self.min_integrity = self.hyper_params["minimum integrity"]
-        self.max_integrity = self.hyper_params["maximum integrity"]
         self.minimizing = self.hyper_params["minimization mode"]
         self.target = self.hyper_params["target"]
         self.tolerance = self.hyper_params["tolerance"]

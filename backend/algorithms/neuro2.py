@@ -27,30 +27,17 @@ class NEURO2(Algorithm):
         self.target = None
         self.set_target()
 
-    def set_target(self):
-        if self.minimizing:
-            self.target = self.hyper_params.target + self.hyper_params.tolerance
-        else:
-            self.target = self.hyper_params.target - self.hyper_params.tolerance
-
     def step(self, feedback):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
         score = feedback
-        #print(inference)
         print(score.item())
-        #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
         self.engine.update_state()
         self.engine.update_weights(self.model)
         self.update_top_score(score)
-
-    def regularize(self, score):
-        norm = self.engine.vector.norm()
-        score = score+(0.01*norm)
-        return score
 
     def update_top_score(self, score):
         """Analysis is still needed even if there's no improvement,
@@ -79,12 +66,17 @@ class NEURO2(Algorithm):
             print("Improved!")
         print ("Top Score: %f" %self.top_score)
         print("Memory: %d" %self.engine.frustration.count)
-        print("Frustration: %f" %self.engine.frustration.tau)
+        print("Jump: %f" %(100.*self.engine.frustration.value))
         print("Integrity: %f" %self.engine.integrity.value)
-        #print("Bin: ", self.engine.integrity.step_size.bin)
-        #print("Step size: %f" %self.engine.integrity.step_size.value)
-        #print("Selections: %d" %self.engine.noise.num_selections)
+        print("Bin: ", self.engine.integrity.step_size.bin)
+        print("Step size: %f" %self.engine.integrity.step_size.value)
+        print("SR: (%f, %f)" %(self.engine.noise.sr_min, self.engine.noise.sr_max))
+        print("Selections: %d" %self.engine.noise.num_selections)
+        print("V: ", self.engine.elite[0:15])
 
+    def eval(self):
+        self.engine.vector = self.engine.elite
+        self.engine.update_weights(self.model)
 
 
 

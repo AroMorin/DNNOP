@@ -21,7 +21,7 @@ class Engine(object):
 
     def analyze(self, score, top_score):
         self.analyzer.analyze(score, top_score)
-        self.frustration.update(score, top_score)
+        self.frustration.update(self.analyzer.replace)
 
     def set_elite(self):
         self.jumped = False
@@ -46,38 +46,39 @@ class Engine(object):
         self.update_v(model)
 
     def reinforce(self):
-        self.mu = self.kappa
+        self.mu = 0.05
 
     def erode(self):
-        self.mu = -self.kappa
+        self.mu = -0.1
 
     def update_v(self, model):
         v = model.fc1.weight[:, :]
         v.sub_(0.002)
         v.clamp_(0., 1.0)
-        self.fc1.weight[:, :] = v
-        v = self.fc1.weight[:, model.ex1]
+        model.fc1.weight[:, :] = v
+        v = model.fc1.weight[:, model.ex1]
         v.add_(self.mu)
         v.clamp_(0., 1.0)
-        self.fc1.weight[:, model.ex1] = v
+        model.fc1.weight[:, model.ex1] = v
+        #print(model.fc1.weight.data[0:30])
 
         v = model.fc2.weight[:, :]
         v.sub_(0.002)
         v.clamp_(0., 1.0)
-        self.fc2.weight[:, :] = v
-        v = self.fc2.weight[:, model.ex2]
+        model.fc2.weight[:, :] = v
+        v = model.fc2.weight[:, model.ex2]
         v.add_(self.mu)
         v.clamp_(0., 1.0)
-        self.fc2.weight[:, model.ex2] = v
+        model.fc2.weight[:, model.ex2] = v
 
         v = model.fc3.weight[:, :]
         v.sub_(0.002)
         v.clamp_(0., 1.0)
-        self.fc3.weight[:, :] = v
-        v = self.fc3.weight[:, model.ex3]
+        model.fc3.weight[:, :] = v
+        v = model.fc3.weight[:, model.ex3]
         v.add_(self.mu)
         v.clamp_(0., 1.0)
-        self.fc3.weight[:, model.ex3] = v
+        model.fc3.weight[:, model.ex3] = v
 
 
 #

@@ -179,7 +179,7 @@ def init_sparse(m):
     """Initializes weights according to an Identity matrix. This special case
     allows the initial input(s) to be reflected in the output of the model.
     """
-    ratio = 0.95
+    ratio = 0.5
     a = 0.0
     b = 0.01
     if type(m) == nn.Linear or type(m) == nn.Conv2d:

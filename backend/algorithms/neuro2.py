@@ -18,7 +18,7 @@ class NEURO2(Algorithm):
         super(NEURO2, self).__init__()
         self.model = model
         self.hyper_params = Hyper_Parameters(alg_params)
-        self.engine = Engine(self.model.parameters(), self.hyper_params)
+        self.engine = Engine(model.parameters(), self.hyper_params)
         self.populations = False
         self.grad = False
         self.minimizing = self.hyper_params.minimizing

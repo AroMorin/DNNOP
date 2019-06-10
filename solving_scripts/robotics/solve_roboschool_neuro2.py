@@ -63,8 +63,8 @@ def main():
 
     # Use solver to solve the problem
     #slv.solve(iterations=1000, ep_len=2000)
-    slv.solve_online(iterations=1000)
-    #slv.solve_online_render(iterations=1000)
+    #slv.solve_online(iterations=1000)
+    slv.solve_online_render(iterations=1000)
     #slv.solve_aggregator(iterations=500, reps=10, ep_len=150)
     #slv.solve_averager(iterations=1000, reps=10, ep_len=300)
     slv.demonstrate_env(episodes=3, ep_len=1000)

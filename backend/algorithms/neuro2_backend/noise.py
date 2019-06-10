@@ -51,10 +51,9 @@ class Noise(object):
         num_selections = numerator/denominator
         self.num_selections = int(num_selections*self.limit)
 
-    def set_sr(self, integrity, limits):
+    def set_sr(self, integrity):
         """Sets the search radius (noise magnitude) based on the integrity and
         hyperparameters."""
-        (lmin, lmax) = limits
         p = 1.-integrity
         argument = (5*p)-2.0
         exp1 = math.tanh(argument)+1

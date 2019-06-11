@@ -15,9 +15,9 @@ def main():
     # Variable definition
     precision = torch.float
     #module = 'RoboschoolPong-v1'
-    module = "RoboschoolReacher-v1"
+    #module = "RoboschoolReacher-v1"
     #module = "RoboschoolAnt-v1"
-    #module = "RoboschoolInvertedPendulum-v1"
+    module = "RoboschoolInvertedPendulum-v1"
 
     # Parameter and Object declarations
     env_params = {
@@ -35,10 +35,10 @@ def main():
 
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Sparse",
+                    "weight initialization scheme": "Normal",
                     "grad": False,
-                    "in features": 9,
-                    "number of outputs": 2,
+                    "in features": 5,
+                    "number of outputs": 1,
                     "min action 1": -1.,
                     "max action 1": 1.,
                     "noise limit": 0.05

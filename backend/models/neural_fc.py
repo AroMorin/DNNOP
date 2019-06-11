@@ -18,7 +18,7 @@ class Net(nn.Module):
         self.ap3 = torch.zeros(self.fc3.weight.data.size()[0])
         self.x_0 = None
         self.peak = 0.05
-        self.threshold = 15
+        self.threshold = 3
         self.increment = 1
 
     def ingest_params_lvl1(self, model_params):
@@ -36,17 +36,16 @@ class Net(nn.Module):
         self.set_ap1(x)
         x = self.fire_fc1(x)
         self.set_ex1(x)
-
         x = self.fc2(x)
         self.set_ap2(x)
         x = self.fire_fc2(x)
         self.set_ex2(x)
 
         x = self.fc3(x)
-        self.set_ap3(x)
-        x = self.fire_fc3(x)
-        self.set_ex3(x)
-        print(x)
+        #self.set_ap3(x)
+        #x = self.fire_fc3(x)
+        #self.set_ex3(x)
+        x = x.squeeze()
         return x
 
     def zero_out(self, x):
@@ -60,31 +59,30 @@ class Net(nn.Module):
     def set_ap1(self, x):
         up = x.gt(0)
         up = up.squeeze()
-        self.ap1[up].add_(self.increment)
+        self.ap1[up] = self.ap1[up].add(self.increment)
         down = x.lt(0)
         down = down.squeeze()
-        self.ap1[down].sub_(self.increment)
-        #print(self.ap1[0:30])
+        self.ap1[down] = self.ap1[down].sub(self.increment)
 
     def set_ap2(self, x):
         up = x.gt(0)
         up = up.squeeze()
-        self.ap2[up].add_(self.increment)
+        self.ap2[up] = self.ap2[up].add(self.increment)
         down = x.lt(0)
         down = down.squeeze()
-        self.ap2[down].sub_(self.increment)
+        self.ap2[down] = self.ap2[down].sub(self.increment)
 
     def set_ap3(self, x):
         up = x.gt(0)
         up = up.squeeze()
-        self.ap3[up].add_(self.increment)
+        self.ap3[up] = self.ap3[up].add(self.increment)
         down = x.lt(0)
         down = down.squeeze()
-        self.ap3[down].sub_(self.increment)
+        self.ap3[down] = self.ap3[down].sub(self.increment)
 
     def fire_fc1(self, x):
         sat_up = self.ap1.gt(self.threshold)
-        sat_down = self.ap1.lt(self.threshold)
+        sat_down = self.ap1.lt(-self.threshold)
         x.fill_(0.)
         x[0, sat_up] = self.peak
         x[0, sat_down] = -self.peak
@@ -94,7 +92,7 @@ class Net(nn.Module):
 
     def fire_fc2(self, x):
         sat_up = self.ap2.gt(self.threshold)
-        sat_down = self.ap2.lt(self.threshold)
+        sat_down = self.ap2.lt(-self.threshold)
         x.fill_(0.)
         x[0, sat_up] = self.peak
         x[0, sat_down] = -self.peak
@@ -104,7 +102,7 @@ class Net(nn.Module):
 
     def fire_fc3(self, x):
         sat_up = self.ap3.gt(self.threshold)
-        sat_down = self.ap3.lt(self.threshold)
+        sat_down = self.ap3.lt(-self.threshold)
         x.fill_(0.)
         x[0, sat_up] = self.peak
         x[0, sat_down] = -self.peak
@@ -116,19 +114,34 @@ class Net(nn.Module):
         active = x.eq(self.peak)
         active = active.squeeze()
         i = torch.arange(x.size()[1])
-        self.a1 = i[active]
+        idxs_high = i[active]
+        active = x.eq(-self.peak)
+        active = active.squeeze()
+        idxs_low = i[active]
+        excitation = torch.cat((idxs_high, idxs_low))
+        self.ex1 = excitation
 
     def set_ex2(self, x):
         active = x.eq(self.peak)
         active = active.squeeze()
         i = torch.arange(x.size()[1])
-        self.a2 = i[active]
+        idxs_high = i[active]
+        active = x.eq(-self.peak)
+        active = active.squeeze()
+        idxs_low = i[active]
+        excitation = torch.cat((idxs_high, idxs_low))
+        self.ex2 = excitation
 
     def set_ex3(self, x):
         active = x.eq(self.peak)
         active = active.squeeze()
         i = torch.arange(x.size()[1])
-        self.a3 = i[active]
+        idxs_high = i[active]
+        active = x.eq(-self.peak)
+        active = active.squeeze()
+        idxs_low = i[active]
+        excitation = torch.cat((idxs_high, idxs_low))
+        self.ex3 = excitation
 
 
 

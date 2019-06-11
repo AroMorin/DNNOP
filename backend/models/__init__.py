@@ -150,7 +150,7 @@ def init_normal(m):
         limit = 0.5
         origin = 0.
         nn.init.normal_(m.weight, mean=origin, std=limit)
-        nn.init.normal_(m.bias, mean=origin, std=limit)
+        nn.init.constant_(m.bias, 0.0)
 
 def init_eye(m):
     """Initializes weights according to an Identity matrix. This special case

@@ -60,9 +60,7 @@ class Gym_base(Environment):
         if self.discrete:
             action = action.argmax().int()
         action = action.cpu().detach().numpy()
-        action = np.squeeze(action)
-        #print(action)
-        #exit()
+        action = np.expand_dims(action, 0)
         #action = self.env.action_space.sample()
         observation, reward, self.done, self.info = self.env.step(action)
         self.reward += reward

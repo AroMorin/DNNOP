@@ -46,39 +46,31 @@ class Engine(object):
         self.update_v(model)
 
     def reinforce(self):
-        self.mu = 0.05
+        self.mu = 0.002
 
     def erode(self):
-        self.mu = -0.1
+        self.mu = -0.002
 
     def update_v(self, model):
-        v = model.fc1.weight[:, :]
-        v.sub_(0.002)
-        v.clamp_(0., 1.0)
-        model.fc1.weight[:, :] = v
-        v = model.fc1.weight[:, model.ex1]
+        v = model.fc1.weight[model.ex1, :]
+        print(model.ex1)
+        print(v[0:50])
+        print(model.fc1.weight[0:30])
         v.add_(self.mu)
         v.clamp_(0., 1.0)
-        model.fc1.weight[:, model.ex1] = v
-        #print(model.fc1.weight.data[0:30])
+        print(v[0:50])
+        model.fc1.weight[model.ex1, :] = v
+        print(model.fc1.weight[0:30])
 
-        v = model.fc2.weight[:, :]
-        v.sub_(0.002)
-        v.clamp_(0., 1.0)
-        model.fc2.weight[:, :] = v
-        v = model.fc2.weight[:, model.ex2]
+        v = model.fc2.weight[model.ex2, :]
         v.add_(self.mu)
         v.clamp_(0., 1.0)
-        model.fc2.weight[:, model.ex2] = v
+        model.fc2.weight[model.ex2, :] = v
 
-        v = model.fc3.weight[:, :]
-        v.sub_(0.002)
-        v.clamp_(0., 1.0)
-        model.fc3.weight[:, :] = v
-        v = model.fc3.weight[:, model.ex3]
+        v = model.fc3.weight[:, model.ex2]
         v.add_(self.mu)
         v.clamp_(0., 1.0)
-        model.fc3.weight[:, model.ex3] = v
+        model.fc3.weight[:, model.ex2] = v
 
 
 #

@@ -56,6 +56,7 @@ class RL_Solver(Solver):
         for iteration in range(iterations):
             print("Iteration: %d/%d \n" %(iteration, iterations))
             self.env.reset_state()
+            #self.alg.reset_state()
             while not self.env.done:
                 self.env.render()
                 self.forward()
@@ -77,6 +78,7 @@ class RL_Solver(Solver):
         for iteration in range(iterations):
             print("Iteration: %d/%d \n" %(iteration, iterations))
             self.env.reset_state()
+            #self.alg.reset_state()
             while not self.env.done:
                 self.forward()
                 self.evaluator.evaluate(self.env, None)

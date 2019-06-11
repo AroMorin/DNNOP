@@ -46,10 +46,10 @@ class Engine(object):
         self.update_v(model)
 
     def reinforce(self):
-        self.mu = 0.002
+        self.mu = 0.0002
 
     def erode(self):
-        self.mu = -0.002
+        self.mu = -0.00025
 
     def update_v(self, model):
         v = model.fc1.weight[model.ex1, :]

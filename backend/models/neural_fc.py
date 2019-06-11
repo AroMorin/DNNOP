@@ -17,8 +17,8 @@ class Net(nn.Module):
         self.ap2 = torch.zeros(self.fc2.weight.data.size()[0])
         self.ap3 = torch.zeros(self.fc3.weight.data.size()[0])
         self.x_0 = None
-        self.peak = 0.05
-        self.threshold = 3
+        self.peak = 0.01
+        self.threshold = 1
         self.increment = 1
 
     def ingest_params_lvl1(self, model_params):

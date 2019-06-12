@@ -17,12 +17,12 @@ class Engine(object):
         self.vector = torch.nn.utils.parameters_to_vector(params)
         self.elite = self.vector
         self.noise = Noise(hyper_params, self.vector)
-        self.weights = Weights(greed=True)
+        self.weights = Weights(hyper_params, greed=True)
         self.jumped = False
         self.kappa = 0.01
 
-    def analyze(self, score, top_score):
-        self.analyzer.analyze(score, top_score)
+    def analyze(self, feedback, top_score):
+        self.analyzer.analyze(feedback, top_score)
         self.frustration.update(self.analyzer.analysis)
 
     def set_elite(self):

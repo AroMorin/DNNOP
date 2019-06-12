@@ -1,4 +1,6 @@
 """Base class for elite."""
+from .intrinsic_reward import IR
+
 import torch
 
 class Analysis(object):
@@ -6,14 +8,24 @@ class Analysis(object):
         self.hp = hp
         self.analysis = ''  # Absolute score
         self.improved = False  # Entropic score
+        self.intrinsic_reward = IR(hyper_params)
         self.score = self.hp.initial_score
         self.top_score = self.hp.initial_score
         self.entropy = 0.
 
-    def analyze(self, score, top_score):
+    def analyze(self, feedback, top_score):
+        observation, inference, reward = feedback
+        self.intrinsic_reward.compute(observation, inference)
+        score = self.compute_score(reward)
         self.update_state(score, top_score)
         self.improved = self.better_entropy()
         self.analysis = self.better_abs()
+
+    def compute_score(self, reward):
+        if self.hp.minimizing:
+            return reward+self.intrinsic_reward.value
+        else:
+            return reward-self.intrinsic_reward.value
 
     def update_state(self, score, top_score):
         self.score = score

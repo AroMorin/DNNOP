@@ -46,7 +46,7 @@ class RL_Solver(Solver):
             steps+=1
 
     def forward(self):
-        self.interrogator.set_inference_chain(self.alg.model, self.env)
+        self.interrogator.set_inference(self.alg.model, self.env)
         action = self.interrogator.inference
         self.env.step(action)
 
@@ -64,7 +64,9 @@ class RL_Solver(Solver):
                 time.sleep(0.02)  # Delay is 0.03 secs
                 self.evaluator.evaluate(self.env, None)
                 reward = self.evaluator.score
-                self.alg.step(reward)
+                feedback = (self.env.observation, self.interrogator.inference,
+                            reward)
+                self.alg.step(feedback)
                 self.alg.print_state()
             self.current_iteration +=1
             print("\n")

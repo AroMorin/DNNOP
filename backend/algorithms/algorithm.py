@@ -39,6 +39,12 @@ class Algorithm(object):
         else:
             self.target = self.hyper_params.target - self.hyper_params.tolerance
 
+    def eval(self):
+        """Placeholder method for replacing the current model with the elite
+        in preparation for an evaluation step.
+        """
+        pass
+
     def achieved_target(self):
         """Determines whether the algorithm achieved its target or not."""
         if self.minimizing:

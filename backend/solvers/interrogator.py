@@ -27,7 +27,7 @@ class Interrogator(object):
             model.eval()  # Turn on evaluation mode
             self.inference = model(env.test_data)
 
-    def set_inference_chain(self, model, env, test=False):
+    def set_inference_chain_(self, model, env, test=False):
         """This method runs inference on the given environment using the models.
         I'm not sure, but I think there could be many ways to run inference. For
         that reason, I designate this function, to be a single point of contact

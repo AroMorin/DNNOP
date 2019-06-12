@@ -14,8 +14,8 @@ class Frustration(object):
         self.jump = False
         self.limit = 0.1
 
-    def update(self, replace):
-        self.update_count(replace)
+    def update(self, analysis):
+        self.update_count(analysis)
         self.set_tau()
         self.set_value()
         if self.count > self.mem_size:
@@ -23,8 +23,8 @@ class Frustration(object):
         else:
             self.jump = False
 
-    def update_count(self, replace):
-        if replace:
+    def update_count(self, analysis):
+        if analysis == 'better':
             self.count = 0
         else:
             self.count+=1

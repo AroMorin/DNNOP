@@ -147,10 +147,10 @@ def init_integer(m):
 def init_normal(m):
     """Initializes weights according to a Normal distribution."""
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        limit = 0.5
+        limit = 0.6
         origin = 0.
         nn.init.normal_(m.weight, mean=origin, std=limit)
-        nn.init.constant_(m.bias, 0.0)
+        nn.init.normal_(m.bias, mean=origin, std=0.001)
 
 def init_eye(m):
     """Initializes weights according to an Identity matrix. This special case

@@ -11,12 +11,10 @@ class Noise(object):
         self.hp = hp
         self.vec_length = torch.numel(vector)
         self.indices = np.arange(self.vec_length)
-        self.running_idxs = np.arange(self.vec_length)
-        self.noise_distribution = "uniform"  # Or "uniform"
+        self.noise_shape = "uniform"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
-        self.limit = int(0.05*self.vec_length)
-        #self.limit = 1000
+        self.limit = int(1.*self.vec_length)
         self.num_selections = None
         self.sr_min = None
         self.sr_max = None
@@ -59,8 +57,8 @@ class Noise(object):
         exp1 = math.tanh(argument)+1
         #self.sr_min = -exp1*0.05
         #self.sr_max = exp1*0.05
-        self.sr_min = -exp1*0.25
-        self.sr_max = exp1*0.25
+        self.sr_min = -exp1*0.025
+        self.sr_max = exp1*0.025
 
     def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""
@@ -68,27 +66,13 @@ class Noise(object):
         b = self.sr_max
         c = (b-a)/2.
         assert a != b  # Sanity check
-        if self.noise_distribution == "uniform":
+        if self.noise_shape == "uniform":
             self.distribution = uniform.Uniform(torch.Tensor([a]), torch.Tensor([b]))
-        elif self.noise_distribution == "normal":
+        elif self.noise_shape == "normal":
             self.distribution = normal.Normal(torch.Tensor([c]), torch.Tensor([b]))
         else:
             print("Unknown distribution type")
             exit()
-
-    def set_choices_(self):
-        """Use the numpy choices function (which has no equivalent in Pytorch)
-        to generate a sample from the array of indices. The sample size and
-        distribution are dynamically updated by the algorithm's state.
-        """
-        self.check_idxs()
-        choices = np.random.choice(self.running_idxs, self.num_selections)
-        self.running_idxs = np.delete(self.running_idxs, choices)
-        self.choices = choices.tolist()
-
-    def check_idxs(self):
-        if len(self.running_idxs)<self.num_selections:
-            self.running_idxs = np.arange(self.vec_length)
 
     def set_choices(self):
         """Use the numpy choices function (which has no equivalent in Pytorch)

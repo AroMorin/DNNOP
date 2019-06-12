@@ -13,7 +13,7 @@ import torch
 
 def main():
     # Variable definition
-    precision = torch.float
+    precision = torch.half
     #module = 'RoboschoolPong-v1'
     #module = "RoboschoolReacher-v1"
     #module = "RoboschoolAnt-v1"
@@ -51,7 +51,7 @@ def main():
                     "minimum entropy": 20.,
                     "tolerance": 0.01,
                     "max steps": 256,
-                    "memory size": 50
+                    "memory size": 35
                     }
     alg = algorithm_factory.make_alg("neuro2", model, alg_params)
 
@@ -64,7 +64,7 @@ def main():
     # Use solver to solve the problem
     #slv.solve(iterations=1000, ep_len=2000)
     #slv.solve_online(iterations=1000)
-    slv.solve_online_render(iterations=1000)
+    slv.solve_online_render(iterations=1000, ep_len=1500)
     #slv.solve_aggregator(iterations=500, reps=10, ep_len=150)
     #slv.solve_averager(iterations=1000, reps=10, ep_len=300)
     slv.demonstrate_env(episodes=3, ep_len=1000)

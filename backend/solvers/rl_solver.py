@@ -50,9 +50,10 @@ class RL_Solver(Solver):
         action = self.interrogator.inference
         self.env.step(action)
 
-    def solve_online_render(self, iterations):
+    def solve_online_render(self, iterations, ep_len=1000):
         """In cases where training is needed."""
         print("Training OpenAI environment solver \n")
+        self.env.env._max_episode_steps = ep_len
         for iteration in range(iterations):
             print("Iteration: %d/%d \n" %(iteration, iterations))
             self.env.reset_state()
@@ -60,7 +61,7 @@ class RL_Solver(Solver):
             while not self.env.done:
                 self.env.render()
                 self.forward()
-                time.sleep(0.03)  # Delay is 0.03 secs
+                time.sleep(0.02)  # Delay is 0.03 secs
                 self.evaluator.evaluate(self.env, None)
                 reward = self.evaluator.score
                 self.alg.step(reward)
@@ -72,9 +73,10 @@ class RL_Solver(Solver):
                 break # Terminate optimization
         self.env.close()
 
-    def solve_online(self, iterations):
+    def solve_online(self, iterations, ep_len=1000):
         """In cases where training is needed."""
         print("Training OpenAI environment solver \n")
+        self.env.env._max_episode_steps = ep_len
         for iteration in range(iterations):
             print("Iteration: %d/%d \n" %(iteration, iterations))
             self.env.reset_state()

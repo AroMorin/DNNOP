@@ -4,7 +4,7 @@ import torch
 class Analysis(object):
     def __init__(self, hp):
         self.hp = hp
-        self.replace = False  # Absolute score
+        self.analysis = ''  # Absolute score
         self.improved = False  # Entropic score
         self.score = self.hp.initial_score
         self.top_score = self.hp.initial_score
@@ -13,20 +13,28 @@ class Analysis(object):
     def analyze(self, score, top_score):
         self.update_state(score, top_score)
         self.improved = self.better_entropy()
-        self.replace = self.better_abs()
+        self.analysis = self.better_abs()
 
     def update_state(self, score, top_score):
         self.score = score
         self.top_score = top_score
-        self.replace = False
+        self.analysis = ''
         self.improved = False
 
     def better_abs(self):
-        """Assesses whether a new elite will replace the current one or not."""
-        if self.hp.minimizing:
-            return self.score < self.top_score
+        """Assesses whether the score is better or not than the previous one."""
+        if self.score == self.top_score:
+            result = 'same'
+            return result
+        elif self.hp.minimizing:
+            better = self.score < self.top_score
         else:
-            return self.score > self.top_score
+            better = self.score > self.top_score
+        if better:
+            result = 'better'
+        else:
+            result = 'worse'
+        return result
 
     def better_entropy(self):
         """Calculate whether the score has satisfactorily improved or not based

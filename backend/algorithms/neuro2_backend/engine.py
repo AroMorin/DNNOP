@@ -5,6 +5,7 @@ from .noise import Noise
 from .analysis import Analysis
 from .integrity import Integrity
 from .frustration import Frustration
+from .weights import Weights
 
 import torch
 
@@ -16,17 +17,17 @@ class Engine(object):
         self.vector = torch.nn.utils.parameters_to_vector(params)
         self.elite = self.vector
         self.noise = Noise(hyper_params, self.vector)
+        self.weights = Weights(greed=True)
         self.jumped = False
         self.kappa = 0.01
 
     def analyze(self, score, top_score):
         self.analyzer.analyze(score, top_score)
-        self.frustration.update(self.analyzer.replace)
+        self.frustration.update(self.analyzer.analysis)
 
     def set_elite(self):
         self.jumped = False
-        if self.analyzer.replace or self.frustration.jump:
-            self.elite = self.vector.clone()
+        if self.analyzer.analysis == 'better' or self.frustration.jump:
             self.jumped = True
 
     def update_state(self):
@@ -38,39 +39,6 @@ class Engine(object):
         self.noise.update_state(self.integrity.value)
 
     def update_weights(self, model):
-        if self.analyzer.replace:
-            self.reinforce()
-        else:
-            self.erode()
-        self.vector = self.elite.clone()
-        self.update_v(model)
-
-    def reinforce(self):
-        self.mu = 0.0002
-
-    def erode(self):
-        self.mu = -0.00025
-
-    def update_v(self, model):
-        v = model.fc1.weight[model.ex1, :]
-        print(model.ex1)
-        print(v[0:50])
-        print(model.fc1.weight[0:30])
-        v.add_(self.mu)
-        v.clamp_(0., 1.0)
-        print(v[0:50])
-        model.fc1.weight[model.ex1, :] = v
-        print(model.fc1.weight[0:30])
-
-        v = model.fc2.weight[model.ex2, :]
-        v.add_(self.mu)
-        v.clamp_(0., 1.0)
-        model.fc2.weight[model.ex2, :] = v
-
-        v = model.fc3.weight[:, model.ex2]
-        v.add_(self.mu)
-        v.clamp_(0., 1.0)
-        model.fc3.weight[:, model.ex2] = v
-
+        self.weights.update(self.analyzer.analysis, model)
 
 #

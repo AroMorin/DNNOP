@@ -40,6 +40,9 @@ class NEURO2(Algorithm):
         self.update_top_score(score)
 
     def update_top_score(self, score):
+        self.top_score = score
+
+    def update_top_score_(self, score):
         """Analysis is still needed even if there's no improvement,
         so other modules know that this as well. Hence, can't "return" after
         initial condition.
@@ -58,7 +61,7 @@ class NEURO2(Algorithm):
                 self.top_score = self.top_score*(1.+v)
 
     def print_state(self):
-        if self.engine.analyzer.replace:
+        if self.engine.analyzer.analysis == 'better':
             print ("------Setting new Elite-------")
         if self.engine.frustration.jump:
             print("------WOOOOOOHHOOOOOOOO!-------")
@@ -72,7 +75,6 @@ class NEURO2(Algorithm):
         print("Step size: %f" %self.engine.integrity.step_size.value)
         print("SR: (%f, %f)" %(self.engine.noise.sr_min, self.engine.noise.sr_max))
         print("Selections: %d" %self.engine.noise.num_selections)
-        print("V: ", self.engine.elite[0:15])
 
     def eval(self):
         self.engine.vector = self.engine.elite

@@ -2,28 +2,35 @@
 import torch.nn as nn
 import torch
 import random
+import numpy as np
 
 class Net(nn.Module):
     def __init__(self, model_params):
         super(Net, self).__init__()
         model_params = self.ingest_params_lvl1(model_params)
-        self.fc1 = nn.Linear(model_params['in features'], 1024)
+        ins = model_params['in features']
+        outs = model_params['number of outputs']
+        self.fc1 = nn.Linear(ins, 1024)
         self.fc2 = nn.Linear(1024, 512)
         self.fc3 = nn.Linear(512, 256)
-        self.fc4 = nn.Linear(256, model_params['number of outputs'])
+        self.fc4 = nn.Linear(256, outs)
+        #self.fc5 = nn.Linear(256, ins)
+        self.dropout = nn.Dropout(0.2)
         self.ex1 = []
         self.ex2 = []
         self.ex3 = []
         self.ex4 = []
+        #self.ex5 = []
         self.ap1 = torch.zeros(self.fc1.weight.data.size()[0])
         self.ap2 = torch.zeros(self.fc2.weight.data.size()[0])
         self.ap3 = torch.zeros(self.fc3.weight.data.size()[0])
         self.ap4 = torch.zeros(self.fc4.weight.data.size()[0])
-        self.x_0 = None
-        self.peak = 0.005
-        self.threshold = 2
+        #self.ap5 = torch.zeros(self.fc5.weight.data.size()[0])
+        self.x_0 = None  # Previous observation
+        self.peak = 0.05
+        self.ap_t = 2  # Action potential threshold
         self.increment = 1
-        self.dropout = nn.Dropout(0.1)
+        #self.prediction = None
 
     def ingest_params_lvl1(self, model_params):
         assert type(model_params) is dict
@@ -38,7 +45,7 @@ class Net(nn.Module):
         noise = torch.empty_like(x)
         noise.normal_(0, 0.01)
         noise = self.dropout(noise)
-        #x.add_(noise)
+        x.add_(noise)
         x = self.zero_out(x)
         x = x.half()
 
@@ -57,12 +64,9 @@ class Net(nn.Module):
         x = self.fire_fc3(x)
         self.set_ex3(x)
 
-        x = self.fc4(x)
-
-        x = x.squeeze()
-        print("action")
-        print(x)
-        return x
+        action = self.fc4(x).squeeze()
+        print(action)
+        return action
 
     def zero_out(self, x):
         if self.x_0 is None:
@@ -106,45 +110,35 @@ class Net(nn.Module):
 
     def fire_fc1(self, x):
         # Regular firing
-        sat_up = self.ap1.gt(self.threshold)
-        sat_down = self.ap1.lt(-self.threshold)
-        x.fill_(0.)
-        x[0, sat_up] = self.peak
-        x[0, sat_down] = -self.peak
+        sat_up = self.ap1.gt(self.ap_t)
+        sat_down = self.ap1.lt(-self.ap_t)
+        x = self.fire(x, sat_up, sat_down)
         self.ap1[sat_up] = 0
         self.ap1[sat_down] = 0
-
         # Noise firing
-        i = torch.arange(x.size()[1])
-
+        #i = torch.arange(x.size()[1])
         return x
 
     def fire_fc2(self, x):
-        sat_up = self.ap2.gt(self.threshold)
-        sat_down = self.ap2.lt(-self.threshold)
-        x.fill_(0.)
-        x[0, sat_up] = self.peak
-        x[0, sat_down] = -self.peak
+        sat_up = self.ap2.gt(self.ap_t)
+        sat_down = self.ap2.lt(-self.ap_t)
+        x = self.fire(x, sat_up, sat_down)
         self.ap2[sat_up] = 0
         self.ap2[sat_down] = 0
         return x
 
     def fire_fc3(self, x):
-        sat_up = self.ap3.gt(self.threshold)
-        sat_down = self.ap3.lt(-self.threshold)
-        x.fill_(0.)
-        x[0, sat_up] = self.peak
-        x[0, sat_down] = -self.peak
+        sat_up = self.ap3.gt(self.ap_t)
+        sat_down = self.ap3.lt(-self.ap_t)
+        x = self.fire(x, sat_up, sat_down)
         self.ap3[sat_up] = 0
         self.ap3[sat_down] = 0
         return x
 
     def fire_fc4(self, x):
-        sat_up = self.ap4.gt(self.threshold)
-        sat_down = self.ap4.lt(-self.threshold)
-        x.fill_(0.)
-        x[0, sat_up] = self.peak
-        x[0, sat_down] = -self.peak
+        sat_up = self.ap4.gt(self.ap_t)
+        sat_down = self.ap4.lt(-self.ap_t)
+        x = self.fire(x, sat_up, sat_down)
         self.ap4[sat_up] = 0
         self.ap4[sat_down] = 0
         return x
@@ -193,6 +187,14 @@ class Net(nn.Module):
         excitation = torch.cat((idxs_high, idxs_low))
         self.ex4 = excitation
 
-
-
+    def fire(self, x, sat_up, sat_down):
+        x[0, sat_up] = x[0, sat_up].tanh_().mul_(self.peak)
+        x[0, sat_down] = x[0, sat_down].tanh_().mul_(-self.peak)
+        indices = np.arange(x.size()[1])
+        others = np.delete(indices, sat_up)
+        others = np.delete(others, sat_down)
+        others = others.tolist()
+        #print(sat_up)
+        x[0, others] = x[0, others].fill_(0.)
+        return x
 #

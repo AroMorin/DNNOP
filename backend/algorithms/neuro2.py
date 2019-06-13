@@ -62,14 +62,10 @@ class NEURO2(Algorithm):
 
     def print_state(self):
         if self.engine.analyzer.analysis == 'better':
-            print ("------Setting new Elite-------")
-        if self.engine.frustration.jump:
-            print("------WOOOOOOHHOOOOOOOO!-------")
+            print ("------Better-------")
         if self.engine.analyzer.improved:
             print("Improved!")
         print ("Top Score: %f" %self.top_score)
-        print("Memory: %d" %self.engine.frustration.count)
-        print("Jump: %f" %(100.*self.engine.frustration.value))
 
 
 #

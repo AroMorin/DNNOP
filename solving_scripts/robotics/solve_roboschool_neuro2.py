@@ -16,8 +16,8 @@ def main():
     precision = torch.half
     #module = 'RoboschoolPong-v1'
     #module = "RoboschoolReacher-v1"
-    #module = "RoboschoolAnt-v1"
-    module = "RoboschoolInvertedPendulum-v1"
+    module = "RoboschoolAnt-v1"
+    #module = "RoboschoolInvertedPendulum-v1"
 
     # Parameter and Object declarations
     env_params = {
@@ -37,8 +37,8 @@ def main():
                     "precision": precision,
                     "weight initialization scheme": "Normal",
                     "grad": False,
-                    "in features": 5,
-                    "number of outputs": 1,
+                    "in features": 28,
+                    "number of outputs": 8,
                     "min action 1": -1.,
                     "max action 1": 1.,
                     "noise limit": 0.05

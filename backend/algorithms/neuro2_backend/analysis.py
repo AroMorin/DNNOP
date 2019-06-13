@@ -6,9 +6,9 @@ import torch
 class Analysis(object):
     def __init__(self, hp):
         self.hp = hp
+        self.intrinsic_reward = IR(hp)
         self.analysis = ''  # Absolute score
         self.improved = False  # Entropic score
-        self.intrinsic_reward = IR(hyper_params)
         self.score = self.hp.initial_score
         self.top_score = self.hp.initial_score
         self.entropy = 0.
@@ -23,9 +23,9 @@ class Analysis(object):
 
     def compute_score(self, reward):
         if self.hp.minimizing:
-            return reward+self.intrinsic_reward.value
-        else:
             return reward-self.intrinsic_reward.value
+        else:
+            return reward+self.intrinsic_reward.value
 
     def update_state(self, score, top_score):
         self.score = score

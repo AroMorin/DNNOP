@@ -5,7 +5,8 @@ import torch
 import numpy as np
 
 class Weights(object):
-    def __init__(self, greed):
+    def __init__(self, hp, greed):
+        self.hp = hp
         self.mu = 0.
         self.nu = 0.002
         self.greedy = greed
@@ -14,6 +15,7 @@ class Weights(object):
         self.erosion = True
 
     def update(self, analysis, model):
+        print(analysis)
         if analysis == 'better':
             self.reinforce()
         elif analysis == 'worse':
@@ -25,8 +27,9 @@ class Weights(object):
         self.implement(model)
 
     def reinforce(self):
-        mu = np.random.choice([0., 0.004], 1, p=[0.5, 0.5])
-        self.mu = mu[0]
+        mu = 0.004
+        mu = np.random.choice([0., mu], 1, p=[0.5, 0.5])
+        self.mu = 0.004
 
     def decay(self):
         self.mu = -0.004
@@ -41,7 +44,7 @@ class Weights(object):
         v = model.fc1.weight[model.ex1, :]
         v.add_(self.mu)
         v.clamp_(self.low, self.high)
-        print(model.fc1.weight[0:20])
+        print(model.fc1.weight[0, 0:200])
         model.fc1.weight[model.ex1, :] = v
 
         v = model.fc2.weight[model.ex2, :]
@@ -60,7 +63,8 @@ class Weights(object):
         model.fc4.weight[:, model.ex3] = v
 
     def erode(self, model):
-        self.nu = max(0.1*abs(self.mu), 0.0001)
+        self.nu = 0.01*abs(self.mu)
+        print(self.mu, self.nu)
         v = model.fc1.weight[:, :]
         v.sub_(self.nu)
         v.clamp_(self.low, self.high)

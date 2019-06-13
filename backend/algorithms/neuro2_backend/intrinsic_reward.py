@@ -1,24 +1,30 @@
-"""Base class for elite."""
+"""Base class for intrinsic reward."""
 import torch
 
 class IR(object):
     def __init__(self, hp):
         self.hp = hp
-        self.ground_truth = None
-        self.prediction = None
+        self.x_0 = None  # Previous observation
+        self.z_0 = None  # Previous action
         self.mismatch = 0.
         self.value = 0.
 
     def compute(self, observation, inference):
-        self.update_state(observation, inference)
-        self.mismatch = self.canberra_distance()
+        self.entropy = self.check_entropy(observation, inference)
         self.set_value()
+        self.update_state(observation, inference)
 
-    def update_state(self, observation, inference):
-        self.ground_truth = observation
-        self.prediction = inference
-        self.mismatch = 0.
-        self.value = 0.
+    def check_entropy(self, observation, inference):
+        if self.x_0 is None or self.z_0 is None:
+            return 0.
+        if observation.equal(self.x_0):
+            entropy = 0.
+        else:
+            if inference.equal(self.z_0):
+                entropy = 2.
+            else:
+                entropy = -2.
+        return entropy
 
     def canberra_distance(self):
         a = self.ground_truth
@@ -31,6 +37,11 @@ class IR(object):
         return result.item()
 
     def set_value(self):
-        self.value = self.mismatch*0.5
+        self.value = 0.
+
+    def update_state(self, observation, inference):
+        self.x_0 = observation
+        self.z_0 = inference
+
 
 #

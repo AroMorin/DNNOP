@@ -29,42 +29,19 @@ class Weights(object):
     def reinforce(self):
         mu = 0.004
         mu = np.random.choice([0., mu], 1, p=[0.5, 0.5])
-        self.mu = 0.004
+        self.mu = 0.0004
 
     def decay(self):
-        self.mu = -0.004
+        self.mu = -0.0004
 
     def maintain(self):
         if self.greedy:
-            self.mu = -0.004
+            self.mu = -0.0004
         else:
             self.mu = 0.
 
-    def implement(self, model):
-        v = model.fc1.weight[model.ex1, :]
-        v.add_(self.mu)
-        v.clamp_(self.low, self.high)
-        print(model.fc1.weight[0, 0:200])
-        model.fc1.weight[model.ex1, :] = v
-
-        v = model.fc2.weight[model.ex2, :]
-        v.add_(self.mu)
-        v.clamp_(self.low, self.high)
-        model.fc2.weight[model.ex2, :] = v
-
-        v = model.fc3.weight[model.ex3, :]
-        v.add_(self.mu)
-        v.clamp_(self.low, self.high)
-        model.fc3.weight[model.ex3, :] = v
-
-        v = model.fc4.weight[:, model.ex3]
-        v.add_(self.mu)
-        v.clamp_(self.low, self.high)
-        model.fc4.weight[:, model.ex3] = v
-
     def erode(self, model):
         self.nu = 0.01*abs(self.mu)
-        print(self.mu, self.nu)
         v = model.fc1.weight[:, :]
         v.sub_(self.nu)
         v.clamp_(self.low, self.high)
@@ -84,5 +61,30 @@ class Weights(object):
         v.sub_(self.nu)
         v.clamp_(self.low, self.high)
         model.fc4.weight[:, :] = v
+
+    def implement(self, model):
+        v = model.fc1.weight[model.ex1, :]
+        v.add_(self.mu)
+        v.clamp_(self.low, self.high)
+        print(model.fc1.weight[0])
+        model.fc1.weight[model.ex1, :] = v
+
+        v = model.fc2.weight[model.ex2, :]
+        v_p = v[:, model.ex1]
+        v_p.add_(self.mu)
+        v_p.clamp_(self.low, self.high)
+        v[:, model.ex1] = v_p
+        model.fc2.weight[model.ex2, :] = v
+
+        v = model.fc3.weight[model.ex3, :]
+        v.add_(self.mu)
+        v.clamp_(self.low, self.high)
+        model.fc3.weight[model.ex3, :] = v
+
+        v = model.fc4.weight[:, model.ex3]
+        v.add_(self.mu)
+        v.clamp_(self.low, self.high)
+        model.fc4.weight[:, model.ex3] = v
+
 
 #

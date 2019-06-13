@@ -28,7 +28,7 @@ class Net(nn.Module):
         #self.ap5 = torch.zeros(self.fc5.weight.data.size()[0])
         self.x_0 = None  # Previous observation
         self.peak = 0.05
-        self.ap_t = 2  # Action potential threshold
+        self.ap_t = 1  # Action potential threshold
         self.increment = 1
         #self.prediction = None
 
@@ -47,9 +47,9 @@ class Net(nn.Module):
         noise = self.dropout(noise)
         x.add_(noise)
         x = self.zero_out(x)
-        x = x.half()
-
+        x = x.half().squeeze()
         x = self.fc1(x)
+
         self.set_ap1(x)
         x = self.fire_fc1(x)
         self.set_ex1(x)
@@ -65,7 +65,6 @@ class Net(nn.Module):
         self.set_ex3(x)
 
         action = self.fc4(x).squeeze()
-        print(action)
         return action
 
     def zero_out(self, x):
@@ -78,34 +77,26 @@ class Net(nn.Module):
 
     def set_ap1(self, x):
         up = x.gt(0)
-        up = up.squeeze()
         self.ap1[up] = self.ap1[up].add(self.increment)
         down = x.lt(0)
-        down = down.squeeze()
         self.ap1[down] = self.ap1[down].sub(self.increment)
 
     def set_ap2(self, x):
         up = x.gt(0)
-        up = up.squeeze()
         self.ap2[up] = self.ap2[up].add(self.increment)
         down = x.lt(0)
-        down = down.squeeze()
         self.ap2[down] = self.ap2[down].sub(self.increment)
 
     def set_ap3(self, x):
         up = x.gt(0)
-        up = up.squeeze()
         self.ap3[up] = self.ap3[up].add(self.increment)
         down = x.lt(0)
-        down = down.squeeze()
         self.ap3[down] = self.ap3[down].sub(self.increment)
 
     def set_ap4(self, x):
         up = x.gt(0)
-        up = up.squeeze()
         self.ap4[up] = self.ap4[up].add(self.increment)
         down = x.lt(0)
-        down = down.squeeze()
         self.ap4[down] = self.ap4[down].sub(self.increment)
 
     def fire_fc1(self, x):
@@ -144,57 +135,37 @@ class Net(nn.Module):
         return x
 
     def set_ex1(self, x):
-        active = x.eq(self.peak)
-        active = active.squeeze()
-        i = torch.arange(x.size()[1])
-        idxs_high = i[active]
-        active = x.eq(-self.peak)
-        active = active.squeeze()
-        idxs_low = i[active]
-        excitation = torch.cat((idxs_high, idxs_low))
+        excitation = self.measure(x)
         self.ex1 = excitation
 
     def set_ex2(self, x):
-        active = x.eq(self.peak)
-        active = active.squeeze()
-        i = torch.arange(x.size()[1])
-        idxs_high = i[active]
-        active = x.eq(-self.peak)
-        active = active.squeeze()
-        idxs_low = i[active]
-        excitation = torch.cat((idxs_high, idxs_low))
+        excitation = self.measure(x)
         self.ex2 = excitation
 
     def set_ex3(self, x):
-        active = x.eq(self.peak)
-        active = active.squeeze()
-        i = torch.arange(x.size()[1])
-        idxs_high = i[active]
-        active = x.eq(-self.peak)
-        active = active.squeeze()
-        idxs_low = i[active]
-        excitation = torch.cat((idxs_high, idxs_low))
+        excitation = self.measure(x)
         self.ex3 = excitation
 
     def set_ex4(self, x):
-        active = x.eq(self.peak)
-        active = active.squeeze()
-        i = torch.arange(x.size()[1])
-        idxs_high = i[active]
-        active = x.eq(-self.peak)
-        active = active.squeeze()
-        idxs_low = i[active]
-        excitation = torch.cat((idxs_high, idxs_low))
+        excitation = self.measure(x)
         self.ex4 = excitation
 
     def fire(self, x, sat_up, sat_down):
-        x[0, sat_up] = x[0, sat_up].tanh_().mul_(self.peak)
-        x[0, sat_down] = x[0, sat_down].tanh_().mul_(-self.peak)
-        indices = np.arange(x.size()[1])
+        i = torch.arange(x.size()[0])
+        sat_up = i[sat_up].numpy()
+        sat_down = i[sat_down].numpy()
+        x[sat_up] = x[sat_up].tanh().mul(self.peak)
+        x[sat_down] = x[sat_down].tanh().mul(self.peak)
+        indices = np.arange(x.size()[0])
         others = np.delete(indices, sat_up)
         others = np.delete(others, sat_down)
         others = others.tolist()
-        #print(sat_up)
-        x[0, others] = x[0, others].fill_(0.)
+        x[others] = x[others].fill_(0.)
         return x
+
+    def measure(self, x):
+        active = x.ne(0.)
+        i = torch.arange(x.size()[0])
+        return i[active]
+
 #

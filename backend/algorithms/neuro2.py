@@ -40,7 +40,7 @@ class NEURO2(Algorithm):
         self.update_top_score(score)
 
     def update_top_score(self, score):
-        self.top_score = score
+        self.top_score = self.engine.analyzer.score
 
     def update_top_score_(self, score):
         """Analysis is still needed even if there's no improvement,
@@ -66,6 +66,6 @@ class NEURO2(Algorithm):
         if self.engine.analyzer.improved:
             print("Improved!")
         print ("Top Score: %f" %self.top_score)
-
+        print("Intrinsic Reward: %f" %self.engine.analyzer.intrinsic_reward.value)
 
 #

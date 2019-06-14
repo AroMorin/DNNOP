@@ -17,7 +17,7 @@ class Engine(object):
         self.vector = torch.nn.utils.parameters_to_vector(params)
         self.elite = self.vector
         self.noise = Noise(hyper_params, self.vector)
-        self.weights = Weights(hyper_params, greed=True)
+        self.weights = Weights(hyper_params, greed=False)
         self.jumped = False
         self.kappa = 0.01
 

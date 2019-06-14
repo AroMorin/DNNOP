@@ -15,7 +15,8 @@ class Net(nn.Module):
         self.fc3 = nn.Linear(512, 256)
         self.fc4 = nn.Linear(256, outs)
         #self.fc5 = nn.Linear(256, ins)
-        self.dropout = nn.Dropout(0.2)
+        self.dropout = nn.Dropout(0.9)
+        self.ex0 = []
         self.ex1 = []
         self.ex2 = []
         self.ex3 = []
@@ -28,7 +29,7 @@ class Net(nn.Module):
         #self.ap5 = torch.zeros(self.fc5.weight.data.size()[0])
         self.x_0 = None  # Previous observation
         self.peak = 0.05
-        self.ap_t = 1  # Action potential threshold
+        self.ap_t = 2  # Action potential threshold
         self.increment = 1
         #self.prediction = None
 
@@ -45,9 +46,10 @@ class Net(nn.Module):
         noise = torch.empty_like(x)
         noise.normal_(0, 0.01)
         noise = self.dropout(noise)
-        x.add_(noise)
+        #x.add_(noise)
         x = self.zero_out(x)
         x = x.half().squeeze()
+        self.set_ex0(x)
         x = self.fc1(x)
 
         self.set_ap1(x)
@@ -134,6 +136,10 @@ class Net(nn.Module):
         self.ap4[sat_down] = 0
         return x
 
+    def set_ex0(self, x):
+        excitation = self.measure(x)
+        self.ex0 = excitation
+
     def set_ex1(self, x):
         excitation = self.measure(x)
         self.ex1 = excitation
@@ -161,6 +167,8 @@ class Net(nn.Module):
         others = np.delete(others, sat_down)
         others = others.tolist()
         x[others] = x[others].fill_(0.)
+        rand = np.random.choice(others, int(0.05*len(others)), replace=False)
+        x[rand].fill_(0.1)
         return x
 
     def measure(self, x):

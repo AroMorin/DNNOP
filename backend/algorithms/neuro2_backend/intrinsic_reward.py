@@ -5,30 +5,20 @@ class IR(object):
     def __init__(self, hp):
         self.hp = hp
         self.x_0 = None  # Previous observation
-        self.z_0 = None  # Previous action
+        self.x_1 = None  # Previous action
         self.mismatch = 0.
         self.value = 0.
 
     def compute(self, observation, inference):
-        self.entropy = self.check_entropy(observation, inference)
-        self.set_value()
+        self.x_1 = inference
+        if self.x_0 is not None:
+            self.mismatch = self.canberra_distance()
+            self.set_value()
         self.update_state(observation, inference)
 
-    def check_entropy(self, observation, inference):
-        if self.x_0 is None or self.z_0 is None:
-            return 0.
-        if observation.equal(self.x_0):
-            entropy = 0.
-        else:
-            if inference.equal(self.z_0):
-                entropy = 2.
-            else:
-                entropy = -2.
-        return entropy
-
     def canberra_distance(self):
-        a = self.ground_truth
-        b = self.prediction
+        a = self.x_0
+        b = self.x_1
         x = a.sub(b).abs()
         y = torch.add(a.abs(), b.abs())
         f = torch.div(x, y)
@@ -37,11 +27,10 @@ class IR(object):
         return result.item()
 
     def set_value(self):
-        self.value = 0.
+        self.value = min(self.mismatch*1, 1)
 
     def update_state(self, observation, inference):
-        self.x_0 = observation
-        self.z_0 = inference
+        self.x_0 = inference
 
 
 #

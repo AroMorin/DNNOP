@@ -41,7 +41,7 @@ class Weights(object):
             self.mu = 0.
 
     def erode(self, model):
-        self.nu = 0.01*abs(self.mu)
+        self.nu = 0.0001
         v = model.fc1.weight[:, :]
         v.sub_(self.nu)
         v.clamp_(self.low, self.high)
@@ -64,9 +64,10 @@ class Weights(object):
 
     def implement(self, model):
         v = model.fc1.weight[model.ex1, :]
-        v.add_(self.mu)
-        v.clamp_(self.low, self.high)
-        print(model.fc1.weight[0])
+        v_p = v[:, model.ex0]
+        v_p.add_(self.mu)
+        v_p.clamp_(self.low, self.high)
+        v[:, model.ex0] = v_p
         model.fc1.weight[model.ex1, :] = v
 
         v = model.fc2.weight[model.ex2, :]
@@ -77,14 +78,24 @@ class Weights(object):
         model.fc2.weight[model.ex2, :] = v
 
         v = model.fc3.weight[model.ex3, :]
-        v.add_(self.mu)
-        v.clamp_(self.low, self.high)
+        v_p = v[:, model.ex2]
+        v_p.add_(self.mu)
+        v_p.clamp_(self.low, self.high)
+        v[:, model.ex2] = v_p
         model.fc3.weight[model.ex3, :] = v
 
         v = model.fc4.weight[:, model.ex3]
         v.add_(self.mu)
         v.clamp_(self.low, self.high)
         model.fc4.weight[:, model.ex3] = v
+        print(model.fc4.weight[0])
+
+
+
+
+
+
+
 
 
 #

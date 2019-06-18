@@ -15,20 +15,18 @@ class Net(nn.Module):
         self.fc3 = nn.Linear(512, 256)
         self.fc4 = nn.Linear(256, outs)
         #self.fc5 = nn.Linear(256, ins)
-        self.dropout = nn.Dropout(0.9)
+        self.dropout = nn.Dropout(0.8)
         self.ex0 = []
         self.ex1 = []
         self.ex2 = []
         self.ex3 = []
-        self.ex4 = []
         #self.ex5 = []
         self.ap1 = torch.zeros(self.fc1.weight.data.size()[0])
         self.ap2 = torch.zeros(self.fc2.weight.data.size()[0])
         self.ap3 = torch.zeros(self.fc3.weight.data.size()[0])
-        self.ap4 = torch.zeros(self.fc4.weight.data.size()[0])
         #self.ap5 = torch.zeros(self.fc5.weight.data.size()[0])
         self.x_0 = None  # Previous observation
-        self.peak = 0.05
+        self.peak = 0.01
         self.ap_t = 2  # Action potential threshold
         self.increment = 1
         #self.prediction = None
@@ -46,12 +44,13 @@ class Net(nn.Module):
         noise = torch.empty_like(x)
         noise.normal_(0, 0.01)
         noise = self.dropout(noise)
-        #x.add_(noise)
+        x.add_(noise)
         x = self.zero_out(x)
         x = x.half().squeeze()
         self.set_ex0(x)
-        x = self.fc1(x)
 
+        x = self.fc1(x)
+        # AP should be set after weights not before (to kill neurons and excitations)
         self.set_ap1(x)
         x = self.fire_fc1(x)
         self.set_ex1(x)
@@ -65,8 +64,10 @@ class Net(nn.Module):
         self.set_ap3(x)
         x = self.fire_fc3(x)
         self.set_ex3(x)
-
-        action = self.fc4(x).squeeze()
+        print("X")
+        print(x)
+        action = self.fc4(x).squeeze().tanh_()
+        print(action)
         return action
 
     def zero_out(self, x):
@@ -82,58 +83,62 @@ class Net(nn.Module):
         self.ap1[up] = self.ap1[up].add(self.increment)
         down = x.lt(0)
         self.ap1[down] = self.ap1[down].sub(self.increment)
+        up_noise, down_noise = self.noise(x, up, down)
+        self.ap1[up_noise] = self.ap1[up_noise].add(self.increment)
+        self.ap1[down_noise] = self.ap1[down_noise].sub(self.increment)
+
+    def noise(self, x, up, down):
+        indices = np.arange(x.size()[0])
+        others = np.delete(indices, up.cpu().numpy())
+        others = np.delete(others, down.cpu().numpy())
+        others = others.tolist()
+        rand = np.random.choice(others, int(0.2*len(others)), replace=False)
+        mid = int(len(rand.tolist())/2)
+        up_noise = rand[:mid]
+        down_noise = rand[mid:]
+        return up_noise, down_noise
 
     def set_ap2(self, x):
         up = x.gt(0)
         self.ap2[up] = self.ap2[up].add(self.increment)
         down = x.lt(0)
         self.ap2[down] = self.ap2[down].sub(self.increment)
+        up_noise, down_noise = self.noise(x, up, down)
+        self.ap2[up_noise] = self.ap2[up_noise].add(self.increment)
+        self.ap2[down_noise] = self.ap2[down_noise].sub(self.increment)
 
     def set_ap3(self, x):
         up = x.gt(0)
         self.ap3[up] = self.ap3[up].add(self.increment)
         down = x.lt(0)
         self.ap3[down] = self.ap3[down].sub(self.increment)
-
-    def set_ap4(self, x):
-        up = x.gt(0)
-        self.ap4[up] = self.ap4[up].add(self.increment)
-        down = x.lt(0)
-        self.ap4[down] = self.ap4[down].sub(self.increment)
+        up_noise, down_noise = self.noise(x, up, down)
+        self.ap3[up_noise] = self.ap3[up_noise].add(self.increment)
+        self.ap3[down_noise] = self.ap3[down_noise].sub(self.increment)
+        print(self.ap3)
 
     def fire_fc1(self, x):
-        # Regular firing
         sat_up = self.ap1.gt(self.ap_t)
         sat_down = self.ap1.lt(-self.ap_t)
-        x = self.fire(x, sat_up, sat_down)
         self.ap1[sat_up] = 0
         self.ap1[sat_down] = 0
-        # Noise firing
-        #i = torch.arange(x.size()[1])
+        x = self.fire(x, sat_up, sat_down)
         return x
 
     def fire_fc2(self, x):
         sat_up = self.ap2.gt(self.ap_t)
         sat_down = self.ap2.lt(-self.ap_t)
-        x = self.fire(x, sat_up, sat_down)
         self.ap2[sat_up] = 0
         self.ap2[sat_down] = 0
+        x = self.fire(x, sat_up, sat_down)
         return x
 
     def fire_fc3(self, x):
         sat_up = self.ap3.gt(self.ap_t)
         sat_down = self.ap3.lt(-self.ap_t)
-        x = self.fire(x, sat_up, sat_down)
         self.ap3[sat_up] = 0
         self.ap3[sat_down] = 0
-        return x
-
-    def fire_fc4(self, x):
-        sat_up = self.ap4.gt(self.ap_t)
-        sat_down = self.ap4.lt(-self.ap_t)
         x = self.fire(x, sat_up, sat_down)
-        self.ap4[sat_up] = 0
-        self.ap4[sat_down] = 0
         return x
 
     def set_ex0(self, x):
@@ -160,15 +165,13 @@ class Net(nn.Module):
         i = torch.arange(x.size()[0])
         sat_up = i[sat_up].numpy()
         sat_down = i[sat_down].numpy()
-        x[sat_up] = x[sat_up].tanh().mul(self.peak)
-        x[sat_down] = x[sat_down].tanh().mul(self.peak)
+        x[sat_up] = x[sat_up].mul(self.peak)
+        x[sat_down] = x[sat_down].mul(-self.peak)
         indices = np.arange(x.size()[0])
         others = np.delete(indices, sat_up)
         others = np.delete(others, sat_down)
         others = others.tolist()
-        x[others] = x[others].fill_(0.)
-        rand = np.random.choice(others, int(0.05*len(others)), replace=False)
-        x[rand].fill_(0.1)
+        x[others] = 0.
         return x
 
     def measure(self, x):

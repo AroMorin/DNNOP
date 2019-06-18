@@ -18,6 +18,8 @@ def main():
     #module = "RoboschoolReacher-v1"
     module = "RoboschoolAnt-v1"
     #module = "RoboschoolInvertedPendulum-v1"
+    #module = "RoboschoolHumanoidFlagrunHarder-v1"
+    #module = "RoboschoolAtlasForwardWalk-v1"
 
     # Parameter and Object declarations
     env_params = {

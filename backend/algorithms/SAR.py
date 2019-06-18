@@ -9,16 +9,16 @@ The optimizer object will own the pool.?
 """
 from __future__ import division
 from .algorithm import Algorithm
-from .neuro2_backend.hyper_parameters import Hyper_Parameters
-from .neuro2_backend.engine import Engine
+from .sar_backend.hyper_parameters import Hyper_Parameters
+from .sar_backend.engine import Engine
 
-class NEURO2(Algorithm):
+class SAR(Algorithm):
     def __init__(self, model, alg_params):
-        print ("Using Learner8 algorithm")
-        super(NEURO2, self).__init__()
+        print ("Using SAR algorithm")
+        super(SAR, self).__init__()
         self.model = model
         self.hyper_params = Hyper_Parameters(alg_params)
-        self.engine = Engine(model.parameters(), self.hyper_params)
+        self.engine = Engine(self.hyper_params)
         self.populations = False
         self.grad = False
         self.minimizing = self.hyper_params.minimizing

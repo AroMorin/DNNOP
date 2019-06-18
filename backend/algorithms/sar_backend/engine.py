@@ -5,40 +5,36 @@ from .noise import Noise
 from .analysis import Analysis
 from .integrity import Integrity
 from .frustration import Frustration
-from .weights import Weights
-
-import torch
 
 class Engine(object):
-    def __init__(self, params, hyper_params):
+    def __init__(self, hyper_params):
         self.analyzer = Analysis(hyper_params)
-        self.frustration = Frustration(hyper_params)
         self.integrity = Integrity(hyper_params)
-        self.vector = torch.nn.utils.parameters_to_vector(params)
-        self.elite = self.vector
-        self.noise = Noise(hyper_params, self.vector)
-        self.weights = Weights(hyper_params, greed=True)
-        self.jumped = False
-        self.kappa = 0.01
+        self.frustration = Frustration(hyper_params)
 
-    def analyze(self, feedback, top_score):
-        self.analyzer.analyze(feedback, top_score)
-        self.frustration.update(self.analyzer.analysis)
-
-    def set_elite(self):
-        self.jumped = False
-        if self.analyzer.analysis == 'better' or self.frustration.jump:
-            self.jumped = True
+    def analyze(self, feedback, score):
+        self.analyzer.analyze(feedback, score)
+        #self.frustration.update(self.analyzer.analysis)
 
     def update_state(self):
         """Prepares the new pool based on the scores of the current generation
         and the results of the analysis (such as value of intergrity).
         """
-        self.integrity.set_integrity(self.analyzer.improved)
+        #self.integrity.set_integrity(self.analyzer.improved)
         # Define noise vector
-        self.noise.update_state(self.integrity.value)
+        #self.noise.update_state(self.integrity.value)
 
-    def update_weights(self, model):
-        self.weights.update(self.analyzer.analysis, model)
+    def update_table(self, model, feedback):
+        observation, action, _ = feedback
+        if self.analyzer.analysis == 'better':
+            print("-----------------------------------")
+            if not model.in_table:
+                model.observations.append(observation)
+                model.actions.append(action)
+
+        if self.analyzer.analysis == 'worse':
+            if model.in_table:
+                del model.observations[model.idx]
+                del model.actions[model.idx]
 
 #

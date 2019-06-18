@@ -30,7 +30,7 @@ class Evaluator(object):
             self.calculate_score(env, inference)
         else:
             self.set_score(inference)
-        self.clean_score(env)
+        #self.clean_score(env)
 
     def calculate_loss(self, env, inference, test=False, grad=False):
         """This method calculates the loss."""
@@ -92,7 +92,7 @@ class Evaluator(object):
 
     def calculate_score(self, env, inference):
         """Calculates the scores given the network inferences."""
-        self.score = env.evaluate(inference).cuda()
+        self.score = env.evaluate(inference)
 
     def set_score(self, score):
         self.score = score

@@ -45,36 +45,37 @@ class Gym_base(Environment):
         self.obs_high = self.obs_space.high
         self.obs_low = self.obs_space.low
         observation = self.env.reset()
-        self.format_obs(observation)
+        self.set_obs(observation)
 
-    def format_obs(self, observation):
-        if self.RAM:
-            self.observation = torch.Tensor(observation).cuda()
-        else:
-            observation = np.moveaxis(observation, -1, 0)
-            observation = torch.Tensor(observation).cuda()
-            self.observation = observation.unsqueeze(0)
+    def set_obs(self, x):
+        #if self.RAM:
+        #    self.observation = torch.Tensor(observation).cuda()
+        #else:
+        #    observation = np.moveaxis(observation, -1, 0)
+        #    observation = torch.Tensor(observation).cuda()
+        #    self.observation = observation.unsqueeze(0)
+        self.observation = x
 
     def step(self, action):
         """Instantiates the plotter class if a plot is requested by the user."""
-        if self.discrete:
-            action = action.argmax().int()
-        action = action.cpu().detach().numpy()
+        #if self.discrete:
+        #    action = action.argmax().int()
+        #action = action.cpu().detach().numpy()
         if len(action.shape) == (0):
             action = np.expand_dims(action, 0)
         #action = self.env.action_space.sample()
         observation, reward, self.done, self.info = self.env.step(action)
         self.reward += reward
-        self.format_obs(observation)
+        self.set_obs(observation)
         self.iteration += 1
 
-    def evaluate(self, inference):
-        return torch.Tensor([self.reward])
+    def evaluate(self, _):
+        return self.reward
 
     def reset_state(self):
         self.iteration = 0
         observation = self.env.reset()
-        self.format_obs(observation)
+        self.set_obs(observation)
         self.reward = 0.  # Matrix of function values
         self.done = False
         self.info = {}

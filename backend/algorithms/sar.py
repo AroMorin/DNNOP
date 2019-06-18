@@ -32,15 +32,14 @@ class SAR(Algorithm):
         obtains the scores and accordingly updates the models.
         """
         _, _, score = feedback
-        print(score.item())
+        print(score)
         self.engine.analyze(feedback, self.top_score)
-        self.engine.set_elite()
         self.engine.update_state()
-        self.engine.update_weights(self.model)
-        self.update_top_score(score)
+        self.engine.update_table(self.model, feedback)
+        self.update_score(score)
 
-    def update_top_score(self, score):
-        self.top_score = self.engine.analyzer.score
+    def update_score(self, score):
+        self.top_score = score
 
     def update_top_score_(self, score):
         """Analysis is still needed even if there's no improvement,
@@ -61,9 +60,7 @@ class SAR(Algorithm):
                 self.top_score = self.top_score*(1.+v)
 
     def print_state(self):
-        if self.engine.analyzer.improved:
-            print("Improved!")
-        print ("Top Score: %f" %self.top_score)
+        print ("Score: %f" %self.top_score)
         print("Intrinsic Reward: %f" %self.engine.analyzer.intrinsic_reward.value)
 
 #

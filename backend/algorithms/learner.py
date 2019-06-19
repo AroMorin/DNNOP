@@ -8,129 +8,97 @@ desired hyper parameters. An example of hyper params is the number of Anchors.
 The optimizer object will own the pool.?
 """
 from __future__ import division
-import torch
-import numpy as np
+from .algorithm import Algorithm
 from .learner_backend.hyper_parameters import Hyper_Parameters
-from .learner_backend.pool import Pool
-from .learner_backend.optimizer import Optimizer
-import time
+from .learner_backend.engine import Engine
 
-class LEARNER(object):
-    def __init__(self, models, alg_params):
-        print ("Using Learner algorithm")
+class LEARNER(Algorithm):
+    def __init__(self, model, alg_params):
+        print ("Using Learner9 algorithm")
+        super(LEARNER, self).__init__()
         self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
-        self.pool = Pool(models, self.hyper_params) # Create a pool object
-        self.optim = Optimizer(self.pool, self.hyper_params)  # Optimizer object
-        self.pool_size = alg_params["pool size"]
-        self.inference = None
-        self.score = self.hyper_params.initial_score
-        self.correct_test_preds = 0
+        self.engine = Engine(model, self.hyper_params) # Create a pool object
         self.populations = False
+        self.model = model
+        self.minimizing = self.hyper_params.minimizing
+        self.initial_score = self.hyper_params.initial_score
+        self.top_score = self.initial_score
+        self.target = None
+        self.set_target()
 
-
-    def set_environment(self, env):
-        """Sets the environment attribute."""
-        self.env = env
-        assert self.env is not None  # Sanity check
-        if self.env.loss:
-            self.scoring = "loss"
-        if self.env.acc:
-            self.scoring = "accuracy"
-        if self.env.score:
-            self.scoring = "score"
-        if self.env.error:
-            self.scoring = "error"
-        self.optim.set_environment(env)
-
-    def optimize(self):
+    def step(self, feedback):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        self.get_inference()
-        if self.scoring == "loss":
-            self.optim.calculate_loss(self.inference)
-        elif self.scoring == "accuracy":
-            self.optim.calculate_correct_predictions(self.inference, acc=True)
-        elif self.scoring == "score" or self.scoring == "error":
-            self.optim.calculate_score(self.inference)
-        else:
-            self.optim.set_score(self.inference)
-        self.optim.step()
+        _, _, score = feedback
+        print(score)
+        #score = self.regularize(score)
+        self.engine.analyze(score, self.top_score)
+        self.engine.set_elite()
+        self.engine.update_state()
+        self.engine.generate()
+        self.engine.update_weights(self.model)
+        self.update_top_score(score)
 
-    def get_inference(self, test=False, silent=True):
-        """This method runs inference on the given environment using the models.
-        I'm not sure, but I think there could be many ways to run inference. For
-        that reason, I designate this function, to be a single point of contact
-        for running inference, in whatever way the user/problem requires.
+    def regularize(self, score):
+        norm = abs(self.engine.vector.mean())
+        penalty = norm
+        print("Regularization: %f" %penalty.item())
+        if self.minimizing and score>0.:
+            score = score+penalty
+        elif self.minimizing and score<0.:
+            score = score-penalty
+        elif not self.minimizing and score>0.:
+            score = score-penalty
+        elif not self.minimizing and score<0.:
+            score = score+penalty
+        return score
+
+    def update_top_score_(self, score):
+        """Analysis is still needed even if there's no improvement,
+        so other modules know that this as well. Hence, can't "return" after
+        initial condition.
         """
-        with torch.no_grad():
-            if not test:
-                # Training
-                model = self.pool.model
-                self.inference = model(self.env.observation)
-            else:
-                # Testing
-                model = self.pool.elite.model
-                model.eval()  # Turn on evaluation mode
-                self.inference = model(self.env.test_data)
-        if not silent:
-            self.print_inference()
+        self.top_score = score
 
-    def print_inference(self):
-        """Prints the inference of the neural networks. Attempts to extract
-        the output items from the tensors.
+    def update_top_score(self, score):
+        """Analysis is still needed even if there's no improvement,
+        so other modules know that this as well. Hence, can't "return" after
+        initial condition.
         """
-        if len(self.inference) == 1:
-            x = self.inferences.item()
-        elif len(self.inference) == 2:
-            x = (self.inference[0].item(), self.inference[1].item())
+        if self.engine.jumped:
+            self.top_score = score
         else:
-            x = [a.item() for a in self.inference]
-        print("Inference: ", x)
+            v = 0.0005
+            if self.minimizing and self.top_score>0.:
+                self.top_score = self.top_score*(1.+v)
+            elif self.minimizing and self.top_score<0.:
+                self.top_score = self.top_score*(1.-v)
+            elif not self.minimizing and self.top_score>0.:
+                self.top_score = self.top_score*(1.-v)
+            elif not self.minimizing and self.top_score<0.:
+                self.top_score = self.top_score*(1.+v)
 
-    def test(self):
-        """This is a method for testing."""
-        assert self.env.test_data is not None  # Sanity check
-        self.get_inference(test=True)
-        self.optim.calculate_correct_predictions(self.inference, test=True, acc=True)
-        if self.env.loss:
-            self.optim.calculate_loss(self.inference, test=True)
+    def print_state(self):
+        if self.engine.analyzer.replace:
+            print ("------Setting new Elite-------")
+        if self.engine.frustration.jump:
+            print("------WOOOOOOHHOOOOOOOO!-------")
+        if self.engine.analyzer.improved:
+            print("Improved!")
+        print ("Top Score: %f" %self.top_score)
+        print("Memory: %d" %self.engine.frustration.count)
+        print("Jump: %f" %(100.*self.engine.frustration.value))
+        print("Integrity: %f" %self.engine.integrity.value)
+        print("Bin: ", self.engine.integrity.step_size.bin)
+        print("Step size: %f" %self.engine.integrity.step_size.value)
+        print("SR: (%f, %f)" %(self.engine.noise.sr_min, self.engine.noise.sr_max))
+        print("Selections: %d" %self.engine.noise.num_selections)
+        print("V: ", self.engine.elite[0:15])
+        print("Distance: %f" %self.engine.diversity.min_distance)
 
-    def print_test_accuracy(self):
-        """Prints the accuracy figure for the test/validation case/set."""
-        test_acc = self.optim.test_acc
-        if self.env.loss:
-            test_loss = self.optim.test_loss  # Assuming minizming loss
-            test_loss /= len(self.env.test_data)
-            print('Test set: Loss: {:.4f}, Accuracy: ({:.0f}%)\n'.format(test_loss,
-                                                                test_acc))
-        else:
-            print('Test set: Accuracy: ({:.0f}%)\n'.format(test_acc))
-
-    def achieved_target(self):
-        """Determines whether the algorithm achieved its target or not."""
-        best = self.optim.pool.elite.elite_score
-        if self.hyper_params.minimizing:
-            return best <= (self.hyper_params.target + self.hyper_params.tolerance)
-        else:
-            return best >= (self.hyper_params.target - self.hyper_params.tolerance)
-
-    def save_weights(self, path):
-        for i, sample in enumerate(self.pool.models):
-            fn = path+"model_"+str(i)+".pth"
-            torch.save(sample.state_dict(), fn)
-        fn = path+"model_elite.pth"
-        torch.save(self.pool.elite.model.state_dict(), fn)
-
-
-
-
-
-
-
-
-
-
-
+    def eval(self):
+        self.engine.vector = self.engine.elite
+        self.engine.update_weights(self.model)
 
 #

@@ -15,7 +15,7 @@ class Net(nn.Module):
         self.fc3 = nn.Linear(256, 512)
         self.fc4 = nn.Linear(512, outs)
         #self.fc5 = nn.Linear(256, ins)
-        self.dropout = nn.Dropout(0.8)
+        self.dropout = nn.Dropout(0.9)
         self.ex0 = []
         self.ex1 = []
         self.ex2 = []
@@ -26,10 +26,10 @@ class Net(nn.Module):
         self.ap3 = torch.zeros(self.fc3.weight.data.size()[0]).half().cuda()
         #self.ap5 = torch.zeros(self.fc5.weight.data.size()[0])
         self.x_0 = None  # Previous observation
-        self.peak = 0.05
-        self.ap_t = 10.  # Action potential threshold
+        self.peak = 0.5
+        self.ap_t = 3.  # Action potential threshold
         self.increment = 1
-        self.reps = 30
+        self.reps = 3
         self.rep = 0
         self.val = torch.zeros(outs).half().cuda()
 
@@ -68,8 +68,8 @@ class Net(nn.Module):
         x = self.fire_fc3(x)
         self.set_ex3(x)
         action = self.fc4(x).squeeze().clamp_(-1., 1.)
-        self.repeat(action)
-        return self.val
+        action = action.cpu().detach().numpy()
+        return action
 
     def zero_out(self, x):
         if self.x_0 is None:
@@ -83,7 +83,7 @@ class Net(nn.Module):
         up = x.gt(0)
         self.ap1[up] = self.ap1[up]+x[up]
         down = x.lt(0)
-        self.ap1[down] = self.ap1[down]-x[down]
+        self.ap1[down] = self.ap1[down]+x[down]
 
     def noise(self, x, up, down):
         indices = np.arange(x.size()[0])
@@ -100,13 +100,13 @@ class Net(nn.Module):
         up = x.gt(0)
         self.ap2[up] = self.ap2[up]+x[up]
         down = x.lt(0)
-        self.ap2[down] = self.ap2[down]-x[down]
+        self.ap2[down] = self.ap2[down]+x[down]
 
     def set_ap3(self, x):
         up = x.gt(0)
         self.ap3[up] = self.ap3[up]+x[up]
         down = x.lt(0)
-        self.ap3[down] = self.ap3[down]-x[down]
+        self.ap3[down] = self.ap3[down]+x[down]
 
     def fire_fc1(self, x):
         sat_up = self.ap1.gt(self.ap_t)

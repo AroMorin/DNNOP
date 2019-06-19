@@ -41,8 +41,6 @@ def main():
                     "grad": False,
                     "in features": 28,
                     "number of outputs": 8,
-                    "min action 1": -1.,
-                    "max action 1": 1.,
                     "noise limit": 0.05
                     }
     model = model_factory.make_model("NEURAL FC", model_params)
@@ -66,7 +64,7 @@ def main():
     # Use solver to solve the problem
     #slv.solve(iterations=1000, ep_len=2000)
     #slv.solve_online(iterations=1000)
-    slv.solve_online_render(iterations=1000, ep_len=1500)
+    slv.solve_online_render(iterations=1000, ep_len=15000)
     #slv.solve_aggregator(iterations=500, reps=10, ep_len=150)
     #slv.solve_averager(iterations=1000, reps=10, ep_len=300)
     slv.demonstrate_env(episodes=3, ep_len=1000)

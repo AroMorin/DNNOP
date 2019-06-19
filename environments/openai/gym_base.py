@@ -47,7 +47,7 @@ class Gym_base(Environment):
         observation = self.env.reset()
         self.set_obs(observation)
 
-    def set_obs_(self, x):
+    def set_obs(self, x):
         if self.RAM:
             self.observation = torch.Tensor(x).cuda()
         else:
@@ -55,14 +55,13 @@ class Gym_base(Environment):
             x = torch.Tensor(x).cuda()
             self.observation = x.unsqueeze(0)
 
-    def set_obs(self, x):
+    def set_obs_(self, x):
         self.observation = x
 
     def step(self, action):
         """Instantiates the plotter class if a plot is requested by the user."""
         #if self.discrete:
         #    action = action.argmax().int()
-        #action = action.cpu().detach().numpy()
         if len(action.shape) == (0):
             action = np.expand_dims(action, 0)
         #action = self.env.action_space.sample()

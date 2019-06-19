@@ -8,13 +8,10 @@ class Net(nn.Module):
         model_params = self.ingest_params_lvl1(model_params)
         ins = model_params['in features']
         outs = model_params['number of outputs']
-        self.lmin = model_params['min action 1']
-        self.lmax = model_params['max action 1']
-        self.l = model_params['noise limit']
-        self.fc1 = nn.Linear(ins, 512)
+        self.fc1 = nn.Linear(ins, 32)
         self.fc2 = nn.Linear(128, 64)
         self.fc3 = nn.Linear(64, 32)
-        self.fc4 = nn.Linear(512, outs)
+        self.fc4 = nn.Linear(32, outs)
         self.drop = nn.Dropout(0.1)
         #self.act = nn.ReLU()
         self.act = nn.Tanh()
@@ -37,6 +34,7 @@ class Net(nn.Module):
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
         #x.round_()
+        #print(x)
         x = self.fc1(x)
         x = self.act(x)
         #x = self.drop(x)
@@ -46,8 +44,8 @@ class Net(nn.Module):
         #x = self.fc3(x)
         #x = self.act(x)
         #x = self.drop(x)
-        x = self.fc4(x)
         #noise = self.generate_noise(x)
         #x.add_(noise)
-        #x.clamp_(self.lmin, self.lmax)
+        x = self.fc4(x).squeeze().tanh().clamp_(-1., 1.)
+        x = x.cpu().detach().numpy()
         return x

@@ -10,8 +10,8 @@ class Weights(object):
         self.mu = 0.
         self.nu = 0.002
         self.greedy = greed
-        self.high = 10.
-        self.low = -10.
+        self.high = 1.
+        self.low = -1.
         self.erosion = False
 
     def update(self, analysis, model):
@@ -27,18 +27,18 @@ class Weights(object):
         self.implement(model)
 
     def reinforce(self):
-        mu = 0.005
+        mu = 0.004
         mu = np.random.choice([0., mu], 1, p=[0.5, 0.5])
         self.mu = mu[0]
 
     def decay(self):
-        mu = -0.005
+        mu = -0.008
         mu = np.random.choice([0., mu], 1, p=[0.5, 0.5])
         self.mu = mu[0]
 
     def maintain(self):
         if self.greedy:
-            self.mu = -0.001
+            self.mu = -0.00004
             exit()
         else:
             self.mu = 0.

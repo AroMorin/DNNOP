@@ -27,8 +27,8 @@ class Engine(object):
     def update_table(self, model, feedback):
         observation, action, _ = feedback
         if self.analyzer.analysis == 'better':
-            print("-----------------------------------")
             if not model.in_table:
+                print("-----------------------------------")
                 model.observations.append(observation)
                 model.actions.append(action)
 

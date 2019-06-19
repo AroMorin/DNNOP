@@ -15,14 +15,14 @@ class Analysis(object):
 
     def analyze(self, feedback, top_score):
         observation, inference, reward = feedback
-        self.intrinsic_reward.compute(observation, inference)
+        #self.intrinsic_reward.compute(observation, inference)
         score = self.compute_score(reward)
         self.update_state(score, top_score)
         self.improved = self.better_entropy()
         self.analysis = self.better_abs()
 
     def compute_score(self, reward):
-        #reward.fill_(0.) 
+        #reward.fill_(0.)
         if self.hp.minimizing:
             return reward-self.intrinsic_reward.value
         else:

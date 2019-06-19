@@ -13,10 +13,12 @@ class Net(nn.Module):
         self.nu = 0.  # Noise parameter to action
         self.observations = []
         self.actions = []
-        self.min_dist = 2.5
+        self.min_dist = 0.1
         self.in_table = False
         self.idx = 0
         self.x_0 = None
+        self.state = 0
+        self.peak = 0.1
 
     def ingest_params_lvl1(self, model_params):
         assert type(model_params) is dict
@@ -33,14 +35,16 @@ class Net(nn.Module):
         if self.in_table:  # Observation too similar to something in table
             action = self.actions[self.idx]
         else:  # Observation fairly new
-            action = self.get_random_action()
+            action = self.move()
         return action
 
     def reset_state(self):
         self.in_table = False
+        if self.state>self.out_size-1:
+            self.state = 0
 
     def lookup(self, x):
-        x = self.zero_out(x)
+        #x = self.zero_out(x)
         print(len(self.observations))
         if len(self.observations)>0:
             d, closest = self.calculate_distance(x)
@@ -65,6 +69,13 @@ class Net(nn.Module):
                 closest = i
         self.idx = closest
         return min_d, closest
+
+    def move(self):
+        a = np.zeros((self.out_size,))
+        idx = int(self.state)
+        a[idx] = np.random.choice([-self.peak, self.peak], p=[0.5, 0.5])
+        self.state+=0.25
+        return a
 
     def get_random_action(self):
         a = np.random.normal(0, 0.3, (self.out_size,))

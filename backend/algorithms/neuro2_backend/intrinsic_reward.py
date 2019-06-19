@@ -27,7 +27,8 @@ class IR(object):
         return result.item()
 
     def set_value(self):
-        self.value = min(self.mismatch*1, 100)
+        #self.value = min(self.mismatch*1, 100)
+        self.value = 0.
 
     def update_state(self, observation, inference):
         self.x_0 = inference

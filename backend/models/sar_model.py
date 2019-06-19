@@ -13,7 +13,7 @@ class Net(nn.Module):
         self.nu = 0.  # Noise parameter to action
         self.observations = []
         self.actions = []
-        self.min_dist = self.out_size
+        self.min_dist = 2.5
         self.in_table = False
         self.idx = 0
         self.x_0 = None
@@ -36,23 +36,15 @@ class Net(nn.Module):
             action = self.get_random_action()
         return action
 
-    def get_random_action(self):
-        a = np.random.normal(0, 0.6, (self.out_size,))
-        action = np.clip(a, -1., 1.)
-        zeros = np.zeros((self.out_size,))
-        choice = np.random.choice([0., 1.], p=[0.3, 0.7])
-        if choice == 0:
-            return zeros
-        else:
-            print("taking random action------------")
-            return action
+    def reset_state(self):
+        self.in_table = False
 
     def lookup(self, x):
         x = self.zero_out(x)
         print(len(self.observations))
         if len(self.observations)>0:
             d, closest = self.calculate_distance(x)
-            print("Distance: ", d, self.min_dist)
+            print("Distance: ", d, self.idx)
             self.in_table = d<self.min_dist
 
     def zero_out(self, x):
@@ -74,5 +66,13 @@ class Net(nn.Module):
         self.idx = closest
         return min_d, closest
 
-    def reset_state(self):
-        self.in_table = False
+    def get_random_action(self):
+        a = np.random.normal(0, 0.3, (self.out_size,))
+        action = np.clip(a, -1., 1.)
+        zeros = np.zeros((self.out_size,))
+        choice = np.random.choice([0., 1.], p=[0.3, 0.7])
+        if choice == 0:
+            return zeros
+        else:
+            print("taking random action------------")
+            return action

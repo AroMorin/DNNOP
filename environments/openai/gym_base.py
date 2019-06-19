@@ -47,13 +47,15 @@ class Gym_base(Environment):
         observation = self.env.reset()
         self.set_obs(observation)
 
+    def set_obs_(self, x):
+        if self.RAM:
+            self.observation = torch.Tensor(x).cuda()
+        else:
+            x = np.moveaxis(x, -1, 0)
+            x = torch.Tensor(x).cuda()
+            self.observation = x.unsqueeze(0)
+
     def set_obs(self, x):
-        #if self.RAM:
-        #    self.observation = torch.Tensor(observation).cuda()
-        #else:
-        #    observation = np.moveaxis(observation, -1, 0)
-        #    observation = torch.Tensor(observation).cuda()
-        #    self.observation = observation.unsqueeze(0)
         self.observation = x
 
     def step(self, action):

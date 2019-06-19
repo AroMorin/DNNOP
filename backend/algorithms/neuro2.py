@@ -32,7 +32,6 @@ class NEURO2(Algorithm):
         obtains the scores and accordingly updates the models.
         """
         _, _, score = feedback
-        print(score.item())
         self.engine.analyze(feedback, self.top_score)
         self.engine.set_elite()
         self.engine.update_state()

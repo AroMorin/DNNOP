@@ -14,8 +14,8 @@ def main():
     # Variable definition
     #module = 'RoboschoolPong-v1'
     #module = "RoboschoolReacher-v1"
-    module = "RoboschoolAnt-v1"
-    #module = "RoboschoolInvertedPendulum-v1"
+    #module = "RoboschoolAnt-v1"
+    module = "RoboschoolInvertedPendulum-v1"
     #module = "RoboschoolHumanoidFlagrunHarder-v1"
     #module = "RoboschoolAtlasForwardWalk-v1"
 
@@ -36,8 +36,8 @@ def main():
     model_params = {
                     "weight initialization scheme": "Normal",
                     "grad": False,
-                    "in features": 28,
-                    "number of outputs": 8,
+                    "in features": 5,
+                    "number of outputs": 1,
                     "min action 1": -1.,
                     "max action 1": 1.,
                     "noise limit": 0.05

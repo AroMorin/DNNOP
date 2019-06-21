@@ -51,7 +51,7 @@ def main():
                     "minimum entropy": 20.,
                     "tolerance": 0.01,
                     "max steps": 256,
-                    "memory size": 35
+                    "memory size": 10
                     }
     alg = algorithm_factory.make_alg("neuro2", model, alg_params)
 

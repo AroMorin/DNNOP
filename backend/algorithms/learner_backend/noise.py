@@ -10,24 +10,26 @@ class Noise(object):
     def __init__(self, hp, vector):
         self.hp = hp
         self.vec_length = torch.numel(vector)
+        print(self.vec_length)
         self.indices = np.arange(self.vec_length)
         self.running_idxs = np.arange(self.vec_length)
         self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
         self.choices = []  # list of indices
-        self.limit = int(0.05*self.vec_length)
-        #self.limit = 1000
-        self.num_selections = None
-        self.sr_min = None
-        self.sr_max = None
+        self.limit = int(0.9*self.vec_length)
+        self.lr = 0.0001
+        self.decay = 0.000001
+        self.num_selections = 1000000
+        self.sr_min = -0.1
+        self.sr_max = 0.1
         self.precision = vector.dtype
         self.vector = None
 
     def update_state(self, integrity, p, limits):
         # Set noise size (scope)
         self.choices = []
-        self.set_num_selections(integrity)
-        self.set_sr(integrity, limits)
+        #self.set_num_selections(integrity)
+        #self.set_sr(integrity, limits)
         self.set_noise_dist()
         self.set_choices(p)
         self.set_vector()
@@ -39,29 +41,21 @@ class Noise(object):
         #p = integrity
         argument = (5*p)-3.5
         exp1 = math.tanh(argument)+1
-        self.num_selections = int(exp1*0.5*self.limit)
-
-    def set_num_selections_(self, integrity):
-        """Sets the number of selected neurons based on the integrity and
-        hyperparameters."""
-        p = 1.-integrity
-        #p = integrity
-        numerator = 1
-        denominator = 1+(0.29/p)
-        num_selections = numerator/denominator
-        self.num_selections = int(num_selections*self.limit)
+        self.num_selections = max(1, int(exp1*0.5*self.limit))
 
     def set_sr(self, integrity, limits):
         """Sets the search radius (noise magnitude) based on the integrity and
         hyperparameters."""
         (lmin, lmax) = limits
-        p = 1.-integrity
+        p = integrity
+        #p = 1.-integrity
         argument = (5*p)-2.0
         exp1 = math.tanh(argument)+1
         #self.sr_min = -exp1*0.05
         #self.sr_max = exp1*0.05
-        self.sr_min = -exp1*0.25
-        self.sr_max = exp1*0.25
+        self.sr_min = -exp1*(self.lr-self.decay)
+        self.sr_max = exp1*(self.lr-self.decay)
+        self.decay += 0.000001
 
     def set_noise_dist(self):
         """Determines the shape and magnitude of the noise."""

@@ -20,8 +20,8 @@ class Integrity(object):
         if not improved:
             self.reduce_integrity()
         else:
-            #self.maintain_integrity()
-            self.reset_integrity()
+            self.maintain_integrity()
+            #self.reset_integrity()
 
     def reduce_integrity(self):
         """Reduce integrity, but not below the minimum allowed level."""
@@ -33,7 +33,7 @@ class Integrity(object):
             self.value = max(0.01, a)  # Integrity never below zero
 
     def maintain_integrity(self):
-        a = self.value+0.25  # 0.25 pushes the integrity back a bin
+        a = self.value+0.00  # 0.25 pushes the integrity back a bin
         self.value = min(a, 0.99)
 
     def reset_integrity(self):

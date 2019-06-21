@@ -104,6 +104,13 @@ class Dataset_Solver(Solver):
         self.print_test_accuracy()
 
     def test(self):
+        self.alg.eval()
+        self.interrogator.set_inference(self.alg.model, self.env, test=False)
+        self.evaluator.calculate_loss(self.env, self.interrogator.inference,
+        test=False)
+        self.evaluator.calculate_correct_predictions(self.env,
+                                                    self.interrogator.inference,
+                                                     test=False, acc=True)
         self.interrogator.set_inference(self.alg.model, self.env, test=True)
         self.evaluator.calculate_loss(self.env, self.interrogator.inference,
         test=True)
@@ -113,6 +120,10 @@ class Dataset_Solver(Solver):
 
     def print_test_accuracy(self):
         """Prints the accuracy figure for the test/validation case/set."""
+        train_acc = self.evaluator.train_acc
+        train_loss = self.evaluator.train_loss  # Assuming minizming loss
+        print('Train set: Loss: {:.4f}, Accuracy: ({:.0f}%)\n'.format(
+                                                    train_loss, train_acc))
         test_acc = self.evaluator.test_acc
         test_loss = self.evaluator.test_loss  # Assuming minizming loss
         test_loss /= len(self.env.test_data)

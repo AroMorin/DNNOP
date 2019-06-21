@@ -23,6 +23,8 @@ class Engine(object):
         self.jumped = False
 
     def analyze(self, score, top_score):
+        score = score.float()
+        top_score = top_score.float()
         self.analyzer.analyze(score, top_score)
         #self.frustration.update(score, top_score)
         self.frustration.update(self.analyzer.replace)
@@ -44,11 +46,8 @@ class Engine(object):
 
     def generate(self):
         new_vector = self.elite.clone()
-        while not self.diversity.flag:
-            self.create_noise()
-            new_vector.add_(self.noise.vector)
-            #new_vector.clamp_(-0.3, 0.3)
-            self.diversity.check(self.elite, new_vector)
+        self.create_noise()
+        new_vector.add_(self.noise.vector)
         self.vector = new_vector
 
     def create_noise(self):

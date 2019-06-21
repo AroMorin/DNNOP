@@ -36,7 +36,8 @@ class Net(nn.Module):
             action = self.actions[self.idx]
         else:  # Observation fairly new
             action = self.move()
-        return action
+        self.repeat(action)
+        return self.val.cpu().detach().numpy()
 
     def reset_state(self):
         self.in_table = False

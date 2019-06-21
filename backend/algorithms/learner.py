@@ -14,7 +14,7 @@ from .learner_backend.engine import Engine
 
 class LEARNER(Algorithm):
     def __init__(self, model, alg_params):
-        print ("Using Learner9 algorithm")
+        print ("Using Learner algorithm")
         super(LEARNER, self).__init__()
         self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
         self.engine = Engine(model, self.hyper_params) # Create a pool object
@@ -30,7 +30,7 @@ class LEARNER(Algorithm):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        _, _, score = feedback
+        score = feedback
         print(score)
         #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
@@ -69,7 +69,7 @@ class LEARNER(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.0005
+            v = 0.00005
             if self.minimizing and self.top_score>0.:
                 self.top_score = self.top_score*(1.+v)
             elif self.minimizing and self.top_score<0.:
@@ -80,6 +80,9 @@ class LEARNER(Algorithm):
                 self.top_score = self.top_score*(1.+v)
 
     def print_state(self):
+        print ("Top Score: %f" %self.top_score)
+
+    def print_state_(self):
         if self.engine.analyzer.replace:
             print ("------Setting new Elite-------")
         if self.engine.frustration.jump:

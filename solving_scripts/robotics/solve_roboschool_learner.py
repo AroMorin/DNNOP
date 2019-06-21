@@ -17,9 +17,9 @@ def main():
     #game = "Pong-v0"
     #game = "Pong-ram-v0"
     #module = "RoboschoolReacher-v1"
-    #module = "RoboschoolAnt-v1"
+    module = "RoboschoolAnt-v1"
     #module = "RoboschoolAtlasForwardWalk-v1"
-    module = 'RoboschoolInvertedPendulum-v1'
+    #module = 'RoboschoolInvertedPendulum-v1'
 
     # Parameter and Object declarations
     env_params = {
@@ -36,8 +36,8 @@ def main():
                     "precision": precision,
                     "weight initialization scheme": "Normal",
                     "grad": False,
-                    "in features": 5,
-                    "number of outputs": 1
+                    "in features": 28,
+                    "number of outputs": 8
                     }
     model = model_factory.make_model("Roboschool FC", model_params)
 
@@ -46,8 +46,8 @@ def main():
                     "minimization mode": env.minimize,
                     "minimum entropy": 0.1,
                     "tolerance": 0.01,
-                    "max steps": 256,
-                    "memory size": 32
+                    "max steps": 64,
+                    "memory size": 10
                     }
     alg = algorithm_factory.make_alg("learner", model, alg_params)
 

@@ -58,6 +58,7 @@ class RL_Solver(Solver):
             print("Iteration: %d/%d \n" %(iteration, iterations))
             self.env.reset_state()
             #self.alg.reset_state()
+            step = 0
             while not self.env.done:
                 self.env.render()
                 self.forward()
@@ -66,8 +67,11 @@ class RL_Solver(Solver):
                 reward = self.evaluator.score
                 feedback = (self.env.observation, self.interrogator.inference,
                             reward)
-                self.alg.step(feedback)
-                self.alg.print_state()
+                if step>10:
+                    step = 0
+                    self.alg.step(feedback)
+                    self.alg.print_state()
+                step+=1
             self.current_iteration +=1
             print("\n")
             if self.alg.achieved_target():

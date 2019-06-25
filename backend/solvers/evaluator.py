@@ -30,7 +30,7 @@ class Evaluator(object):
             self.calculate_score(env, inference)
         else:
             self.set_score(inference)
-        #self.clean_score(env)
+        self.clean_score(env)
 
     def calculate_loss(self, env, inference, test=False, grad=False):
         """This method calculates the loss."""
@@ -40,18 +40,18 @@ class Evaluator(object):
                 self.score = self.train_loss
             else:
                 with torch.no_grad():
-                    loss = F.nll_loss(inference, env.test_labels,
+                    loss = F.nll_loss(inference, env.test_labels.cuda(),
                                     reduction='sum').item()
-                    self.test_loss = loss
+                    self.test_loss = loss/env.test_size
         elif env.loss_type == 'CE loss':
             if not test:
                 self.train_loss = F.cross_entropy(inference, env.labels)
                 self.score = self.train_loss
             else:
                 with torch.no_grad():
-                    loss = F.cross_entropy(inference, env.test_labels,
+                    loss = F.cross_entropy(inference, env.test_labels.cuda(),
                                                 reduction='sum').item()
-                    self.test_loss = loss
+                    self.test_loss = (loss/env.test_size)
         else:
             print("Unknown loss type")
             exit()
@@ -73,7 +73,7 @@ class Evaluator(object):
             # Testing
             pred = inference.argmax(dim=1, keepdim=True)
             #pred = inference.argmax(dim=1, keepdim=True)[1]
-            correct = pred.eq(env.test_labels.view_as(pred)).sum().float()
+            correct = pred.eq(env.test_labels.cuda().view_as(pred)).sum().float()
             if acc:
                 self.abs_to_acc(env, correct, test=test)
             self.test_acc = correct
@@ -86,7 +86,7 @@ class Evaluator(object):
         if not test:
             size = len(env.observation)
         else:
-            size = len(env.test_data)
+            size = env.test_size
         a.div_(size)
         a.mul_(100)
 
@@ -105,7 +105,8 @@ class Evaluator(object):
             a = -float('inf')
         x = self.score
         y = torch.full_like(x, a)
-        self.score = torch.where(torch.isfinite(x), x, y).float()
+        score = torch.where(torch.isfinite(x), x, y)
+        self.score = score.float().cpu().detach()
 
     def reset_state(self):
         # Flush values

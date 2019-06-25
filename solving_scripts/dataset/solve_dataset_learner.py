@@ -16,37 +16,37 @@ import torchvision.models as models
 import torch
 
 def main():
-    precision = torch.float
+    precision = torch.half
     #data_path = "C:/Users/aaa2cn/Documents/fashion_mnist_data"
-    #data_path = "~/Documents/ahmed/fashion_mnist_data"
-    data_path = "~/Documents/ahmed/cifar10_data"
+    data_path = "~/Documents/ahmed/fashion_mnist_data"
+    #data_path = "~/Documents/ahmed/cifar10_data"
     # Make an MNIST Dataset environment
     env_params = {
                     "data path": data_path,
                     "precision": precision,
-                    "score type": "accuracy",
-                    "loss type": "NLL loss",
+                    "score type": "loss",
+                    "loss type": "CE loss",
                     "normalize": True,
-                    "batch size": 1000  # Entire set
+                    "batch size": 5000  # Entire set
                     }
-    env = env_factory.make_env("dataset", "cifar10", env_params)
+    env = env_factory.make_env("dataset", "fashion mnist", env_params)
 
     # Make a pool
     model_params = {
                     "precision": precision,
                     "weight initialization scheme": "Normal"
                     }
-    #model = model_factory.make_model("CIFAR10 CNN", model_params)
-    model = vgg16 = models.resnet18().cuda()
+    model = model_factory.make_model("FashionMNIST CNN", model_params)
+    #model = models.resnet18(num_classes=10).half().cuda()
 
     # Make an algorithm --algorithm takes control of the pool--
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "tolerance": 0.01,
-                    "minimum entropy": 0.1,
-                    "max steps": 100,
-                    "memory size": 101
+                    "minimum entropy": -0.5,
+                    "max steps": 50,
+                    "memory size": 600
                     }
 
     alg = algorithm_factory.make_alg("learner", model, alg_params)
@@ -58,7 +58,7 @@ def main():
     slv = solver_factory.make_slv("dataset", slv_params)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=3000)
+    slv.train_dataset_with_validation(iterations=15000)
     #slv.determined_batch_train_with_validation(iterations=5)
     #slv.repeated_batch_train_dataset_with_validation(iterations=3, reps=3000)
 

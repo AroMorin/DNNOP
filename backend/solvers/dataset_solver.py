@@ -126,7 +126,6 @@ class Dataset_Solver(Solver):
                                                     train_loss, train_acc))
         test_acc = self.evaluator.test_acc
         test_loss = self.evaluator.test_loss  # Assuming minizming loss
-        test_loss /= len(self.env.test_data)
         print('Test set: Loss: {:.4f}, Accuracy: ({:.0f}%)\n'.format(
                                                     test_loss, test_acc))
 

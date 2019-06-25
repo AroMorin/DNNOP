@@ -2,7 +2,6 @@
 import torch
 from torchvision import datasets, transforms
 from .dataset import Dataset
-import matplotlib.pyplot as plt
 
 class FashionMNIST(Dataset):
     """This class fetches the MNIST dataset, sends it to CUDA and then
@@ -39,7 +38,6 @@ class FashionMNIST(Dataset):
         self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
                                                     batch_size=self.train_size,
                                                     shuffle=True,
-                                                    pin_memory = True,
                                                     num_workers = 8)
         # Initialize and load validation set
         self.test_dataset = datasets.FashionMNIST(self.data_path, train=False,
@@ -48,7 +46,6 @@ class FashionMNIST(Dataset):
         self.test_loader = torch.utils.data.DataLoader(self.test_dataset,
                                                     batch_size=self.test_size,
                                                     shuffle=True,
-                                                    pin_memory = True,
                                                     num_workers = 8)
         # Format sets
         self.format_data()
@@ -59,8 +56,8 @@ class FashionMNIST(Dataset):
         if self.normalize:
             self.transforms = transforms.Compose([transforms.ToTensor(),
                                                 transforms.Normalize((0.5,),
-                                                                    (0.5,))
-                                                ])
+                                                                     (0.5,))
+                                                  ])
         else:
             self.transforms = transforms.Compose([transforms.ToTensor()])
 
@@ -72,15 +69,17 @@ class FashionMNIST(Dataset):
         test_set = list(self.test_loader)
 
         # batch 0: all images, mode 0: data
-        x = train_set[0][0].to(dtype=self.precision, device=self.device)
-        self.test_data = test_set[0][0].to(dtype=self.precision, device=self.device)
+        x = train_set[0][0]
+        x_t = test_set[0][0].to(dtype=self.precision)
 
         # batch 0: all images, mode 1: labels
-        y = train_set[0][1].cuda()
-        self.test_labels = test_set[0][1].cuda()
+        y = train_set[0][1]
+        self.test_labels = test_set[0][1]
 
         self.train_data = torch.split(x, self.batch_size)
         self.train_labels = torch.split(y, self.batch_size)
+        self.test_data = torch.split(x_t, self.batch_size)
+        #self.test_labels = torch.split(y_t, self.batch_size)
         self.nb_batches = len(self.train_data)
         print ("Number of Batches: %d" %self.nb_batches)
 
@@ -89,42 +88,11 @@ class FashionMNIST(Dataset):
         This method can be further customized to randomize the batch
         contents.
         """
-        self.observation = self.train_data[self.current_batch_idx]
-        self.labels = self.train_labels[self.current_batch_idx]
+        self.observation = self.train_data[self.current_batch_idx].cuda().to(dtype=self.precision)
+        self.labels = self.train_labels[self.current_batch_idx].cuda()
         self.current_batch_idx += 1
         if self.check_reset():
             self.reset()
-
-    def check_reset(self):
-        """Checks whether we've reached reset condition or not."""
-        # If reached end of batches, reset
-        return self.current_batch_idx>=self.nb_batches
-
-    def reset(self):
-        """Reset class state."""
-        self.current_batch_idx = 0
-
-    def show_image(self):
-        """Method to show the user an image from the dataset."""
-        plt.figure()
-        train = True
-        batch = 0
-        mode = 0 #0 for images, 1 for labels
-        i = 0 # Image Index
-        if train:
-            image = torch.squeeze(self.train_set[batch][mode][image])
-        else:
-            image = torch.squeeze(self.test_set[batch][mode][i])
-        plt.imshow(image)
-        plt.show()
-
-    def set_precision(self, precision=torch.float):
-        """In case the user wanted to change the precision after loading the
-        dataset."""
-        self.precision = precision
-
-
-
 
 
 #

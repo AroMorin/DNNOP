@@ -29,7 +29,7 @@ class Hyper_Parameters(object):
         self.target = 0
         self.tolerance = 0
         self.minimizing = True
-        self.initial_score = torch.tensor(float('inf'), device='cuda')
+        self.initial_score = torch.tensor(float('inf'))
         self.epsilon = 0.00000001  # Prevents division by zero
         self.set_hyperparams_dict(hyper_params)
         self.check_min_entropy()

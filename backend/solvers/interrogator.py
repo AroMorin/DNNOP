@@ -25,7 +25,8 @@ class Interrogator(object):
         else:
             # Testing
             model.eval()  # Turn on evaluation mode
-            self.inference = model(env.test_data)
+            inferences = [model(x_t.cuda()) for x_t in env.test_data]
+            self.inference = torch.cat(inferences)
 
     def set_inference_chain_(self, model, env, test=False):
         """This method runs inference on the given environment using the models.

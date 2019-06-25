@@ -69,7 +69,7 @@ class LEARNER(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.00005
+            v = 0.0000
             if self.minimizing and self.top_score>0.:
                 self.top_score = self.top_score*(1.+v)
             elif self.minimizing and self.top_score<0.:
@@ -79,10 +79,10 @@ class LEARNER(Algorithm):
             elif not self.minimizing and self.top_score<0.:
                 self.top_score = self.top_score*(1.+v)
 
-    def print_state(self):
+    def print_state_(self):
         print ("Top Score: %f" %self.top_score)
 
-    def print_state_(self):
+    def print_state(self):
         if self.engine.analyzer.replace:
             print ("------Setting new Elite-------")
         if self.engine.frustration.jump:

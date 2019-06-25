@@ -27,7 +27,7 @@ class Engine(object):
         top_score = top_score.float()
         self.analyzer.analyze(score, top_score)
         #self.frustration.update(score, top_score)
-        self.frustration.update(self.analyzer.replace)
+        self.frustration.update(self.analyzer.improved)
 
     def set_elite(self):
         self.jumped = False
@@ -52,8 +52,8 @@ class Engine(object):
 
     def create_noise(self):
         # Define noise vector
-        limits = (self.elite.min(), self.elite.max())
-        self.noise.update_state(self.integrity.value, self.selection_p.p, limits)
+        self.noise.update_state(self.integrity.value, self.selection_p.p,
+                                self.analyzer.replace)
 
     def update_weights(self, model):
         torch.nn.utils.vector_to_parameters(self.vector, model.parameters())

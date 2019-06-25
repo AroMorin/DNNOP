@@ -2,6 +2,9 @@
 the developer, to make the class extendable intuitively.
 """
 from ..environment import Environment
+import matplotlib.pyplot as plt
+import torch
+
 
 class Dataset(Environment):
     def __init__(self, env_params):
@@ -49,8 +52,30 @@ class Dataset(Environment):
         """
         pass
 
+    def set_precision(self, precision=torch.float):
+        """In case the user wanted to change the precision after loading the
+        dataset."""
+        self.precision = precision
+
+    def check_reset(self):
+        """Checks whether we've reached reset condition or not."""
+        # If reached end of batches, reset
+        return self.current_batch_idx>=self.nb_batches
+
+    def reset(self):
+        """Reset class state."""
+        self.current_batch_idx = 0
+
     def show_image(self):
-        """Placeholder method to show a particular image of the training or
-        test dataset.
-        """
-        pass
+        """Method to show the user an image from the dataset."""
+        plt.figure()
+        train = True
+        batch = 0
+        mode = 0 #0 for images, 1 for labels
+        i = 0 # Image Index
+        if train:
+            image = torch.squeeze(self.train_set[batch][mode][image])
+        else:
+            image = torch.squeeze(self.test_set[batch][mode][i])
+        plt.imshow(image)
+        plt.show()

@@ -34,7 +34,7 @@ def main():
     # Make a pool
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Normal"
+                    "weight initialization scheme": "He"
                     }
     model = model_factory.make_model("FashionMNIST CNN", model_params)
     #model = models.resnet18(num_classes=10).half().cuda()
@@ -44,7 +44,7 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "tolerance": 0.01,
-                    "minimum entropy": -0.5,
+                    "minimum entropy": -5,
                     "max steps": 50,
                     "memory size": 600
                     }
@@ -59,8 +59,8 @@ def main():
 
     # Use solver to solve the problem
     slv.train_dataset_with_validation(iterations=15000)
-    #slv.determined_batch_train_with_validation(iterations=5)
-    #slv.repeated_batch_train_dataset_with_validation(iterations=3, reps=3000)
+    #slv.determined_batch_train_with_validation(iterations=50)
+    #slv.repeated_batch_train_dataset_with_validation(iterations=3, reps=10000)
 
 if __name__ == '__main__':
     main()

@@ -78,7 +78,7 @@ class FashionMNIST(Dataset):
 
         self.train_data = torch.split(x, self.batch_size)
         self.train_labels = torch.split(y, self.batch_size)
-        self.test_data = torch.split(x_t, self.batch_size)
+        self.test_data = torch.split(x_t, 1000)
         #self.test_labels = torch.split(y_t, self.batch_size)
         self.nb_batches = len(self.train_data)
         print ("Number of Batches: %d" %self.nb_batches)

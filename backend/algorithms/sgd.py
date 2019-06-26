@@ -35,7 +35,6 @@ class SGD(Algorithm):
                             "learning rate": 0.01,
                             "momentum": 0.5,
                             "optimizer": "SGD",
-                            "minimizing": True,
                             "target": 0.
                             }
         default_params.update(alg_params)
@@ -55,7 +54,7 @@ class SGD(Algorithm):
 
     def step(self, feedback):
         """Implements the main optimization function of the algorithm."""
-        inference, score = feedback
+        score = feedback
         self.top_score = score
         score.backward()
         self.optim.step()

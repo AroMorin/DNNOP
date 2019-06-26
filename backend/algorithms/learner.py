@@ -31,6 +31,7 @@ class LEARNER(Algorithm):
         obtains the scores and accordingly updates the models.
         """
         score = feedback
+        score = score.detach()
         print(score)
         #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
@@ -95,10 +96,9 @@ class LEARNER(Algorithm):
         print("Integrity: %f" %self.engine.integrity.value)
         print("Bin: ", self.engine.integrity.step_size.bin)
         print("Step size: %f" %self.engine.integrity.step_size.value)
-        print("SR: (%f, %f)" %(self.engine.noise.sr_min, self.engine.noise.sr_max))
-        print("Selections: %d" %self.engine.noise.num_selections)
+        print("LR: %f" %self.engine.noise.sr.lr)
+        print("Selections: %d" %self.engine.noise.direction.num_selections)
         print("V: ", self.engine.elite[0:15])
-        print("Distance: %f" %self.engine.diversity.min_distance)
 
     def eval(self):
         self.engine.vector = self.engine.elite

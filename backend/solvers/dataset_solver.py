@@ -70,14 +70,14 @@ class Dataset_Solver(Solver):
                 improved = False
                 self.alg.reset_state()
                 self.env.step()
-                self.forward()
-                self.backward()
+                #self.forward()
+                #self.backward()
                 step=0
-                while not improved and step<50:
+                while step<1000:
                     print("Batch: %d" %__)
                     self.forward()
                     self.backward()
-                    improved = self.alg.engine.jumped
+                    improved = self.alg.engine.analyzer.improved
                     step+=1
             self.current_iteration += 1
         self.test()

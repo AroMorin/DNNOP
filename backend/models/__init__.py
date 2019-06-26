@@ -139,8 +139,8 @@ def init_uniform(m):
 
 def init_integer(m):
     """Initializes weights according to a Uniform distribution."""
-    a = -5.
-    b = 5.
+    a = -1.
+    b = 1.
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.uniform_(m.weight, a=a, b=b)
         nn.init.uniform_(m.bias, a=a, b=b)
@@ -183,7 +183,7 @@ def init_sparse(m):
     allows the initial input(s) to be reflected in the output of the model.
     """
     ratio = 0.5
-    a = 0.0
+    a = -0.01
     b = 0.01
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.sparse_(m.weight, sparsity=ratio)

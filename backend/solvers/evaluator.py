@@ -106,7 +106,7 @@ class Evaluator(object):
         x = self.score
         y = torch.full_like(x, a)
         score = torch.where(torch.isfinite(x), x, y)
-        self.score = score.float().cpu().detach()
+        self.score = score.float().cpu()
 
     def reset_state(self):
         # Flush values

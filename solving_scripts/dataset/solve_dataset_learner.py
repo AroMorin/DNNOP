@@ -58,7 +58,7 @@ def main():
     slv = solver_factory.make_slv("dataset", slv_params)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=15000)
+    slv.train_dataset_with_validation(iterations=200000)
     #slv.determined_batch_train_with_validation(iterations=50)
     #slv.repeated_batch_train_dataset_with_validation(iterations=3, reps=10000)
 

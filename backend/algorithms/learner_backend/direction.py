@@ -10,8 +10,9 @@ class Direction(object):
         self.hp = hp
         self.vec_length = vector_length
         self.limit = int(0.01*self.vec_length)
-        self.indices = np.arange(self.vec_length)
+        self.idx = 0
         self.running_idxs = np.arange(self.vec_length)
+        np.random.shuffle(self.running_idxs)  # To start sampling indices
         self.step = 0
         self.value = []  # list of indices
         self.counter = 1
@@ -43,7 +44,7 @@ class Direction(object):
         choices = np.unique(choices)
         self.value = choices[0:self.num_selections]
 
-    def set_value(self):
+    def set_value_(self):
         """Use the numpy choices function (which has no equivalent in Pytorch)
         to generate a sample from the array of indices. The sample size and
         distribution are dynamically updated by the algorithm's state.
@@ -53,9 +54,25 @@ class Direction(object):
         self.running_idxs = np.delete(self.running_idxs, choices)
         self.value = choices.tolist()
 
-    def check_idxs(self):
+    def check_idxs_(self):
         if len(self.running_idxs)<self.num_selections:
             self.running_idxs = np.arange(self.vec_length)
+
+    def set_value(self):
+        """Use the numpy choices function (which has no equivalent in Pytorch)
+        to generate a sample from the array of indices. The sample size and
+        distribution are dynamically updated by the algorithm's state.
+        """
+        self.check_idx()
+        choices = self.running_idxs[self.idx:self.idx+self.num_selections]
+        self.value = choices
+        self.idx+=self.num_selections
+
+    def check_idx(self):
+        if (self.idx+self.num_selections)>self.vec_length:
+            self.idx=0
+            np.random.shuffle(self.running_idxs)
+            #exit()
 
     def update_step(self, improved):
         if improved:

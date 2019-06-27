@@ -44,5 +44,5 @@ class Net(nn.Module):
         #x = self.act(x)
         #x = self.drop(x)
         #x = self.fc2(x)
-        x = self.softmax(x)
+        #x = self.softmax(x)
         return x

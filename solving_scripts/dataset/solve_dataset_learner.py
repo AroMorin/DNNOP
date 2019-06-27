@@ -44,7 +44,7 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "tolerance": 0.01,
-                    "minimum entropy": -5,
+                    "minimum entropy": -0.1,
                     "max steps": 50,
                     "memory size": 600
                     }

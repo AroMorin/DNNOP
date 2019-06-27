@@ -1,23 +1,22 @@
 """Class for applying perturbation."""
 
 from __future__ import division
-import numpy as np
 import torch
 import math
-from torch.distributions import uniform, normal
 
 class SR(object):
     def __init__(self, hp):
         self.hp = hp
         self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
-        self.gamma = 0.000012
-        #self.decay = 0.000005
-        self.min_val = -0.1
-        self.max_val = 0.1
+        self.gamma = 0.00001
+        #self.gamma = 0.000001
+        self.min_val = -0.001
+        self.max_val = 0.001
         self.lr = 0.3
-        self.inc = 0.01
-        self.dec = 0.01
+        self.inc = 0.00004
+        self.dec = 0.00001
+        self.min_limit = 0.07
 
     def update_state(self, integrity, improved):
         if improved:
@@ -35,7 +34,7 @@ class SR(object):
 
     def decay(self):
         lr = self.lr-self.gamma
-        self.lr = max(0.05, lr)  # min learning rate
+        self.lr = max(self.min_limit, lr)  # min learning rate
 
     def set_value(self, integrity):
         """Sets the search radius (noise magnitude) based on the integrity and

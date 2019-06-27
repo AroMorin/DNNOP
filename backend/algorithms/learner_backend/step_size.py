@@ -10,6 +10,7 @@ class Step_size(object):
         self.min_steps = 1
         self.bin = [self.min_steps]*4  # Uniform distribution
         self.max_steps = hp.max_steps  # Max number of iterations to spend in one bin
+        self.count = 0
 
     def update(self, improved, integrity):
         self.set_interval(integrity)
@@ -21,6 +22,10 @@ class Step_size(object):
         else:
             self.reset_depth()
             self.increase_bin()
+        if self.count>1000:
+            self.reset_depth()
+            self.count = 0
+        self.count+=1
 
     def set_interval(self, integrity):
         if  0. < integrity <= 0.25:

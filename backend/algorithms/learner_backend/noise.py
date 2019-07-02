@@ -17,7 +17,7 @@ class Noise(object):
         self.precision = params.dtype
         self.noise_distribution = "uniform"  # Or "uniform"
         self.distribution = None
-        self.noise = torch.empty(self.direction.num_selections,
+        self.magnitude = torch.empty(self.direction.num_selections,
                                 dtype=self.precision,
                                 device='cuda')
         self.vector = torch.empty_like(params)
@@ -26,11 +26,11 @@ class Noise(object):
         self.direction.update_state(integrity, improved)
         self.sr.update_state(integrity, improved)
         self.set_noise()
-        self.set_vector()
+        #self.set_vector()
 
     def set_noise(self):
         # Cast to precision and CUDA, and edit shape
-        self.noise.uniform_(self.sr.min_val, self.sr.max_val).squeeze()
+        self.magnitude.uniform_(self.sr.min_val, self.sr.max_val).squeeze()
 
     def set_vector(self):
         """ This function defines a noise tensor, and returns it. The noise
@@ -39,7 +39,7 @@ class Noise(object):
         modified.
         """
         self.vector.fill_(0.)
-        self.vector[self.direction.value] = self.noise
+        self.vector[self.direction.value] = self.magnitude
 
 
 

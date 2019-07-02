@@ -9,15 +9,16 @@ class Direction(object):
     def __init__(self, hp, vector_length):
         self.hp = hp
         self.vec_length = vector_length
-        self.limit = int(0.01*self.vec_length)
+        self.limit = 0.1
         self.idx = 0
         self.running_idxs = np.arange(self.vec_length)
         np.random.shuffle(self.running_idxs)  # To start sampling indices
         self.step = 0
         self.value = []  # list of indices
         self.counter = 1
-        self.num_selections = 50
-        self.b = 1  # bonus to steps
+        self.num_selections = 25
+        self.b = 50  # bonus to steps
+        self.f = 0.00005
 
     def update_state(self, integrity, improved):
         if self.step==0:
@@ -26,7 +27,7 @@ class Direction(object):
             self.counter = 1
         self.update_step(improved)
 
-    def set_num_selections(self, integrity):
+    def set_num_selections_(self, integrity):
         """Sets the number of selected neurons based on the integrity and
         hyperparameters."""
         p = 1.-integrity
@@ -35,6 +36,13 @@ class Direction(object):
         exp1 = math.tanh(argument)+1
         self.num_selections = max(1, int(exp1*0.5*self.limit))
 
+    def set_num_selections(self, integrity):
+        """Sets the number of selected neurons based on the integrity and
+        hyperparameters."""
+        num = int(self.vec_length*self.limit)
+        self.num_selections = max(25, num)
+        self.limit -= self.f
+        print(self.num_selections, self.limit)
     def set_value_(self):
         """Use the numpy choices function (which has no equivalent in Pytorch)
         to generate a sample from the array of indices. The sample size and
@@ -72,7 +80,6 @@ class Direction(object):
         if (self.idx+self.num_selections)>self.vec_length:
             self.idx=0
             np.random.shuffle(self.running_idxs)
-            #exit()
 
     def update_step(self, improved):
         if improved:

@@ -15,7 +15,7 @@ class Engine(object):
         self.analyzer = Analysis(hyper_params)
         self.integrity = Integrity(hyper_params)
         #self.frustration = Frustration(hyper_params)
-        self.elite = torch.empty_like(self.vector)
+        self.elite = self.vector.clone()
         self.jumped = False
 
     def analyze(self, score, top_score):
@@ -27,7 +27,8 @@ class Engine(object):
     def set_elite(self):
         self.jumped = False
         if self.analyzer.replace:
-            self.elite.copy_(self.vector)
+            self.elite[self.noise.direction.value] = self.vector[self.noise.direction.value]
+            #self.elite.copy_(self.vector)
             self.jumped = True
             #self.frustration.reset_state()
 
@@ -37,15 +38,18 @@ class Engine(object):
         """
         #self.selection_p.update_state(self.analyzer.replace, self.noise.choices)
         self.integrity.set_integrity(self.analyzer.improved)
+        self.noise.update_state(self.integrity.value, self.analyzer.replace)
+
+    def set_vector(self):
+        if not self.jumped:
+            #self.vector.copy_(self.elite)
+            elite_vals = self.elite[self.noise.direction.value]
+            self.vector[self.noise.direction.value] = elite_vals
 
     def generate(self):
-        self.vector.copy_(self.elite)
-        self.create_noise()
-        self.vector.add_(self.noise.vector)
-
-    def create_noise(self):
-        # Define noise vector
-        self.noise.update_state(self.integrity.value, self.analyzer.replace)
+        noise_vals = self.vector[self.noise.direction.value]+self.noise.magnitude
+        self.vector[self.noise.direction.value] = noise_vals
+        #self.vector.add_(self.noise.vector)
 
     def update_weights(self, model):
         torch.nn.utils.vector_to_parameters(self.vector, model.parameters())

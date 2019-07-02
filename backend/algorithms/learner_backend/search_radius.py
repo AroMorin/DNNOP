@@ -11,26 +11,32 @@ class SR(object):
         self.distribution = None
         self.gamma = 0.00001
         #self.gamma = 0.000001
-        self.min_val = -0.001
-        self.max_val = 0.001
-        self.lr = 0.3
+        self.min_val = -0.
+        self.max_val = 0.
+        self.lr = 0.4
         self.inc = 0.00004
-        self.dec = 0.00001
+        self.dec = 0.00002
         self.min_limit = 0.07
+        self.max_limit = 0.5
 
     def update_state(self, integrity, improved):
+        #self.adapt_lr(improved)
+        self.decay()
+        self.set_value(integrity)
+
+    def adapt_lr(self, improved):
         if improved:
             self.increment()
         else:
             self.decrement()
-        self.decay()
-        self.set_value(integrity)
 
     def increment(self):
-        self.lr += self.inc
+        lr = self.lr+self.inc
+        self.lr = min(self.max_limit, lr)  # min learning rate
 
     def decrement(self):
-        self.lr -= self.dec
+        lr = self.lr-self.dec
+        self.lr = max(self.min_limit, lr)  # min learning rate
 
     def decay(self):
         lr = self.lr-self.gamma

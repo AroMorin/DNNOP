@@ -35,6 +35,7 @@ class LEARNER(Algorithm):
         #score = self.regularize(score)
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
+        self.engine.set_vector()
         self.engine.update_state()
         self.engine.generate()
         self.engine.update_weights(self.model)
@@ -69,7 +70,9 @@ class LEARNER(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.00002
+            #v = 0.00002
+            #v = 0.0002
+            v = 0.0002
             if self.minimizing and self.top_score>0.:
                 self.top_score = self.top_score*(1.+v)
             elif self.minimizing and self.top_score<0.:

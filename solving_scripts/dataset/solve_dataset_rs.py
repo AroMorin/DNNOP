@@ -19,7 +19,7 @@ def main():
     precision = torch.half
     #data_path = "C:/Users/aaa2cn/Documents/fashion_mnist_data"
     data_path = "~/Documents/ahmed/fashion_mnist_data"
-
+    #data_path = "~/Documents/ahmed/cifar10_data"
     # Make an MNIST Dataset environment
     env_params = {
                     "data path": data_path,
@@ -44,10 +44,9 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "tolerance": 0.01,
-                    "learning rate": 0.01
                     }
 
-    alg = algorithm_factory.make_alg("sgd", model, alg_params)
+    alg = algorithm_factory.make_alg("random search", model, alg_params)
 
     slv_params = {
                     "environment": env,
@@ -55,8 +54,8 @@ def main():
                     }
     slv = solver_factory.make_slv("dataset", slv_params)
 
-    # Use solver to solve the problem0
-    slv.train_dataset_with_validation(iterations=5000)
+    # Use solver to solve the problem
+    slv.train_dataset_with_validation(iterations=100000)
     #slv.determined_batch_train_with_validation(iterations=50)
     #slv.repeated_batch_train_dataset_with_validation(iterations=3, reps=10000)
 

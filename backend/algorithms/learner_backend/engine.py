@@ -28,6 +28,7 @@ class Engine(object):
         self.jumped = False
         if self.analyzer.replace:
             self.elite[self.noise.direction.value] = self.vector[self.noise.direction.value]
+            #self.elite.clamp_(-0.9, 0.9)
             #self.elite.copy_(self.vector)
             self.jumped = True
             #self.frustration.reset_state()

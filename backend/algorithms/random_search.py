@@ -9,13 +9,13 @@ The optimizer object will own the pool.?
 """
 from __future__ import division
 from .algorithm import Algorithm
-from .learner_backend.hyper_parameters import Hyper_Parameters
-from .learner_backend.engine import Engine
+from .rs_backend.hyper_parameters import Hyper_Parameters
+from .rs_backend.engine import Engine
 
-class LEARNER(Algorithm):
+class RS(Algorithm):
     def __init__(self, model, alg_params):
         print ("Using Learner algorithm")
-        super(LEARNER, self).__init__()
+        super(RS, self).__init__()
         self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
         self.engine = Engine(model, self.hyper_params) # Create a pool object
         self.populations = False
@@ -36,7 +36,6 @@ class LEARNER(Algorithm):
         self.engine.analyze(score, self.top_score)
         self.engine.set_elite()
         self.engine.set_vector()
-        self.engine.update_state()
         self.engine.generate()
         self.engine.update_weights(self.model)
         self.update_top_score(score)
@@ -91,10 +90,6 @@ class LEARNER(Algorithm):
         if self.engine.analyzer.improved:
             print("Improved!")
         print ("Top Score: %f" %self.top_score)
-        print("Integrity: %f" %self.engine.integrity.value)
-        print("Bin: ", self.engine.integrity.step_size.bin)
-        print("Step size: %f" %self.engine.integrity.step_size.value)
-        print("LR: %f" %self.engine.noise.sr.lr)
 
     def eval(self):
         self.engine.vector = self.engine.elite

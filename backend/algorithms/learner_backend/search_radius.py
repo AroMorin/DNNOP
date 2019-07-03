@@ -13,7 +13,7 @@ class SR(object):
         #self.gamma = 0.000001
         self.min_val = -0.
         self.max_val = 0.
-        self.lr = 0.4
+        self.lr = 0.5
         self.inc = 0.00004
         self.dec = 0.00002
         self.min_limit = 0.07

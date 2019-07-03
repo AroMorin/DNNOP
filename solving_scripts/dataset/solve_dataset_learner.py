@@ -24,7 +24,7 @@ def main():
     env_params = {
                     "data path": data_path,
                     "precision": precision,
-                    "score type": "accuracy",
+                    "score type": "loss",
                     "loss type": "CE loss",
                     "normalize": True,
                     "batch size": 5000  # Entire set
@@ -44,9 +44,8 @@ def main():
                     "target": env.target,
                     "minimization mode": env.minimize,
                     "tolerance": 0.01,
-                    "minimum entropy": 0.1,
+                    "minimum entropy": -0.1,
                     "max steps": 50,
-                    "memory size": 600
                     }
 
     alg = algorithm_factory.make_alg("learner", model, alg_params)
@@ -58,7 +57,7 @@ def main():
     slv = solver_factory.make_slv("dataset", slv_params)
 
     # Use solver to solve the problem
-    slv.train_dataset_with_validation(iterations=300000)
+    slv.train_dataset_with_validation(iterations=20000)
     #slv.determined_batch_train_with_validation(iterations=50)
     #slv.repeated_batch_train_dataset_with_validation(iterations=3, reps=10000)
 

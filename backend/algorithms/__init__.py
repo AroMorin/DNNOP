@@ -17,6 +17,7 @@ from .spiking2 import SPIKING2
 from .neuro1 import NEURO1
 from .neuro2 import NEURO2
 from .sar import SAR
+from .random_search import RS
 
 def make_alg(name, m, alg_params):
     """Class factory method. This method takes the name of the desired
@@ -33,6 +34,9 @@ def make_alg(name, m, alg_params):
     """
     if name == 'sgd':
         return SGD(m, alg_params)
+
+    elif name == 'random search':
+        return RS(m, alg_params)
 
     elif name == 'MSN':
         return MSN(m, alg_params)

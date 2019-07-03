@@ -3,7 +3,7 @@
 from .solver import Solver
 
 import torch
-import time
+import time, csv
 
 class Dataset_Solver(Solver):
     """This class makes absolute sense because there are many types of training
@@ -12,6 +12,7 @@ class Dataset_Solver(Solver):
     def __init__(self, slv_params):
         super(Dataset_Solver, self).__init__(slv_params)
         self.current_iteration = 0
+        self.scores = []
 
     def train_dataset_with_validation(self, iterations):
         """In cases where a dataset is being trained with a validation component
@@ -27,8 +28,10 @@ class Dataset_Solver(Solver):
             if self.alg.achieved_target():
                 print ("Achieved/exceeded target")
                 break # Terminate optimization
+            self.log()
         self.test()
         self.print_test_accuracy()
+        self.save_data()
 
     def batch_training(self, iterations):
         """In cases where batch training for the entire dataset is needed."""
@@ -135,6 +138,15 @@ class Dataset_Solver(Solver):
         """
         self.current_batch = 0
 
+    def log(self):
+        self.scores.append(self.alg.top_score.item())
 
+    def save_data(self):
+        self.steps = list(range(len(self.scores)))
+        with open('train_losses.csv', mode='w') as data_file:
+            data_writer = csv.writer(data_file)
+            for i in self.steps:
+                data_writer.writerow((i, self.scores[i]))
+        data_file.close()
 
 #

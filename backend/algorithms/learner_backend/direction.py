@@ -17,7 +17,7 @@ class Direction(object):
         self.value = []  # list of indices
         self.counter = 1
         self.num_selections = 25
-        self.b = 50  # bonus to steps
+        self.b = 1  # bonus to steps
         self.f = 0.00005
 
     def update_state(self, integrity, improved):
@@ -25,6 +25,7 @@ class Direction(object):
             #self.set_num_selections(integrity)
             self.set_value()
             self.counter = 1
+            self.step = 10
         self.update_step(improved)
 
     def set_num_selections_(self, integrity):
@@ -43,6 +44,7 @@ class Direction(object):
         self.num_selections = max(25, num)
         self.limit -= self.f
         print(self.num_selections, self.limit)
+
     def set_value_(self):
         """Use the numpy choices function (which has no equivalent in Pytorch)
         to generate a sample from the array of indices. The sample size and

@@ -3,8 +3,6 @@ The pool object will contain the models under optimization.
 """
 from .noise import Noise
 from .analysis import Analysis
-from .integrity import Integrity
-#from .frustration import Frustration
 
 import torch
 
@@ -13,8 +11,6 @@ class Engine(object):
         self.vector = torch.nn.utils.parameters_to_vector(model.parameters())
         self.noise = Noise(hyper_params, self.vector)
         self.analyzer = Analysis(hyper_params)
-        self.integrity = Integrity(hyper_params)
-        #self.frustration = Frustration(hyper_params)
         self.elite = self.vector.clone()
         self.jumped = False
 
@@ -37,9 +33,7 @@ class Engine(object):
         """Prepares the new pool based on the scores of the current generation
         and the results of the analysis (such as value of intergrity).
         """
-        #self.selection_p.update_state(self.analyzer.replace, self.noise.choices)
-        self.integrity.set_integrity(self.analyzer.improved)
-        self.noise.update_state(self.integrity.value, self.analyzer.replace)
+        self.noise.update_state(self.analyzer.replace)
 
     def set_vector(self):
         if not self.jumped:

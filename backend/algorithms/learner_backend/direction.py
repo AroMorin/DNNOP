@@ -20,30 +20,14 @@ class Direction(object):
         self.b = 1  # bonus to steps
         self.f = 0.00005
 
-    def update_state(self, integrity, improved):
-        if self.step==0:
+    def update_state(self, improved):
+        self.set_value()
+        #if self.step==0:
             #self.set_num_selections(integrity)
-            self.set_value()
-            self.counter = 1
-            self.step = 10
-        self.update_step(improved)
-
-    def set_num_selections_(self, integrity):
-        """Sets the number of selected neurons based on the integrity and
-        hyperparameters."""
-        p = 1.-integrity
-        #p = integrity
-        argument = (5*p)-3.5
-        exp1 = math.tanh(argument)+1
-        self.num_selections = max(1, int(exp1*0.5*self.limit))
-
-    def set_num_selections(self, integrity):
-        """Sets the number of selected neurons based on the integrity and
-        hyperparameters."""
-        num = int(self.vec_length*self.limit)
-        self.num_selections = max(25, num)
-        self.limit -= self.f
-        print(self.num_selections, self.limit)
+            #self.set_value()
+            #self.counter = 1
+            #self.step = 10
+        #self.update_step(improved)
 
     def set_value_(self):
         """Use the numpy choices function (which has no equivalent in Pytorch)
@@ -53,20 +37,6 @@ class Direction(object):
         choices = np.random.randint(0, self.vec_length, self.num_selections*2)
         choices = np.unique(choices)
         self.value = choices[0:self.num_selections]
-
-    def set_value_(self):
-        """Use the numpy choices function (which has no equivalent in Pytorch)
-        to generate a sample from the array of indices. The sample size and
-        distribution are dynamically updated by the algorithm's state.
-        """
-        self.check_idxs()
-        choices = np.random.choice(self.running_idxs, self.num_selections)
-        self.running_idxs = np.delete(self.running_idxs, choices)
-        self.value = choices.tolist()
-
-    def check_idxs_(self):
-        if len(self.running_idxs)<self.num_selections:
-            self.running_idxs = np.arange(self.vec_length)
 
     def set_value(self):
         """Use the numpy choices function (which has no equivalent in Pytorch)

@@ -70,7 +70,7 @@ class LEARNER(Algorithm):
         if self.engine.jumped:
             self.top_score = score
         else:
-            v = 0.0000
+            v = 0.00002
             #v = 0.0002
             #v = 0.05
             if self.minimizing and self.top_score>0.:
@@ -91,9 +91,6 @@ class LEARNER(Algorithm):
         if self.engine.analyzer.improved:
             print("Improved!")
         print ("Top Score: %f" %self.top_score)
-        print("Integrity: %f" %self.engine.integrity.value)
-        print("Bin: ", self.engine.integrity.step_size.bin)
-        print("Step size: %f" %self.engine.integrity.step_size.value)
         print("LR: %f" %self.engine.noise.sr.lr)
 
     def eval(self):

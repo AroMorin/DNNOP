@@ -22,9 +22,9 @@ class Noise(object):
                                 device='cuda')
         self.vector = torch.empty_like(params)
 
-    def update_state(self, integrity, improved):
-        self.direction.update_state(integrity, improved)
-        self.sr.update_state(integrity, improved)
+    def update_state(self, improved):
+        self.direction.update_state(improved)
+        self.sr.update_state(improved)
         self.set_noise()
         #self.set_vector()
 

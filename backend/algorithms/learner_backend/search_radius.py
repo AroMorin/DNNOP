@@ -18,7 +18,7 @@ class SR(object):
         self.max_limit = 0.5
 
     def update_state(self, improved):
-        self.decay()
+        #self.decay()
         self.min_val = -self.lr
         self.max_val = self.lr
 

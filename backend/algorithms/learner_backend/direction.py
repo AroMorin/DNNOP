@@ -2,8 +2,6 @@
 
 from __future__ import division
 import numpy as np
-import torch
-import math
 
 class Direction(object):
     def __init__(self, hp, vector_length):

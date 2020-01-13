@@ -3,15 +3,7 @@
 from .sgd import SGD
 from .msn import MSN
 from .msn2 import MSN2
-from .learner import LEARNER
-from .learner2 import LEARNER2
-from .learner3 import LEARNER3
-from .learner4 import LEARNER4
-from .learner5 import LEARNER5
-from .learner6 import LEARNER6
-from .learner7 import LEARNER7
-from .learner8 import LEARNER8
-from .learner9 import LEARNER9
+from .ls import LS
 from .spiking1 import SPIKING1
 from .spiking2 import SPIKING2
 from .neuro1 import NEURO1
@@ -43,24 +35,8 @@ def make_alg(name, m, alg_params):
     elif name == 'MSN2':
         return MSN2(m, alg_params)
 
-    elif name == 'learner':
-        return LEARNER(m, alg_params)
-    elif name == 'learner2':
-        return LEARNER2(m, alg_params)
-    elif name == 'learner3':
-        return LEARNER3(m, alg_params)
-    elif name == 'learner4':
-        return LEARNER4(m, alg_params)
-    elif name == 'learner5':
-        return LEARNER5(m, alg_params)
-    elif name == 'learner6':
-        return LEARNER6(m, alg_params)
-    elif name == 'learner7':
-        return LEARNER7(m, alg_params)
-    elif name == 'learner8':
-        return LEARNER8(m, alg_params)
-    elif name == 'learner9':
-        return LEARNER9(m, alg_params)
+    elif name == 'local search':
+        return LS(m, alg_params)
 
     elif name == 'spiking1':
         return SPIKING1(m, alg_params)

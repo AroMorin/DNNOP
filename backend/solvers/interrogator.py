@@ -1,10 +1,5 @@
-"""Base class for an Algorithm. The placeholder methods here are meant to guide
-the developer, to make the class extendable intuitively.
-
-This is a somewhat useless class, just like the model class. There is not much
-that is shared among all algorithms to justify having a class.
-
-Candidate for removal.
+"""This is the interrogator class. Its job is to interrogate the model(s) for
+its/their inference(s). It holds the important self.inference attribute.
 """
 import torch
 
@@ -18,21 +13,35 @@ class Interrogator(object):
         I'm not sure, but I think there could be many ways to run inference. For
         that reason, I designate this function, to be a single point of contact
         for running inference, in whatever way the user/problem requires.
+        For populations, all the models experience the same observation.
         """
         if not test:
             # Training
-            self.inference = model(env.observation)
+            if type(model) is list:
+                # Populations
+                inferences = [model_(env.observation) for model_ in model]
+                self.inference = inferences  # Update state
+            else:
+                # Single-candidate
+                self.inference = model(env.observation)
         else:
             # Testing
-            model.eval()  # Turn on evaluation mode
-            inferences = [model(x_t.cuda()) for x_t in env.test_data]
-            self.inference = torch.cat(inferences)
+            if type(model) is list:
+                inferences = []
+                for model_ in model:
+                    model_.eval()  # Turn on evaluation mode
+                    inference = [model_(x_t.cuda()) for x_t in env.test_data]
+                    inferences.append(torch.cat(inference))
+                self.inference = torch.cat(inferences)
+            else:
+                model.eval()  # Turn on evaluation mode
+                inferences = [model(x_t.cuda()) for x_t in env.test_data]
+                self.inference = torch.cat(inferences)
 
     def set_inference_chain_(self, model, env, test=False):
         """This method runs inference on the given environment using the models.
-        I'm not sure, but I think there could be many ways to run inference. For
-        that reason, I designate this function, to be a single point of contact
-        for running inference, in whatever way the user/problem requires.
+        It is meant to run a chain of inferences not just one, but I've disabled
+        it for now.
         """
         if not test:
             # Training
@@ -72,7 +81,10 @@ class Interrogator(object):
         print("Inference: ", x)
 
     def get_inference(self, model, observation):
-        inference = model(observation)
+        if type(model) is not list:
+            inference = model(observation)
+        else:
+            inference = [model_(observation) for model_ in model]
         return inference
 
     def reset_state(self):

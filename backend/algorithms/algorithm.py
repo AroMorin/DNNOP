@@ -1,10 +1,5 @@
 """Base class for an Algorithm. The placeholder methods here are meant to guide
 the developer, to make the class extendable intuitively.
-
-This is a somewhat useless class, just like the model class. There is not much
-that is shared among all algorithms to justify having a class.
-
-Candidate for removal.
 """
 import torch
 
@@ -30,10 +25,11 @@ class Algorithm(object):
         self.top_score = self.initial_score
 
     def print_state(self):
-        """Placeholder method for performing an optimization step."""
+        """Placeholder method for printing the state of the algorithm."""
         pass
 
     def set_target(self):
+        """A method for setting the target for the optimization."""
         if self.minimizing:
             self.target = self.hyper_params.target + self.hyper_params.tolerance
         else:

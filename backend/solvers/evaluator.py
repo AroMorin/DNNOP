@@ -1,10 +1,5 @@
-"""Base class for an Algorithm. The placeholder methods here are meant to guide
-the developer, to make the class extendable intuitively.
-
-This is a somewhat useless class, just like the model class. There is not much
-that is shared among all algorithms to justify having a class.
-
-Candidate for removal.
+"""This is the Evaluator class. Its job is to evaluate the inferences and
+acquire feedback. It holds the important self.score attribute.
 """
 import torch
 import torch.nn.functional as F
@@ -33,12 +28,24 @@ class Evaluator(object):
         self.clean_score(env)
 
     def calculate_loss(self, env, inference, test=False, grad=False):
-        """This method calculates the loss."""
+        """This is a handler method to activate the proper routine.
+        There is no grad flag for populations because gradients are
+        only used for single-candidate optimization.
+        """
+        if type(inference) is not list:
+            self.loss_single(env, inference, test, grad)
+        else:
+            self.loss_populations(env, inference, test)
+
+    def loss_single(self, env, inference, test=False, grad=False):
+        """Calculate loss for a single-candidate optimizer."""
         if env.loss_type == 'NLL loss':
             if not test:
+                # Training
                 self.train_loss = F.nll_loss(inference, env.labels)
                 self.score = self.train_loss
             else:
+                # Testing
                 with torch.no_grad():
                     loss = F.nll_loss(inference, env.test_labels.cuda(),
                                     reduction='sum').item()
@@ -56,9 +63,46 @@ class Evaluator(object):
             print("Unknown loss type")
             exit()
 
+    def loss_populations(self, env, inferences, test=False):
+        """Calculates loss for multi-candidate methods."""
+        with torch.no_grad():
+            if env.loss_type == 'NLL loss':
+                if not test:
+                    # Training
+                    self.train_loss = [F.nll_loss(infer, env.labels)
+                                        for infer in inferences]
+                    self.score = self.train_loss
+                else:
+                    # Testing
+                    losses = [F.nll_loss(infer, env.test_labels.cuda(),
+                                    reduction='sum').item() for infer in inferences]
+                    self.test_loss = losses/env.test_size
+            elif env.loss_type == 'CE loss':
+                if not test:
+                    self.train_loss = [F.cross_entropy(infer, env.labels)
+                                        for infer in inferences]
+                    self.score = self.train_loss
+                else:
+                    losses = [F.cross_entropy(infer, env.test_labels.cuda(),
+                                reduction='sum').item() for infer in inferences]
+                    self.test_loss = (losses/env.test_size)
+            else:
+                print("Unknown loss type")
+                exit()
+
     def calculate_correct_predictions(self, env, inference, test=False, acc=False):
+        """This is a handler method to activate the proper routine.
+        The acc flag determines whether to return a percentage accuracy or
+        just the absolute number of correct preds.
+        """
+        if type(inference) is not list:
+            self.acc_single(env, inference, test, acc)
+        else:
+            self.acc_populations(env, inference, test, acc)
+
+    def acc_single(self, env, inference, test=False, acc=False):
         """Calculates the number of correct predictions/inferences made by the
-        neural network.
+        neural network. This method is for single-candidate algorithms.
         """
         if not test:
             # Training
@@ -78,6 +122,32 @@ class Evaluator(object):
                 self.abs_to_acc(env, correct, test=test)
             self.test_acc = correct
 
+    def acc_populations(self, env, inferences, test=False, acc=False):
+        """Calculates the number of correct predictions/inferences made by the
+        neural network. This method is for populations.
+        """
+        if not test:
+            # Training
+            # Correct predictions on all test data for a single model
+            preds = [infer.argmax(dim=1, keepdim=True) for infer in inferences]
+            corrects = [pred.eq(env.labels.view_as(pred)).sum().float()
+                        for pred in preds]
+            if acc:
+                for correct in corrects:
+                    self.abs_to_acc(env, correct, test=test)
+                self.train_acc = corrects
+            self.score = corrects
+        else:
+            # Testing
+            preds = [infer.argmax(dim=1, keepdim=True) for infer in inferences]
+            #pred = inference.argmax(dim=1, keepdim=True)[1]
+            corrects = [pred.eq(env.test_labels.cuda().view_as(pred)).sum().float()
+                        for pred in preds]
+            if acc:
+                for correct in corrects:
+                    self.abs_to_acc(env, correct, test=test)
+            self.test_acc = corrects
+
     def abs_to_acc(self, env, a, test):
         """Absolute number to accuracy percentage. These are in-place
         modification/ops on a torch tensor. It is assumed that they translate,
@@ -91,8 +161,20 @@ class Evaluator(object):
         a.mul_(100)
 
     def calculate_score(self, env, inference):
+        """This is a handler method to activate the proper routine."""
+        if type(inference) is not list:
+            self.score_single(env, inference)
+        else:
+            self.score_populations(env, inference)
+
+    def score_single(self, env, inference):
+        """Calculates the scores given the network inference."""
+        self.score = torch.Tensor([env.evaluate(inference)])
+
+    def score_populations(self, env, inferences):
         """Calculates the scores given the network inferences."""
-        self.score = torch.Tensor([env.evaluate(inference)]).cuda()
+        self.score = [torch.Tensor([env.evaluate(infer)]).cuda()
+                        for infer in inferences]
 
     def set_score(self, score):
         self.score = score
@@ -103,10 +185,19 @@ class Evaluator(object):
             a = float('inf')  # Initial score
         else:
             a = -float('inf')
-        x = self.score
-        y = torch.full_like(x, a)
-        score = torch.where(torch.isfinite(x), x, y)
-        self.score = score.float().cpu()
+        if type(self.score) is not list:
+            x = self.score
+            y = torch.full_like(x, a)
+            score = torch.where(torch.isfinite(x), x, y)
+            self.score = score.float().cpu()
+        else:
+            scores = []
+            for x in self.score:
+                y = torch.full_like(x, a)
+                score = torch.where(torch.isfinite(x), x, y)
+                score = score.float().cpu()
+                scores.append(score)
+            self.score = scores
 
     def reset_state(self):
         # Flush values

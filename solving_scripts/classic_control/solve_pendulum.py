@@ -18,13 +18,13 @@ import torch
 def main():
     # Variable definition
     precision = torch.float
-    module = "CartPole-v1"  # Max score is 1xEpLen
+    module = "Pendulum-v0"  # Max score is 0
 
     # Parameter and Object declarations
     env_params = {
                     "score type": "score",  # Function evaluation
                     "render": True,
-                    "Discrete": True,
+                    "Discrete": False,
                     "module name": module
                     }
     env = env_factory.make_env("openai", "control", env_params)
@@ -40,13 +40,13 @@ def main():
                     "precision": precision,
                     "weight initialization scheme": "He",
                     "grad": False,
-                    "in features": 4,
-                    "number of outputs": 2
+                    "in features": 3,
+                    "number of outputs": 1
                     }
     model = model_factory.make_model("Roboschool Simple FC", model_params)
 
     alg_params = {
-                    "target": 9900,
+                    "target": -2,
                     "minimization mode": env.minimize,
                     "minimum entropy": 0.1,
                     "tolerance": 0.01,
@@ -57,7 +57,7 @@ def main():
 
     experiment = Experiment(api_key="5xNPTUDWzZVquzn8R9oEFkUaa",
                         project_name="jeff-trinkle", workspace="aromorin")
-    experiment.set_name("Cartpole")
+    experiment.set_name("Pendulum solved")
     hyper_params = {"Algorithm": "Learner",
                     "Parameterization": 1000000,
                     "Decay Factor": 1.,
@@ -75,15 +75,15 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    #slv.solve(iterations=1500, ep_len=500)
+    #slv.solve(iterations=1500, ep_len=200)
     #slv.solve_online(iterations=1000)
     #slv.solve_online_render(iterations=1000, ep_len=15000)
     #slv.solve_aggregator(iterations=500, reps=10, ep_len=150)
-    #slv.load(path='', name='cartpole')
-    slv.solve_averager(iterations=100, reps=20, ep_len=500)
+    slv.load(path='', name='pendulum')
+    slv.solve_averager(iterations=100, reps=20, ep_len=200)
     #slv.demonstrate_env(episodes=3, ep_len=200)
-    slv.demonstrate_env(episodes=3, ep_len=500)
-    slv.save_elite_weights(path='', name='cartpole_robust')
+    slv.demonstrate_env(episodes=3, ep_len=200)
+    slv.save_elite_weights(path='', name='pendulum_robust')
 
 if __name__ == '__main__':
     main()

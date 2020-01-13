@@ -1,6 +1,6 @@
 from ..environment import Environment
 import gym
-import roboschool
+#import roboschool
 import torch
 import numpy as np
 
@@ -20,9 +20,9 @@ class Gym_base(Environment):
         self.iteration = 0  # State
         self.minimize = False
         self.target = 999999   # Infinity, max score
-        self.RAM = False
-        self.IMG = False
-        self.discrete = True
+        self.RAM = env_params["RAM"]
+        self.IMG = env_params["IMG"]
+        self.discrete = env_params["Discrete"]
 
     def ingest_params_lvl1(self, env_params):
         assert type(env_params) is dict
@@ -60,11 +60,12 @@ class Gym_base(Environment):
 
     def step(self, action):
         """Instantiates the plotter class if a plot is requested by the user."""
-        #if self.discrete:
-        #    action = action.argmax().int()
-        if len(action.shape) == (0):
-            action = np.expand_dims(action, 0)
-        #action = self.env.action_space.sample()
+        if self.discrete:
+            action = np.argmax(action)
+        else:
+            action = np.array([action])
+            #action = np.expand_dims(action, 0)
+        #action = self.get_random_action()
         observation, reward, self.done, self.info = self.env.step(action)
         self.reward += reward
         self.set_obs(observation)

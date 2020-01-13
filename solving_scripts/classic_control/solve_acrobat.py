@@ -18,7 +18,7 @@ import torch
 def main():
     # Variable definition
     precision = torch.float
-    module = "CartPole-v1"  # Max score is 1xEpLen
+    module = "Acrobot-v1"  # Max score is -60.0
 
     # Parameter and Object declarations
     env_params = {
@@ -40,30 +40,29 @@ def main():
                     "precision": precision,
                     "weight initialization scheme": "He",
                     "grad": False,
-                    "in features": 4,
-                    "number of outputs": 2
+                    "in features": 6,
+                    "number of outputs": 3
                     }
     model = model_factory.make_model("Roboschool Simple FC", model_params)
 
     alg_params = {
-                    "target": 9900,
+                    "target": env.target,
                     "minimization mode": env.minimize,
                     "minimum entropy": 0.1,
                     "tolerance": 0.01,
                     "max steps": 64,
                     "memory size": 10
                     }
-    alg = algorithm_factory.make_alg("local search", model, alg_params)
+    alg = algorithm_factory.make_alg("random search", model, alg_params)
 
     experiment = Experiment(api_key="5xNPTUDWzZVquzn8R9oEFkUaa",
                         project_name="jeff-trinkle", workspace="aromorin")
-    experiment.set_name("Cartpole")
-    hyper_params = {"Algorithm": "Learner",
+    experiment.set_name("Acrobot RS")
+    hyper_params = {"Algorithm": "RS",
                     "Parameterization": 1000000,
-                    "Decay Factor": 1.,
-                    "Directions": 250000,
-                    "Search Radius": 0.5,
-                    "Reps": 1
+                    "Decay Factor": 0.3,
+                    "Directions": 25000,
+                    "Search Radius": 0.5
                     }
     experiment.log_parameters(hyper_params)
 
@@ -75,15 +74,13 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    #slv.solve(iterations=1500, ep_len=500)
+    slv.solve(iterations=500, ep_len=500)
     #slv.solve_online(iterations=1000)
     #slv.solve_online_render(iterations=1000, ep_len=15000)
     #slv.solve_aggregator(iterations=500, reps=10, ep_len=150)
-    #slv.load(path='', name='cartpole')
-    slv.solve_averager(iterations=100, reps=20, ep_len=500)
-    #slv.demonstrate_env(episodes=3, ep_len=200)
+    #slv.solve_averager(iterations=250, reps=10, ep_len=500)
     slv.demonstrate_env(episodes=3, ep_len=500)
-    slv.save_elite_weights(path='', name='cartpole_robust')
+    slv.save_elite_weights(alg.model, path='', name='acrobot')
 
 if __name__ == '__main__':
     main()

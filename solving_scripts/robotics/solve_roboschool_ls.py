@@ -15,37 +15,39 @@ def main():
     # Variable definition
     precision = torch.float
     #game = "Pong-v0"
-    game = "Pong-ram-v0"
-    #game = "MsPacman-ram-v0"
+    #game = "Pong-ram-v0"
+    #module = "RoboschoolReacher-v1"
+    module = "RoboschoolAnt-v1"
+    #module = "RoboschoolAtlasForwardWalk-v1"
+    #module = 'RoboschoolInvertedPendulum-v1'
 
     # Parameter and Object declarations
     env_params = {
                     "score type": "score",  # Function evaluation
                     "render": False,
-                    "RAM": True,
-                    "game name": game,
+                    "module name": module
                     }
-    env = env_factory.make_env("openai", "atari", env_params)
+    env = env_factory.make_env("openai", "roboschool", env_params)
 
+    #print(env.obs_space)
+    #print(env.action_space)
+    #exit()
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Uniform",
+                    "weight initialization scheme": "Normal",
                     "grad": False,
-                    "number of outputs": env.action_space.n,
-                    "w": 210,
-                    "h": 160,
-                    "in features": 128,
-                    "in channels": 3
+                    "in features": 28,
+                    "number of outputs": 8
                     }
-    model = model_factory.make_model("DQN RAM2 model", model_params)
+    model = model_factory.make_model("Roboschool FC", model_params)
 
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "tolerance": 0.01,
                     "minimum entropy": 0.1,
-                    "max steps": 50,
-                    "memory size": 20
+                    "tolerance": 0.01,
+                    "max steps": 64,
+                    "memory size": 10
                     }
     alg = algorithm_factory.make_alg("local search", model, alg_params)
 
@@ -57,8 +59,13 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve(iterations=5)
-    slv.demonstrate_env()
+    #slv.solve(iterations=1000, ep_len=2000)
+    #slv.solve_online(iterations=1000)
+    slv.solve_online_render(iterations=1000, ep_len=15000)
+    #slv.solve_aggregator(iterations=500, reps=10, ep_len=150)
+    #slv.solve_averager(iterations=1000, reps=10, ep_len=300)
+    slv.demonstrate_env(episodes=3, ep_len=1000)
+    #slv.save_elite_weights(alg.model, path='')
 
 if __name__ == '__main__':
     main()

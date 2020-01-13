@@ -31,6 +31,7 @@ class RL_Solver(Solver):
             print("New Episode")
             self.roll()
             self.backward()
+            self.log(score=None, iteration=iteration)
             self.current_iteration +=1
             print("\n")
             if self.alg.achieved_target():
@@ -54,23 +55,17 @@ class RL_Solver(Solver):
         """In cases where training is needed."""
         print("Training OpenAI environment solver \n")
         self.env.env._max_episode_steps = ep_len
+        step = 0
         for iteration in range(iterations):
             print("Iteration: %d/%d \n" %(iteration, iterations))
             self.env.reset_state()
             #self.alg.reset_state()
-            step = 0
             while not self.env.done:
+                print("Step: %d" %step)
                 self.env.render()
                 self.forward()
                 time.sleep(0.02)  # Delay is 0.03 secs
-                self.evaluator.evaluate(self.env, None)
-                reward = self.evaluator.score
-                feedback = (self.env.observation, self.interrogator.inference,
-                            reward)
-                if step>10:
-                    step = 0
-                    self.alg.step(feedback)
-                    self.alg.print_state()
+                self.backward()
                 step+=1
             self.current_iteration +=1
             print("\n")
@@ -112,7 +107,8 @@ class RL_Solver(Solver):
                 self.roll()
                 self.evaluator.evaluate(self.env, None)
                 reward += self.evaluator.score
-            reward /= reps
+            #reward /= reps
+            self.log(score=reward, iteration=iteration)
             self.alg.step(reward)
             self.alg.print_state()
             self.current_iteration +=1
@@ -135,6 +131,7 @@ class RL_Solver(Solver):
                 self.evaluator.evaluate(self.env, None)
                 rewards.append(self.evaluator.score)
             reward = self.calc_reward(rewards)
+            self.log(reward, iteration)
             self.alg.step(reward)
             self.alg.print_state()
             self.current_iteration +=1
@@ -165,6 +162,7 @@ class RL_Solver(Solver):
                 self.evaluator.evaluate(self.env, None)
                 reward += self.evaluator.score
             reward /= reps
+            self.log(reward, iteration)
             self.alg.step(reward)
             self.alg.print_state()
             self.current_iteration +=1
@@ -212,3 +210,15 @@ class RL_Solver(Solver):
         for _ in range(episodes):
             self.roll_and_render()
         self.env.close()
+
+    def log(self, score=None, iteration=0):
+        if self.logger == None:
+            return
+        else:
+            if score is None:
+                score = self.evaluator.score.item()
+            if not isinstance(score, float):
+                score = score.item()
+            top_score = self.alg.top_score.item()
+            self.logger.log_metric("Score", score, step=iteration)
+            self.logger.log_metric("Top Score", top_score, step=iteration)

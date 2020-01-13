@@ -8,73 +8,29 @@ desired hyper parameters. An example of hyper params is the number of Anchors.
 The optimizer object will own the pool.?
 """
 from __future__ import division
+from .algorithm import Algorithm
 import torch
 import numpy as np
-from .msn2_backend.optimizer import Optimizer
 from .msn2_backend.hyper_parameters import Hyper_Parameters
-from .msn2_backend.pool import Pool
+from .msn2_backend.engine import Engine
 import time
 
-class MSN2(object):
+class MSN2(Algorithm):
     def __init__(self, models, alg_params):
         print ("Using MSN2 algorithm")
         self.hyper_params = Hyper_Parameters(alg_params) # Create a hyper parameters object
-        self.pool = Pool(models, self.hyper_params) # Create a pool object
-        self.optim = Optimizer(self.pool, self.hyper_params)
+        self.engine = Engine(models, self.hyper_params)
+        self.model = models
         self.populations = True
-        self.correct_test_preds = 0
-        self.inferences = []
         self.scores = []
-
-    def set_environment(self, env):
-        """Sets the environment attribute."""
-        self.env = env
-        assert self.env is not None  # Sanity check
-        if self.env.loss:
-            self.scoring = "loss"
-        if self.env.acc:
-            self.scoring = "accuracy"
-        if self.env.score:
-            self.scoring = "score"
-        if self.env.error:
-            self.scoring = "error"
-        self.optim.set_environment(env)
+        self.initial_score = self.hyper_params.initial_score
+        self.top_score = self.initial_score
 
     def optimize(self):
         """This method takes in the environment, runs the models against it,
         obtains the scores and accordingly updates the models.
         """
-        self.get_inference()
-        self.optim.reset_state()
-        if self.scoring == "loss":
-            self.optim.calculate_losses(self.inferences)
-        elif self.scoring == "accuracy":
-            self.optim.calculate_correct_predictions(self.inferences, acc=True)
-        elif self.scoring == "score" or self.scoring == "error":
-            self.optim.calculate_scores(self.inferences)
-        else:
-            self.optim.set_scores(self.inferences)
         self.optim.step()
-
-    def get_inference(self, test=False, silent=True):
-        """This method runs inference on the given environment using the models.
-        I'm not sure, but I think there could be many ways to run inference. For
-        that reason, I designate this function, to be a single point of contact
-        for running inference, in whatever way the user/problem requires.
-        """
-        with torch.no_grad():
-            if not test:
-                inferences = []
-                for model in self.pool.models:
-                    inference = model(self.env.observation)
-                    inferences.append(inference)
-            else:
-                model = self.pool.elite.model
-                model.eval()  # Turn on evaluation mode
-                inferences = model(self.env.test_data)
-        self.inferences = inferences  # Update state
-        if not silent:
-            self.print_inferences()
 
     def print_inferences(self):
         """Prints the inference of the neural networks. Attempts to extract

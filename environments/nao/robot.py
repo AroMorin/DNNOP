@@ -18,6 +18,7 @@ class Robot(Environment):
         self.posture = None
         self.sensors = None
         self.init_robot()
+        self.minimize = True
 
     def ingest_params_lvl1(self, env_params):
         assert type(env_params) is dict
@@ -26,7 +27,7 @@ class Robot(Environment):
         if "port" not in env_params:
             env_params["port"] = 58463
         if "score type" not in env_params:
-            env_params["score type"] = "Score"
+            env_params["score type"] = "score"
         return env_params
 
     def init_robot(self):
@@ -68,6 +69,8 @@ class Robot(Environment):
     def set_joints(self, values):
         print("Setting NAO to", values)
         x = len(self.joints)
+        print(x)
+        print(len(values))
         assert x == len(values)  # Sanity check
         times = [[3.7]]*x  # seconds
         self.motion.angleInterpolationBezier(self.joints, times, values)
@@ -76,7 +79,7 @@ class Robot(Environment):
         print("Setting NAO to", values)
         x = len(self.joints)
         assert x == len(values)  # Sanity check
-        speed_fraction = 0.05
+        speed_fraction = 0.15
         self.motion.setAngles(self.joints, values, speed_fraction)
         time.sleep(1.5)
 

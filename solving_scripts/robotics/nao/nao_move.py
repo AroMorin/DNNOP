@@ -1,70 +1,82 @@
-"""This script solves a global optimization function by finding the location
-of its global optimum.
-Currently, only MSN algorithm is avaiable to solve this problem.
-"""
+"""This script attempts to solve the robot posture assumption problem."""
+
 from __future__ import print_function
 import sys, os
+
+from comet_ml import Experiment
+
 # Append SYSPATH in order to access different modules of the library
 sys.path.insert(0, os.path.abspath('../../..'))
 import environments as env_factory
 import backend.models as model_factory
 import backend.algorithms as algorithm_factory
-from backend.solver import Solver
+import backend.solvers as solver_factory
 
 import argparse
 import torch
 
 def main():
-    parser = argparse.ArgumentParser(description='NAO Solver')
-    parser.add_argument('--pool_size', type=int, default=50, metavar='N',
-                        help='number of samples in the pool (def: 50)')
-    parser.add_argument('--iterations', type=int, default=500, metavar='N',
-                        help='maximum number of optimization steps (def: 500)')
-    args = parser.parse_args()
+    precision = torch.float
 
-    # Make an environment object
+    # Parameter and Object declarations
     env_params = {
-                "data path": "C:/Users/aaa2cn/Documents/nao_data/",
-                "ip": "nao.local",
-                "port": 9559,
-                "score type": "Score"  # Aggregate error in pose
-                }
+                    "data path": "C:/Users/aaa2cn/Documents/nao_data/",
+                    "ip": "localhost",
+                    "port": 52232,
+                    "score type": "score"  # Aggregate error in pose
+                    }
     env = env_factory.make_env("nao", "pose assumption", env_params)
 
     # Make a pool object
     model_params = {
-                    "precision": torch.float,
-                    "weight initialization scheme": "Normal"
+                    "precision": precision,
+                    "weight initialization scheme": "Sparse",
+                    "grad": False
                     }
-    pool = model_factory.make_pool("NAO FC model", args.pool_size, model_params)
+    model = model_factory.make_model("NAO FC model", model_params)
 
     # Make an algorithm object
     alg_params = {
-                    "pool size": 50,
-                    "number of anchors": 5,
-                    "number of probes per anchor": 8,
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "minimum entropy": -3,  # Percentage
-                    "minimum distance": 300,
-                    "patience": 27,
-                    "tolerance": 0.12
+                    "minimum entropy": 0.1,
+                    "tolerance": 0.1,
+                    "max steps": 64,
+                    "memory size": 10
                     }
-    alg = algorithm_factory.make_alg("MSN", pool, alg_params)
+    alg = algorithm_factory.make_alg("local search", model, alg_params)
 
-    # Make a solver object
-    slv = Solver(env, alg)
+    experiment = Experiment(api_key="5xNPTUDWzZVquzn8R9oEFkUaa",
+                        project_name="nao", workspace="aromorin")
+    experiment.set_name("Pose Assumption virtual")
+    hyper_params = {"Algorithm": "LS",
+                    "Parameterization": 35000,
+                    "Decay Factor": 0.01,
+                    "Directions": 10,
+                    "Search Radius": 0.1
+                    }
+    experiment.log_parameters(hyper_params)
 
-    # Use solver to solve the problem
-    slv.solve(args.iterations)
+    slv_params = {
+                    "environment": env,
+                    "algorithm": alg,
+                    "logger": experiment
+                    }
+    slv = solver_factory.make_slv("robot", slv_params)
+    slv.solve(iterations=5000)
+
+    slv.save_elite_weights(path='', name='pose_assump_virtual')
 
     # Recreate the target pose
-    best_out = alg.optim.pool.elite.get_elite(env.observation)
-    best_out = [a.item() for a in best_out]
-    print (best_out)
-    env.set_joints([best_out])
+    alg.eval()
+    pred = alg.model(env.observation)
+    angles = [p.item() for p in pred]
+    print("These are the angles: ")
+    print(angles)
+    env.set_joints(angles)
     env.say("Is this the pose you set for me?")
     env.rest()
+
 
 if __name__ == '__main__':
     main()

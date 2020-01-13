@@ -3,7 +3,6 @@
 import environments.datasets as dataset
 import environments.functions as funcs
 import environments.nao as nao
-import environments.tasks as tasks
 import environments.openai as openai
 
 def make_env(type, name, env_params):

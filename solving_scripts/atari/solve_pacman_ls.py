@@ -23,13 +23,13 @@ def main():
                     "score type": "score",  # Function evaluation
                     "render": False,
                     "RAM": True,
-                    "game name": game,
+                    "game name": game
                     }
     env = env_factory.make_env("openai", "atari", env_params)
 
     model_params = {
                     "precision": precision,
-                    "weight initialization scheme": "Uniform",
+                    "weight initialization scheme": "Integer",
                     "grad": False,
                     "number of outputs": env.action_space.n,
                     "w": 210,
@@ -37,15 +37,19 @@ def main():
                     "in features": 128,
                     "in channels": 3
                     }
-    model = model_factory.make_model("DQN RAM2 model", model_params)
+    model = model_factory.make_model("DQN Spiking RAM model", model_params)
+    #model = model_factory.make_model("DQN LSTM RAM model", model_params)
 
     alg_params = {
                     "target": env.target,
                     "minimization mode": env.minimize,
-                    "tolerance": 0.01,
                     "minimum entropy": 0.1,
-                    "max steps": 50,
-                    "memory size": 20
+                    "tolerance": 0.01,
+                    "learning rate": 0.2,
+                    "lambda": 5,
+                    "alpha": 0.0005,
+                    "beta": 0.29,
+                    "max steps": 50
                     }
     alg = algorithm_factory.make_alg("local search", model, alg_params)
 
@@ -57,7 +61,7 @@ def main():
     slv = solver_factory.make_slv("RL", slv_params)
 
     # Use solver to solve the problem
-    slv.solve(iterations=5)
+    slv.solve(iterations=15)
     slv.demonstrate_env()
 
 if __name__ == '__main__':

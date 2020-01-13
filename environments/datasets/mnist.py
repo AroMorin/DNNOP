@@ -39,7 +39,6 @@ class MNIST(Dataset):
         self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
                                                     batch_size=self.train_size,
                                                     shuffle=True,
-                                                    pin_memory = True,
                                                     num_workers = 8)
         # Initialize and load validation set
         self.test_dataset = datasets.MNIST(self.data_path, train=False,
@@ -47,7 +46,6 @@ class MNIST(Dataset):
         self.test_loader = torch.utils.data.DataLoader(self.test_dataset,
                                                     batch_size=self.test_size,
                                                     shuffle=True,
-                                                    pin_memory = True,
                                                     num_workers = 8)
         # Format sets
         self.format_data()

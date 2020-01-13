@@ -12,13 +12,13 @@ class Pose_Assumption(Robot):
         self.target_angles = env_params["target angles"]
         self.default_pose = "LyingBack"
         self.penalty = 0  # State
-        self.error = float('inf')  # State
+        self.error = float('inf')  # Initial state
         self.assume_pose(self.default_pose)
         self.set_stiffness()
 
     def ingest_params2(self, env_params):
         if "target error" not in env_params:
-            env_params["target error"] = 0
+            env_params["target error"] = 0.1
         if "joints to move" not in env_params:
             env_params["joints to move"] = ["HeadYaw", "HeadPitch",
                                             "RShoulderPitch","RShoulderRoll",
@@ -50,7 +50,7 @@ class Pose_Assumption(Robot):
 
     def set_stiffness(self):
         time = 1.0  # Seconds
-        value = 0.9  # Stiffness (max 1/min 0, higher is looser)
+        value = 0.7  # Stiffness (max 1/min 0, higher is looser)
         self.motion.stiffnessInterpolation(self.joints, value, time)
 
     def step(self):
@@ -62,11 +62,8 @@ class Pose_Assumption(Robot):
                                         dtype=self.precision,
                                         device = self.device)
 
-    def reset_state(self):
-        self.penalty = 0
-        self.error = float('inf')
-
     def evaluate(self, inference):
+        """Evaluates the predicted pose."""
         self.reset_state()
         values = self.process_inference(inference)
         self.apply(values)
@@ -74,7 +71,12 @@ class Pose_Assumption(Robot):
         self.calc_error(angles)
         return self.error
 
+    def reset_state(self):
+        self.penalty = 0
+        self.error = float('inf')
+
     def process_inference(self, inference):
+        """Ensures safety of the predicted angles."""
         values = [a.item() for a in inference]
         for idx, value in enumerate(values):
             name = self.joints[idx]
@@ -87,6 +89,10 @@ class Pose_Assumption(Robot):
             values[idx] = [value]
         return values
 
+    def apply(self, angles):
+        """Applies the pose to the robot."""
+        self.set_joints(angles)
+
     def cap_angle(self, x, a, b):
         penalty = 10  # Safety penalty
         if x<a:
@@ -97,14 +103,14 @@ class Pose_Assumption(Robot):
             x = b
         return x
 
-    def apply(self, angles):
-        self.set_joints(angles)
-
     def calc_error(self, angles):
+        """Calculate the error between predicted and target angles, and
+        add the safety penalties.
+        """
         errors = [abs(x-y) for x,y in zip(angles, self.target_angles)]
-        self.error = sum(errors)
-        self.error += self.penalty
-        self.error = torch.tensor(self.error)
+        error = sum(errors)
+        error += self.penalty
+        self.error = torch.tensor(error)
 
 
 

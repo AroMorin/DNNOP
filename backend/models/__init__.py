@@ -8,7 +8,6 @@ from .cnn_cifar10 import Net as CIFAR10_CNN
 from .mnist_cnn_msn import Net as MNIST_CNN_MSN
 from .func_fc import Net as FUNC_FC
 from .nao_fc import Net as NAO_FC
-from .object_detection_msn import Net as OD_CNN_MSN
 from .dqn import Net as DQN
 from .dqn_ram import Net as DQN_RAM
 from .dqn_ram2 import Net as DQN_RAM2
@@ -16,6 +15,7 @@ from .dqn_ram3 import Net as DQN_RAM3
 from .dqn_lstm_ram import Net as DQN_LSTM_RAM
 from .dqn_spiking_ram import Net as DQN_SPIKING_RAM
 from .roboschool_fc import Net as ROBOSCHOOL_FC
+from .roboschool_simple_fc import Net as ROBOSCHOOL_SIMPLE_FC
 from .neural_fc import Net as NEURAL_FC
 from .sar_model import Net as SAR_MODEL
 
@@ -31,7 +31,8 @@ def make_model(name, model_params={}):
     else:
         with torch.no_grad():
             model = pick_model(name, model_params)
-    model.cuda().to(model_params["precision"])
+    model.cuda()  # sends the model to GPU
+    model.to(model_params["precision"])
     init_weights(model, model_params["weight initialization scheme"])
     if model_params["pre-trained"]:
         load_weights(model, model_params["elite path"])
@@ -82,8 +83,6 @@ def pick_model(name, model_params):
         model = FUNC_FC(model_params)
     elif name == "NAO FC model":
         model = NAO_FC(model_params)
-    elif name == "OD CNN MSN":
-        model = OD_CNN_MSN(model_params)
     elif name == "DQN RAM model":
         model = DQN_RAM(model_params)
     elif name == "DQN RAM2 model":
@@ -98,6 +97,8 @@ def pick_model(name, model_params):
         model = DQN(model_params)
     elif name == "Roboschool FC":
         model = ROBOSCHOOL_FC(model_params)
+    elif name == "Roboschool Simple FC":
+        model = ROBOSCHOOL_SIMPLE_FC(model_params)
     elif name == "NEURAL FC":
         model = NEURAL_FC(model_params)
     elif name == "SAR model":
@@ -131,11 +132,11 @@ def init_weights(model, scheme):
 
 def init_uniform(m):
     """Initializes weights according to a Uniform distribution."""
-    a = -0.4
-    b = 0.8
+    a = -0.5
+    b = 0.5
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.uniform_(m.weight, a=a, b=b)
-        nn.init.uniform_(m.bias, a=a, b=b)
+        nn.init.constant_(m.bias, 0.)
 
 def init_integer(m):
     """Initializes weights according to a Uniform distribution."""
@@ -150,7 +151,7 @@ def init_integer(m):
 def init_normal(m):
     """Initializes weights according to a Normal distribution."""
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
-        limit = 0.1
+        limit = 0.15
         origin = 0.
         nn.init.normal_(m.weight, mean=origin, std=limit)
         nn.init.constant_(m.bias, 0.)
@@ -166,10 +167,10 @@ def init_constant(m):
     """Initializes weights according to an Identity matrix. This special case
     allows the initial input(s) to be reflected in the output of the model.
     """
-    val = 0.0
+    val = 0.5
     if type(m) == nn.Linear or type(m) == nn.Conv2d:
         nn.init.constant_(m.weight, val)
-        nn.init.constant_(m.bias, val)
+        nn.init.constant_(m.bias, 0.)
 
 def init_he(m):
     """Initializes weights according to an Identity matrix. This special case
@@ -182,13 +183,10 @@ def init_sparse(m):
     """Initializes weights according to an Identity matrix. This special case
     allows the initial input(s) to be reflected in the output of the model.
     """
-    ratio = 0.5
-    a = -0.01
-    b = 0.01
-    if type(m) == nn.Linear or type(m) == nn.Conv2d:
+    ratio = 0.9
+    if type(m) == nn.Linear:
         nn.init.sparse_(m.weight, sparsity=ratio)
-        m.weight.data.abs_()
-        nn.init.uniform_(m.bias, a=a, b=b)
+        nn.init.constant_(m.bias, 0.)
 
 def init_spiking(m):
     """Initializes weights according to an Identity matrix. This special case

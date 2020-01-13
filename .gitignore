@@ -6,6 +6,12 @@ __pycache__/
 # C extensions
 *.so
 
+# Loss files
+*.csv
+
+# Neural Net PyTorch weights
+*.pth
+
 # mac files
 *.DS_Store
 

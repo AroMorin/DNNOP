@@ -11,7 +11,7 @@ class Environment(object):
         print("Initializing environment!")
         env_params = self.ingest_params_lvl0(env_params)
         self.precision = env_params["precision"]
-        self.device = torch.device("cuda") # Always assume GPU training/testing
+        self.device = torch.device("cpu") # Always assume GPU training/testing
         self.score_type = env_params["score type"]
         # Environments that require loss define a loss type
         self.loss_type = env_params["loss type"]
@@ -20,7 +20,7 @@ class Environment(object):
         self.score = False
         self.error = False
         self.observation = None
-        self.labels = torch.zeros((1,), device='cuda', dtype=torch.float)
+        self.labels = torch.zeros((1,), device='cpu', dtype=torch.float)
         self.target = 0
         self.minimize = True  # Are we trying to minimize a value, e.g. error?
         self.set_scoring(env_params)

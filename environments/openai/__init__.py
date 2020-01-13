@@ -1,6 +1,7 @@
 """This script allows making objects of different dataset classes"""
 
 from .atari import Atari
+from .control import Control
 from .roboschool import Roboschool
 
 def make_env(name, env_params):
@@ -9,6 +10,8 @@ def make_env(name, env_params):
     """
     if name == 'atari':
         return Atari(env_params)
+    elif name == 'control':
+        return Control(env_params)
     elif name == 'roboschool':
         return Roboschool(env_params)
     else:

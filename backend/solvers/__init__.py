@@ -3,6 +3,7 @@
 from .rl_solver import RL_Solver
 from .func_solver import Func_Solver
 from .dataset_solver import Dataset_Solver
+from .robo_solver import Robo_Solver
 
 def make_slv(name, slv_params):
     """Class factory method. This method takes the name of the desired
@@ -24,6 +25,8 @@ def make_slv(name, slv_params):
         return RL_Solver(slv_params)
     elif name == 'function':
         return Func_Solver(slv_params)
+    elif name == 'robot':
+        return Robo_Solver(slv_params)
     else:
         print("Unknown solver requested, exiting!")
         exit()

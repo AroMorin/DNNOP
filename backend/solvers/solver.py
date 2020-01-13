@@ -21,6 +21,7 @@ class Solver(object):
         print("Creating Solver")
         self.env = slv_params['environment']
         self.alg = slv_params['algorithm']
+        self.logger = slv_params['logger']
         self.evaluator = Evaluator()
         self.interrogator = Interrogator()
 
@@ -43,14 +44,20 @@ class Solver(object):
             fn = path+"model_"+str(i)+".pth"
             torch.save(model.state_dict(), fn)
 
-    def save_elite_weights(self, model, path):
-        fn = path+"model_elite.pth"
-        torch.save(model.state_dict(), fn)
+    def save_elite_weights(self, path, name=''):
+        if name == '':
+            name = "model_elite.pth"
+        else:
+            name = name+'.pth'
+        fn = path+name
+        torch.save(self.alg.model.state_dict(), fn)
 
-    def load(self, path):
+    def load(self, path, name="model_elite"):
         """Only works with my algorithms, not with SGD."""
-        fn = path+"model_elite.pth"
+        fn = path+name+".pth"
+        print("Loading weights in: " + fn)
         self.alg.model.load_state_dict(torch.load(fn))
+        self.alg.model.eval()
 
 
 

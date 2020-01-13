@@ -1,4 +1,4 @@
-"""Class of MNIST dataset."""
+"""Class of Fashion MNIST dataset."""
 import torch
 from torchvision import datasets, transforms
 from .dataset import Dataset
@@ -16,6 +16,7 @@ class FashionMNIST(Dataset):
         self.batch_size = (env_params["batch size"])
         self.load_dataset()
 
+
     def ingest_params_lvl2(self, env_params):
         assert type(env_params) is dict
         default_params = {
@@ -24,31 +25,33 @@ class FashionMNIST(Dataset):
         default_params.update(env_params)  # Update with user selections
         return default_params
 
+
     def load_dataset(self):
         """This dataset is organized as such: it is a list of batches. Each
         batch contains a 2-D Tensor. The first dimension in the Tensor contains
-        N Float Tensors (representing images), where N is the batch size. The second
-        dimension contains N Long Tensors, corresponding to N labels.
+        N Float Tensors (representing images), where N is the batch size. The
+        second dimension contains N Long Tensors, corresponding to N labels.
         """
         self.set_transformations()
         # Initialize and load training set
-        self.train_dataset = datasets.FashionMNIST(self.data_path, train=True,
+        train_dataset = datasets.FashionMNIST(self.data_path, train=True,
                                                     download=True,
                                                     transform=self.transforms)
-        self.train_loader = torch.utils.data.DataLoader(self.train_dataset,
+        train_loader = torch.utils.data.DataLoader(train_dataset,
                                                     batch_size=self.train_size,
                                                     shuffle=True,
                                                     num_workers = 8)
         # Initialize and load validation set
-        self.test_dataset = datasets.FashionMNIST(self.data_path, train=False,
+        test_dataset = datasets.FashionMNIST(self.data_path, train=False,
                                                     download=True,
                                                     transform=self.transforms)
-        self.test_loader = torch.utils.data.DataLoader(self.test_dataset,
+        test_loader = torch.utils.data.DataLoader(test_dataset,
                                                     batch_size=self.test_size,
                                                     shuffle=True,
                                                     num_workers = 8)
         # Format sets
-        self.format_data()
+        self.format_data(train_loader, test_loader)
+
 
     def set_transformations(self):
         """Set the desired transformations on the dataset."""
@@ -61,15 +64,16 @@ class FashionMNIST(Dataset):
         else:
             self.transforms = transforms.Compose([transforms.ToTensor()])
 
-    def format_data(self):
+
+    def format_data(self, train_loader, test_loader):
         """Apply the desired precision, split into batches and perform any other
         similar operations on the dataset.
         """
-        train_set =  list(self.train_loader)
-        test_set = list(self.test_loader)
+        train_set = list(train_loader)
+        test_set = list(test_loader)
 
         # batch 0: all images, mode 0: data
-        x = train_set[0][0]
+        x = train_set[0][0].to(dtype=self.precision)
         x_t = test_set[0][0].to(dtype=self.precision)
 
         # batch 0: all images, mode 1: labels
@@ -78,21 +82,21 @@ class FashionMNIST(Dataset):
 
         self.train_data = torch.split(x, self.batch_size)
         self.train_labels = torch.split(y, self.batch_size)
-        self.test_data = torch.split(x_t, 1000)
+        self.test_data = torch.split(x_t, 1)
         #self.test_labels = torch.split(y_t, self.batch_size)
         self.nb_batches = len(self.train_data)
         print ("Number of Batches: %d" %self.nb_batches)
+
 
     def step(self):
         """Loads a batch of images and labels.
         This method can be further customized to randomize the batch
         contents.
         """
-        self.observation = self.train_data[self.current_batch_idx].cuda().to(dtype=self.precision)
+        self.observation = self.train_data[self.current_batch_idx].cuda()
         self.labels = self.train_labels[self.current_batch_idx].cuda()
         self.current_batch_idx += 1
         if self.check_reset():
             self.reset()
-
 
 #

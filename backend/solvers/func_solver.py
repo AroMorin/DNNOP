@@ -14,8 +14,8 @@ class Func_Solver(Solver):
     def solve(self, iterations):
         """In cases where training is needed."""
         print("Training regular solver \n")
-        for iteration in range(iterations):
-            print("Iteration: %d\n" %iteration)
+        for _ in range(iterations):
+            print("Iteration: %d\n" %self.current_iteration)
             self.env.step()
             self.forward()
             self.backward()
